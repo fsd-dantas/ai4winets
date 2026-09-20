@@ -1,0 +1,124 @@
+@prefix eco: <urn:ecora:ontology:v1:> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<urn:ecora:ontology:v1> a owl:Ontology ;
+    owl:versionInfo "0.3 planned" ;
+    rdfs:label "ECoRA domain vocabulary" ;
+    rdfs:comment "Design vocabulary. Application contracts in ontology.md and contracts.md own validation; OWL declarations do not validate run completeness." .
+
+eco:Study a owl:Class ; rdfs:label "Study" ; rdfs:comment "Frozen comparison protocol binding its runs to exactly one scenario-set version." .
+eco:ScenarioSetVersion a owl:Class ; rdfs:label "ScenarioSetVersion" ; rdfs:comment "Immutable benchmark membership, member revisions, definitions and weights." .
+eco:ScenarioRevision a owl:Class ; rdfs:label "ScenarioRevision" ; rdfs:comment "Immutable synthetic scenario specification." .
+eco:Run a owl:Class ; rdfs:label "Run" ; rdfs:comment "Execution of one member scenario revision and declared treatment within a study." .
+eco:StageInterface a owl:Class ; rdfs:label "StageInterface" ; rdfs:comment "Versioned input/output seam independent of its provider." .
+eco:StageProvider a owl:Class ; rdfs:label "StageProvider" ; rdfs:comment "Versioned provider bound to a stage interface and experimental arm." .
+eco:StageInvocation a owl:Class ; rdfs:label "StageInvocation" ; rdfs:comment "Recorded provider execution with serialised inputs, state, outputs and privilege lineage." .
+eco:DatasetArtifact a owl:Class ; rdfs:label "DatasetArtifact" ; rdfs:comment "Immutable serialised stage evidence manifest with hashes and source lineage." .
+eco:InterStageMessage a owl:Class ; rdfs:label "InterStageMessage" ; rdfs:comment "Logged boundary record including no-op, error and privileged outputs." .
+eco:StageArm a owl:Class ; rdfs:label "StageArm" ; rdfs:comment "Null, Proposed or Oracle experimental level." .
+eco:InformationRegime a owl:Class ; rdfs:label "InformationRegime" ; rdfs:comment "Declared evidence-access permissions, independent of payload schema." .
+eco:Requirement a owl:Class ; rdfs:label "Requirement" ; rdfs:comment "Measurable service predicate with explicit scope." .
+eco:TrafficFlow a owl:Class ; rdfs:label "TrafficFlow" ; rdfs:comment "Identifiable offered workload." .
+eco:ServiceClass a owl:Class ; rdfs:label "ServiceClass" ; rdfs:comment "Workload category with declared requirements." .
+eco:NetworkElement a owl:Class ; rdfs:label "NetworkElement" ; rdfs:comment "Synthetic network entity." .
+eco:LinkModel a owl:Class ; rdfs:label "LinkModel" ; rdfs:comment "Declared model of a connection." .
+eco:Observation a owl:Class ; rdfs:label "Observation" ; rdfs:comment "Sourced measurement or event." .
+eco:EnvironmentalSignal a owl:Class ; rdfs:label "EnvironmentalSignal" ; rdfs:comment "Locally accessible projection of evidence." .
+eco:Hypothesis a owl:Class ; rdfs:label "Hypothesis" ; rdfs:comment "Evidence-supported possible explanation." .
+eco:Diagnosis a owl:Class ; rdfs:label "Diagnosis" ; rdfs:comment "Collection of supported or unresolved hypotheses." .
+eco:Plan a owl:Class ; rdfs:label "Plan" ; rdfs:comment "Proposed operator sequence or dependency structure." .
+eco:Operator a owl:Class ; rdfs:label "Operator" ; rdfs:comment "Action schema and predicted transition." .
+eco:ActionProposal a owl:Class ; rdfs:label "ActionProposal" ; rdfs:comment "Candidate grounded operator." .
+eco:Resolution a owl:Class ; rdfs:label "Resolution" ; rdfs:comment "Admission or conflict decision." .
+eco:Action a owl:Class ; rdfs:label "Action" ; rdfs:comment "Concrete actuator command." .
+eco:Receipt a owl:Class ; rdfs:label "Receipt" ; rdfs:comment "Command application or failure evidence." .
+eco:Result a owl:Class ; rdfs:label "Result" ; rdfs:comment "Measured outcome over a declared population." .
+eco:AssuranceClaim a owl:Class ; rdfs:label "AssuranceClaim" ; rdfs:comment "Evidence-scoped requirement verdict." .
+eco:AssuranceReport a owl:Class ; rdfs:label "AssuranceReport" ; rdfs:comment "Collection of claims and limitations." .
+eco:EcoAgent a owl:Class ; rdfs:label "EcoAgent" ; rdfs:comment "Local satisfaction-seeking reactive entity." .
+eco:EnvironmentalMark a owl:Class ; rdfs:label "EnvironmentalMark" ; rdfs:comment "Expiring local environmental record." .
+eco:Expert a owl:Class ; rdfs:label "Expert" ; rdfs:comment "Versioned inference component." .
+eco:RuleExpert a owl:Class ; rdfs:label "RuleExpert" ; rdfs:comment "Expert system owning one rule." .
+eco:Rule a owl:Class ; rdfs:label "Rule" ; rdfs:comment "Production rule with explicit evidence requirements." .
+eco:ResourceClaim a owl:Class ; rdfs:label "ResourceClaim" ; rdfs:comment "Intent concerning a controlled resource." .
+eco:Capability a owl:Class ; rdfs:label "Capability" ; rdfs:comment "Scoped ability with status and evidence." .
+eco:EvidenceKind a owl:Class ; rdfs:label "EvidenceKind" ; rdfs:comment "Epistemic classification." .
+eco:CapabilityStatus a owl:Class ; rdfs:label "CapabilityStatus" ; rdfs:comment "Implementation or modelling status." .
+eco:Verdict a owl:Class ; rdfs:label "Verdict" ; rdfs:comment "Assurance evaluation outcome." .
+
+eco:RuleExpert rdfs:subClassOf eco:Expert .
+
+eco:freezesScenarioSet a owl:ObjectProperty ; rdfs:domain eco:Study ; rdfs:range eco:ScenarioSetVersion .
+eco:includesScenarioRevision a owl:ObjectProperty ; rdfs:domain eco:ScenarioSetVersion ; rdfs:range eco:ScenarioRevision .
+eco:belongsToStudy a owl:ObjectProperty ; rdfs:domain eco:Run ; rdfs:range eco:Study .
+eco:invocationInRun a owl:ObjectProperty ; rdfs:domain eco:StageInvocation ; rdfs:range eco:Run .
+eco:implementsInterface a owl:ObjectProperty ; rdfs:domain eco:StageProvider ; rdfs:range eco:StageInterface .
+eco:usesProvider a owl:ObjectProperty ; rdfs:domain eco:StageInvocation ; rdfs:range eco:StageProvider .
+eco:hasStageArm a owl:ObjectProperty ; rdfs:domain eco:StageProvider ; rdfs:range eco:StageArm .
+eco:producesDataset a owl:ObjectProperty ; rdfs:domain eco:StageInvocation ; rdfs:range eco:DatasetArtifact .
+eco:consumesDataset a owl:ObjectProperty ; rdfs:domain eco:StageInvocation ; rdfs:range eco:DatasetArtifact .
+eco:containsMessage a owl:ObjectProperty ; rdfs:domain eco:DatasetArtifact ; rdfs:range eco:InterStageMessage .
+eco:sourceDataset a owl:ObjectProperty ; rdfs:domain eco:DatasetArtifact ; rdfs:range eco:DatasetArtifact .
+eco:hasInformationRegime a owl:ObjectProperty ; rdfs:domain eco:StageInvocation ; rdfs:range eco:InformationRegime .
+eco:claimUsesDataset a owl:ObjectProperty ; rdfs:domain eco:AssuranceClaim ; rdfs:range eco:DatasetArtifact .
+eco:claimInStudy a owl:ObjectProperty ; rdfs:domain eco:AssuranceClaim ; rdfs:range eco:Study .
+eco:claimOnScenarioSet a owl:ObjectProperty ; rdfs:domain eco:AssuranceClaim ; rdfs:range eco:ScenarioSetVersion .
+eco:reportInStudy a owl:ObjectProperty ; rdfs:domain eco:AssuranceReport ; rdfs:range eco:Study .
+eco:reportOnScenarioSet a owl:ObjectProperty ; rdfs:domain eco:AssuranceReport ; rdfs:range eco:ScenarioSetVersion .
+eco:successorOfScenarioSet a owl:ObjectProperty ; rdfs:domain eco:ScenarioSetVersion ; rdfs:range eco:ScenarioSetVersion .
+eco:instantiates a owl:ObjectProperty ; rdfs:domain eco:Run ; rdfs:range eco:ScenarioRevision .
+eco:declaresRequirement a owl:ObjectProperty ; rdfs:domain eco:ScenarioRevision ; rdfs:range eco:Requirement .
+eco:definesFlow a owl:ObjectProperty ; rdfs:domain eco:ScenarioRevision ; rdfs:range eco:TrafficFlow .
+eco:belongsToClass a owl:ObjectProperty ; rdfs:domain eco:TrafficFlow ; rdfs:range eco:ServiceClass .
+eco:inRun a owl:ObjectProperty ; rdfs:domain eco:Observation ; rdfs:range eco:Run .
+eco:supportedBy a owl:ObjectProperty ; rdfs:domain eco:Hypothesis ; rdfs:range eco:Observation .
+eco:containsHypothesis a owl:ObjectProperty ; rdfs:domain eco:Diagnosis ; rdfs:range eco:Hypothesis .
+eco:motivatedBy a owl:ObjectProperty ; rdfs:domain eco:Plan ; rdfs:range eco:Diagnosis .
+eco:proposes a owl:ObjectProperty ; rdfs:domain eco:Plan ; rdfs:range eco:ActionProposal .
+eco:usesOperator a owl:ObjectProperty ; rdfs:domain eco:ActionProposal ; rdfs:range eco:Operator .
+eco:assesses a owl:ObjectProperty ; rdfs:domain eco:Resolution ; rdfs:range eco:ActionProposal .
+eco:admittedAs a owl:ObjectProperty ; rdfs:domain eco:ActionProposal ; rdfs:range eco:Action .
+eco:receiptFor a owl:ObjectProperty ; rdfs:domain eco:Receipt ; rdfs:range eco:Action .
+eco:resultOfRun a owl:ObjectProperty ; rdfs:domain eco:Result ; rdfs:range eco:Run .
+eco:associatedWithAction a owl:ObjectProperty ; rdfs:domain eco:Result ; rdfs:range eco:Action .
+eco:usesResult a owl:ObjectProperty ; rdfs:domain eco:AssuranceClaim ; rdfs:range eco:Result .
+eco:evaluates a owl:ObjectProperty ; rdfs:domain eco:AssuranceClaim ; rdfs:range eco:Requirement .
+eco:containsClaim a owl:ObjectProperty ; rdfs:domain eco:AssuranceReport ; rdfs:range eco:AssuranceClaim .
+eco:derivedFrom a owl:ObjectProperty ; rdfs:domain eco:ScenarioRevision ; rdfs:range eco:ScenarioRevision .
+eco:emitsMark a owl:ObjectProperty ; rdfs:domain eco:EcoAgent ; rdfs:range eco:EnvironmentalMark .
+eco:perceives a owl:ObjectProperty ; rdfs:domain eco:EcoAgent ; rdfs:range eco:EnvironmentalSignal .
+eco:projectsObservation a owl:ObjectProperty ; rdfs:domain eco:EnvironmentalSignal ; rdfs:range eco:Observation .
+eco:ownsRule a owl:ObjectProperty ; rdfs:domain eco:RuleExpert ; rdfs:range eco:Rule .
+eco:hasEvidenceKind a owl:ObjectProperty ; rdfs:domain eco:Observation ; rdfs:range eco:EvidenceKind .
+eco:hasCapabilityStatus a owl:ObjectProperty ; rdfs:domain eco:Capability ; rdfs:range eco:CapabilityStatus .
+eco:hasVerdict a owl:ObjectProperty ; rdfs:domain eco:AssuranceClaim ; rdfs:range eco:Verdict .
+
+# No world-state negation follows from an absent triple.
+# Exactly-one and temporal constraints are application requirements, not enforced here.
+eco:createdAtSimulationSeconds a owl:DatatypeProperty ; rdfs:domain eco:EnvironmentalMark ; rdfs:range xsd:decimal .
+eco:expiresAtSimulationSeconds a owl:DatatypeProperty ; rdfs:domain eco:EnvironmentalMark ; rdfs:range xsd:decimal .
+eco:provenanceReference a owl:DatatypeProperty ; rdfs:range xsd:string .
+eco:version a owl:DatatypeProperty ; rdfs:range xsd:string .
+eco:contentHash a owl:DatatypeProperty ; rdfs:range xsd:string .
+eco:Declared a eco:EvidenceKind, owl:NamedIndividual .
+eco:Observed a eco:EvidenceKind, owl:NamedIndividual .
+eco:Derived a eco:EvidenceKind, owl:NamedIndividual .
+eco:Inferred a eco:EvidenceKind, owl:NamedIndividual .
+eco:Predicted a eco:EvidenceKind, owl:NamedIndividual .
+eco:Implemented a eco:CapabilityStatus, owl:NamedIndividual .
+eco:Simulated a eco:CapabilityStatus, owl:NamedIndividual .
+eco:Planned a eco:CapabilityStatus, owl:NamedIndividual .
+eco:Unsupported a eco:CapabilityStatus, owl:NamedIndividual .
+eco:Met a eco:Verdict, owl:NamedIndividual .
+eco:Violated a eco:Verdict, owl:NamedIndividual .
+eco:Inconclusive a eco:Verdict, owl:NamedIndividual .
+eco:NotApplicable a eco:Verdict, owl:NamedIndividual .
+eco:NullArm a eco:StageArm, owl:NamedIndividual .
+eco:ProposedArm a eco:StageArm, owl:NamedIndividual .
+eco:OracleArm a eco:StageArm, owl:NamedIndividual .
+eco:ContractOnly a eco:InformationRegime, owl:NamedIndividual .
+eco:OracleState a eco:InformationRegime, owl:NamedIndividual .
+eco:OracleFuture a eco:InformationRegime, owl:NamedIndividual .

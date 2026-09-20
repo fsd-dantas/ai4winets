@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="830" viewBox="0 0 1200 830" role="img" aria-labelledby="title desc">
+<title id="title">ECoRA operational architecture within a frozen study</title>
+<desc id="desc">A frozen study and scenario-set manifest supplies each run. Observation, diagnosis, planning, resolution, execution, the simulator adapter and results form the operational loop. Passive assurance emits version-scoped reports. Research review and scenario-set revision are outside runtime architecture.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 Z" fill="#38bdf8"/></marker></defs>
+<rect width="1200" height="830" fill="#101827"/>
+<g font-family="Arial, sans-serif" fill="#f1f5f9">
+<text x="40" y="45" font-size="26" font-weight="bold">ECoRA — operational architecture</text>
+<text x="40" y="75" font-size="16" fill="#cbd5e1">Planned runtime · synthetic SCADA / AMI · one immutable scenario-set version per study</text>
+<rect x="40" y="100" width="1130" height="75" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+<text x="58" y="130" font-size="20" font-weight="bold">Frozen StudyManifest + ScenarioSetVersion</text>
+<text x="58" y="155" font-size="15" fill="#cbd5e1">Exact members and hashes · fixed requirements, treatment matrix, seed policy and evaluation protocol</text>
+<rect x="35" y="215" width="855" height="400" rx="12" fill="none" stroke="#cbd5e1" stroke-dasharray="7 5"/>
+<text x="55" y="238" font-size="14" fill="#cbd5e1">Within each run: operational feedback in simulation time</text>
+<rect x="60" y="260" width="230" height="80" rx="9" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/><text x="74" y="289" font-size="19" font-weight="bold">Observation</text><text x="74" y="313" font-size="13" fill="#cbd5e1">Qualified telemetry</text>
+<rect x="340" y="260" width="230" height="80" rx="9" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/><text x="354" y="289" font-size="19" font-weight="bold">Diagnosis</text><text x="354" y="313" font-size="13" fill="#cbd5e1">Evidence and hypotheses</text>
+<rect x="620" y="260" width="230" height="80" rx="9" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/><text x="634" y="289" font-size="19" font-weight="bold">Planning</text><text x="634" y="313" font-size="13" fill="#cbd5e1">Proposed actions</text>
+<rect x="620" y="370" width="230" height="80" rx="9" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/><text x="634" y="399" font-size="19" font-weight="bold">Resolution</text><text x="634" y="423" font-size="13" fill="#cbd5e1">Timing, safety and authority</text>
+<rect x="620" y="480" width="230" height="80" rx="9" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/><text x="634" y="509" font-size="19" font-weight="bold">Execution</text><text x="634" y="533" font-size="13" fill="#cbd5e1">Commands and receipts</text>
+<rect x="340" y="480" width="230" height="80" rx="9" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/><text x="354" y="509" font-size="19" font-weight="bold">ns-3 via adapter</text><text x="354" y="533" font-size="13" fill="#cbd5e1">LTE + alternative-path model</text>
+<rect x="60" y="480" width="230" height="80" rx="9" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/><text x="74" y="509" font-size="19" font-weight="bold">Result</text><text x="74" y="533" font-size="13" fill="#cbd5e1">Measured outcomes</text>
+<rect x="940" y="430" width="230" height="80" rx="9" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/><text x="954" y="459" font-size="19" font-weight="bold">Passive assurance</text><text x="954" y="483" font-size="13" fill="#cbd5e1">Fixed scoring and coverage</text>
+<rect x="940" y="600" width="230" height="80" rx="9" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/><text x="954" y="629" font-size="19" font-weight="bold">Assurance report</text><text x="954" y="653" font-size="13" fill="#cbd5e1">Study + scenario-set version</text><text x="954" y="670" font-size="12" fill="#cbd5e1">Member revisions and evidence</text>
+<path d="M175 175 V215" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M290 300 H340" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M570 300 H620" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M735 340 V370" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M735 450 V480" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M620 520 H570" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M340 520 H290" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M175 480 V340" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M1060 175 V430" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M850 520 H915 V485 H940" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M175 560 V650 H915 V455 H940" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M1055 510 V600" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="187" y="198" font-size="13" fill="#cbd5e1">Initialise member scenario</text>
+<text x="187" y="415" font-size="13" fill="#cbd5e1">Subsequent telemetry</text>
+<text x="940" y="395" font-size="13" fill="#cbd5e1">Frozen requirements</text>
+<text x="385" y="640" font-size="13" fill="#cbd5e1">Measured evidence</text>
+<text x="65" y="590" font-size="13" fill="#cbd5e1">Operational state may change; scenario definitions and evaluation obligations remain fixed.</text>
+<text x="940" y="559" font-size="13" fill="#cbd5e1">No scenario mutation</text>
+<rect x="40" y="710" width="1130" height="73" rx="9" fill="#1e293b" stroke="#38bdf8"/>
+<text x="58" y="738" font-size="16">Research review and scenario-set revision belong to methodology; no automated outer loop is established.</text>
+<text x="58" y="763" font-size="15" fill="#cbd5e1">Every claim names its frozen benchmark. Stabilisation and service satisfaction are assessed separately.</text>
+<text x="40" y="812" font-size="13" fill="#cbd5e1">Decision modes: single expert · rule experts / blackboard · STRIPS / GPS / A* · local eco-agents</text>
+</g></svg>

@@ -1,0 +1,88 @@
+% References cited in this repository.
+%
+% Verification status is recorded per entry:
+%   verified-primary   — bibliographic data confirmed against the publisher or the standard itself
+%   verified-secondary — confirmed through an index or a citing work; primary text not yet consulted
+%
+% DOIs are included only where confirmed. An absent DOI means it was not verified,
+% not that none exists.
+
+@article{wu2003effective,
+  author  = {Wu, Dapeng and Negi, Rohit},
+  title   = {Effective Capacity: A Wireless Link Model for Support of Quality of Service},
+  journal = {IEEE Transactions on Wireless Communications},
+  volume  = {2},
+  number  = {4},
+  pages   = {630--643},
+  month   = jul,
+  year    = {2003},
+  note    = {verified-secondary. Link-layer channel model expressed in terms of data rate,
+             delay and delay-violation probability. Source of the probabilistic
+             delay-bound form used in this repository.}
+}
+
+@article{bennis2018urllc,
+  author  = {Bennis, Mehdi and Debbah, M{\'e}rouane and Poor, H. Vincent},
+  title   = {Ultrareliable and Low-Latency Wireless Communication: Tail, Risk, and Scale},
+  journal = {Proceedings of the IEEE},
+  volume  = {106},
+  number  = {10},
+  pages   = {1834--1853},
+  month   = oct,
+  year    = {2018},
+  doi     = {10.1109/JPROC.2018.2867029},
+  note    = {verified-secondary. Preprint at arXiv:1801.01270. Argues that reliability
+             requirements demand a departure from design based on average quantities.
+             Basis for preferring tail and violation-oriented metrics.}
+}
+
+@article{fidler2015guide,
+  author  = {Fidler, Markus and Rizk, Amr},
+  title   = {A Guide to the Stochastic Network Calculus},
+  journal = {IEEE Communications Surveys and Tutorials},
+  volume  = {17},
+  number  = {1},
+  pages   = {92--105},
+  year    = {2015},
+  note    = {verified-secondary. Entry point to stochastic network calculus, the general
+             framework for probabilistic delay bounds.}
+}
+
+@techreport{3gpp22261,
+  author      = {{3GPP}},
+  title       = {Service Requirements for the 5G System},
+  number      = {TS 22.261},
+  institution = {3rd Generation Partnership Project},
+  year        = {2022},
+  note        = {verified-secondary, via ETSI TS 122 261 V17.11.0 (2022-10), Release 17.
+                 Defines reliability as the percentage of packets successfully delivered
+                 to a given system entity within the time constraint required by the
+                 targeted service. Confirm the clause number and wording against the
+                 release actually cited; the definition is stable across Releases 15--17
+                 but the numbering is not guaranteed to be.}
+}
+
+@techreport{3gpp23501,
+  author      = {{3GPP}},
+  title       = {System Architecture for the 5G System},
+  number      = {TS 23.501},
+  institution = {3rd Generation Partnership Project},
+  note        = {UNVERIFIED. Cited for the 5QI table pairing Packet Delay Budget with
+                 Packet Error Rate, which gives each QoS flow its own deadline and
+                 violation budget. Release, clause and table number must be confirmed
+                 against the primary text before use.}
+}
+
+@techreport{iec61850-5,
+  author      = {{IEC}},
+  title       = {Communication Networks and Systems for Power Utility Automation --
+                 Part 5: Communication Requirements for Functions and Device Models},
+  number      = {IEC 61850-5},
+  institution = {International Electrotechnical Commission},
+  note        = {verified-secondary, through vendor and review literature only.
+                 Source of transfer-time performance classes: Type 1A (3 ms under P2/P3,
+                 10 ms under P1), Type 1B (10 ms), Type 2 (20 ms), Type 3 (100 ms).
+                 Transfer time is defined application-to-application, not network-only.
+                 Edition and threshold values MUST be confirmed against the standard
+                 before any deadline is used in a scenario definition.}
+}

@@ -17,20 +17,23 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
   [`CONTRIBUTING.md`](CONTRIBUTING.md) with the sanitisation checklist for open configurations and data, and
   [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
 - `.gitignore` and `.gitattributes`, the latter pinning LF endings for files consumed by Linux tooling.
-- Repository banner and social preview under `docs/assets/img/`, carried over from the predecessor repository
-  in light and dark variants with SVG sources. The tagline now reads *Assurance for critical wireless
-  networks* in place of the predecessor's *A knowledge base for wireless AI research*, and the social preview
-  carries this repository's URL. Rasters are rendered from the SVG sources with headless Chrome at the
-  viewBox dimensions:
+- Repository banner and social preview under `docs/assets/img/`, in light and dark variants with SVG sources,
+  under the tagline *Assurance for critical wireless networks*. Rasters are rendered from the SVG sources with
+  headless Chrome at the viewBox dimensions:
   `chrome --headless=new --disable-gpu --hide-scrollbars --screenshot=<out>.png --window-size=<w>,<h> file:///<in>.svg`
 - Image policy in [`CONTRIBUTING.md`](CONTRIBUTING.md): explanatory figures in `docs/assets/img/`, evidence
   figures with the experiment that produced them.
 - Statement of the open data and open configurations commitment in [`README.md`](README.md).
+- First content under [`literature/`](literature/): citation conventions, `references.bib`, and a provenance
+  note for the service assurance constraint recording that it is the standard statistical delay bound rather
+  than a formulation original to this work. Entries carry a verification status, and the note lists the
+  verification tasks still outstanding.
 
-### Notes
-
-This repository succeeds `applied-ai-for-wireless-communication`, which framed a single question on auditable
-diagnosis, planning and routing for multi-RAT smart-grid networks. The present repository widens the frame to
-service assurance in critical wireless networks and keeps three candidate directions open. Material carried
-over from the predecessor is re-declared under the capability levels in [`CONTRIBUTING.md`](CONTRIBUTING.md)
-rather than inherited as validated.
+- **ECoRA — Expert Coordination, Resolution, and Assurance**: the architectural proposal under
+  [`docs/ECoRA/`](docs/ECoRA/), covering the context map and bounded contexts, the domain ontology and its
+  machine-readable vocabulary, the stage contracts, the decision methods, the nested-loop methodology with its
+  study freeze contract, the experimental design and ablation matrix, and the recorded architectural
+  decisions. Every capability it describes is declared **planned**.
+- `README.md` presents ECoRA as a single instrumented pipeline: the two-loop separation, Coordination and
+  Resolution as cross-cutting concerns, the Null/Proposed/Oracle ablation arms, and an explicit statement that
+  no architectural novelty is claimed.

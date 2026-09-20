@@ -30,6 +30,15 @@ $$\Pr\left(D_i \leq D_i^{\max}\right) \geq 1 - \epsilon_i,$$
 
 where $D_i$ is end-to-end delay, $D_i^{\max}$ is the service deadline, and $\epsilon_i$ is the allowable probability of deadline violation. Complementary properties include availability, jitter, packet delivery, time to detect, time to recover, energy cost, security integrity, and the probability of unsafe control action.
 
+This is the standard statistical delay bound and is not a formulation original to this work. It restates the
+normative definition of reliability — the proportion of packets delivered within the time constraint required
+by the service (3GPP TS 22.261) — as a probability with an explicit violation budget, in the
+delay-violation-probability form used for wireless link modelling (Wu and Negi, 2003). Preferring tail and
+violation-oriented measures over averages follows the same argument (Bennis, Debbah and Poor, 2018). The
+deadline $D_i^{\max}$ is domain-specific and is not supplied by the formula: for substation communications it
+derives from the IEC 61850-5 transfer-time classes. Full entries and provenance are in
+[`literature/`](literature/).
+
 The repository currently explores three interconnected directions:
 
 | Direction | Guiding question | Current repository connection |
@@ -38,7 +47,9 @@ The repository currently explores three interconnected directions:
 | **Digital-twin-assisted self-healing** | How can a calibrated network representation use telemetry to predict service degradation, evaluate remedial actions, and safely support closed-loop recovery? | NS-3 scenarios, telemetry exports, causal replay, versioned results, ontology, and diagnosis contracts |
 | **Cyber-resilient deterministic communications** | How can a critical wireless network preserve availability, timing, and integrity during cyber-physical failures and adversarial activity? | Fault diagnosis, provenance-aware telemetry, recovery workflows, service differentiation, and planned threat modelling |
 
-These directions share a common experimental substrate. They are intentionally maintained as alternatives and possible combinations until literature evidence, prototype results, feasibility constraints, and supervisory guidance justify thematic narrowing.
+These directions share a common experimental substrate — the ECoRA framework described below. They are
+intentionally maintained as alternatives and possible combinations until literature evidence, prototype
+results, feasibility constraints, and supervisory guidance justify thematic narrowing.
 
 ## Repository map
 
@@ -46,11 +57,12 @@ These directions share a common experimental substrate. They are intentionally m
 .
 ├── research/                  # Research framing, methodology, ontology, questions, and roadmap
 ├── literature/                # Literature reviews, critical analyses, evidence synthesis
-├── experiments/               # Reproducible experiments and shared simulation environments
-├── scenarios/                 # Declared scenario definitions shared across experiments
-├── system/                    # Architecture, domain model, and telemetry, action and control-loop contracts
+├── experiments/               # ECoRA studies, ablation arms, and their run artefacts
+├── scenarios/                 # Declared scenario definitions, versioned and frozen per study
+├── system/                    # Executable contracts, once adopted from the ECoRA proposal
 ├── software/                  # Software packages, modules, integration code, and setup material
-├── docs/                      # Architecture, domain model, capability matrix, and experiment catalogue
+├── docs/                      # Documentation, including the ECoRA architectural proposal
+│   ├── ECoRA/                 # Architecture, ontology, contracts, methodology, experiments and ablation
 │   └── assets/img/            # Repository-level figures, banner, and social preview
 ├── data/                      # Schemas, synthetic inputs, and provenance material when applicable
 ├── CITATION.cff               # Citation metadata
@@ -66,18 +78,32 @@ written; each entry states which.
 
 ### Core documentation
 
-Documents marked *planned* are not yet written. They are listed so that the intended structure is visible; the
-entry becomes a link when the document lands.
+The ECoRA package is the current centre of gravity. Every document in it describes a **planned** architecture:
+it introduces no runtime implementation and no experimental result.
 
-- Research problem statement — current problem framing and scope. *(planned)*
-- Research methodology — methodological principles and evidence strategy. *(planned)*
+- [**ECoRA index**](docs/ECoRA/) — start here. Scope, evidence boundary and acceptance criteria.
+- [Architecture](docs/ECoRA/architecture.md) — bounded contexts, context map, aggregates, ports and adapters,
+  and the relationship to established reference models.
+- [Domain and ontology](docs/ECoRA/ontology.md) and [vocabulary](docs/ECoRA/ontology.ttl) — ubiquitous
+  language and epistemic distinctions, with a machine-readable RDF/OWL design artefact.
+- [Contracts](docs/ECoRA/contracts.md) — scenario, telemetry, diagnosis, planning, resolution, execution and
+  assurance interfaces.
+- [Decision methods](docs/ECoRA/decision-methods.md) — rule experts, STRIPS, GPS, A\* and eco-problem solving.
+- [Methodology](docs/ECoRA/methodology.md) — the two loops, the study freeze contract, and the rules for
+  cross-version comparison.
+- [Experiments and ablation](docs/ECoRA/experiments.md) — scenario family, hypotheses, ablation matrix,
+  metrics and validity criteria.
+- [Evidence and decisions](docs/ECoRA/evidence-and-decisions.md) — capability boundaries, architectural
+  decisions and implementation sequence.
+
+Documents below are not yet written. They are listed so the intended structure is visible; each becomes a link
+when it lands.
+
+- [System contracts](system/) — stubs, pending adoption of the ECoRA contracts into executable form.
+- Research problem statement — problem framing and scope. *(planned)*
 - Research questions — questions addressed by current artefacts. *(planned)*
 - Research roadmap — planned work, known gaps, and conformance tasks. *(planned)*
-- Research ontology — formal vocabulary for concepts shared across experiments. *(planned)*
-- [System contracts](system/) — architecture, domain model, interfaces, control loop, assurance mode, and the
-  telemetry and action contracts. Each is a stub declaring its intended scope.
 - Capability matrix — declared versus executable sensing, reasoning, and actuation capabilities. *(planned)*
-- Experiment catalogue — index of experimental artefacts and their intended evidence. *(planned)*
 - Getting started — entry points for readers and contributors. *(planned)*
 
 ## Experimental philosophy
@@ -99,16 +125,67 @@ The repository distinguishes explicitly among:
 
 No result should be generalized beyond its observed model, scenario set, telemetry coverage, action space, software version, and reproducibility evidence.
 
-## Current experiments
+## ECoRA — the unified framework
 
-| ID  | Experiment                 | Role in the portfolio                                                                                               | Status |
-| --- | -------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------ |
-| 001 | Symbolic restoration chain | Studies interpretable symbolic diagnosis, planning, and restoration reasoning                                       |        |
-| 002 | Multi-expert blackboard    | Studies coordination of diagnosis knowledge sources and evidence integration                                        |        |
-| 003 | Eco-resolution             | Studies multi-agent resource-resolution behaviour and traffic prioritization                                        |        |
-| 004 | Multi-RAT simulation       | Provides the shared dual-homed wireless simulation environment, fault scenarios, telemetry, and recovery evaluation |        |
+**Status: planned. No runtime implementation and no measured result exists yet.**
 
-The existing symbolic, blackboard, and reactive-agent components are **baselines and research artefacts**. They are not presumed to be the final architecture for any prospective thesis direction. Future controllers—including optimization-based, learning-based, digital-twin-assisted, and security-aware mechanisms—should be evaluated against common scenarios and comparable assurance metrics whenever possible.
+**ECoRA — Expert Coordination, Resolution, and Assurance** is the closed-loop framework this repository
+studies. Symbolic diagnosis, automated planning, expert coordination, self-organising resolution and simulated
+measurement are *methods* and *treatments* within one instrumented pipeline, not separate systems. Unifying
+them is what makes them comparable: every method is exercised against the same scenarios, the same action
+space and the same assurance metrics.
+
+ECoRA separates two loops that run on different clocks and under different authority:
+
+- **Inner operational loop, within a run:** telemetry → diagnosis → plan → resolution → action → result →
+  subsequent telemetry. Bounded by observation availability, deadlines, safety invariants and actuator authority.
+- **Outer experimental loop, across studies:** assurance reports → research review → candidate scenario set →
+  freeze a new study. This is research methodology, **not** an automated runtime feedback path. The runtime
+  contains no report-to-scenario mutation command.
+
+Keeping these apart is what makes measurement possible: a study freezes one scenario-set version before
+comparative measurement, so a controller change can never be confounded with a benchmark change.
+
+### What the framework contains
+
+| Element | Role in ECoRA |
+| --- | --- |
+| Decision methods | Rule-based diagnosis with certainty factors, STRIPS and GPS planning, A\* search |
+| Coordination | How multiple knowledge sources contribute to a shared solution state |
+| Resolution | How competing proposals are reduced to a decision, by central arbitration or local self-organisation |
+| Assurance | Evaluation of service requirements against evidence, scoped to a frozen study |
+| The plant | ns-3 behind an anti-corruption layer, supplying telemetry and applying actions |
+
+Coordination and Resolution are **concerns applied across the loop**, not single stages — candidates compete at
+diagnosis, at planning and at execution. Treating them as cross-cutting is what turns *expert* and *eco* modes
+from two incomparable architectures into two settings of one ablatable factor.
+
+### Stages are interfaces, so ablation is a configuration
+
+Every stage binds a provider through configuration rather than code, in three arms:
+
+| Arm | What it is | What it measures |
+| --- | --- | --- |
+| **Null** | A degenerate policy — first match, first feasible action, no planning | Whether the stage contributes at all |
+| **Proposed** | The method under study | How much it contributes |
+| **Oracle** | Ground truth from the simulator, with its privileges explicitly labelled | How much headroom remains |
+
+The Oracle arm carries the load that matters most here. If an oracle diagnoser barely beats the proposed one,
+the bottleneck is not the method — it is the telemetry. That converts a weak result into a measured statement
+about **observability sufficiency**, which is exactly the claim the telemetry contract exists to support.
+Because every stage invocation logs its typed inputs and outputs, a stage can also be replayed in isolation.
+
+No architectural novelty is claimed: the loop instantiates MAPE-K and related closed-loop reference models, and
+the decision methods are classical formulations. See
+[Relationship to established reference models](docs/ECoRA/architecture.md#relationship-to-established-reference-models).
+The substance is the instantiation discipline — explicit contracts, a frozen benchmark, and ablation evidence
+for every declared factor.
+
+Every method in the framework is a **baseline**, not a presumed solution. Future controllers,
+including optimisation-based, learning-based, digital-twin-assisted and security-aware mechanisms, are
+evaluated as additional treatments against the same frozen scenario set and the same assurance metrics.
+
+The full architectural proposal is in **[`docs/ECoRA/`](docs/ECoRA/)**.
 
 ## Candidate research directions
 
@@ -250,8 +327,10 @@ git clone https://github.com/fsd-dantas/ai4winets.git
 cd ai4winets
 ```
 
-Start with [`system/`](system/) for the contracts that define what the research system observes, what it may
-do, and how a service assurance requirement is declared.
+Start with [`docs/ECoRA/`](docs/ECoRA/) for the architectural proposal: what the research system observes,
+what it may do, how competing proposals are resolved, and how a service assurance claim is scoped to a frozen
+study. The stubs under [`system/`](system/) are placeholders awaiting adoption of those contracts into
+executable form.
 
 When software arrives, two environments will apply: the Python package on any supported Python environment,
 and the ns-3 multi-RAT experiment on Linux, with Ubuntu or WSL2 as the documented setup path. Each experiment

@@ -1,5 +1,105 @@
-# Interfaces
+# Stage interfaces, serialisation and replay
 
-**Status:** planned
+**Status: planned normative specification; no pipeline implementation is provided.**
 
-Boundaries between components and between the system and its environment, including the simulator adapter boundary. States what crosses each interface, in which direction, and what each side may assume about the other.
+[System index](README.md) · [ECoRA architecture](../docs/ECoRA/architecture.md) · [Stage arms](../docs/ECoRA/stage-arms.md)
+
+These contracts are the ablation seams. A stage is a versioned input/output interface. Null, Proposed and Oracle are interchangeable providers of that interface, selected by a frozen treatment configuration. Removing a stage or bypassing its output type is invalid.
+
+## Interface inventory
+
+| Stage ID | Input type | Output type |
+| --- | --- | --- |
+| telemetry | AdapterObservationBatch, perception policy | TelemetryBatch with completeness and watermark |
+| diagnosis | TelemetryBatch, knowledge and prior diagnostic state | DiagnosisRecord |
+| planning | PlanningProblem built from DiagnosisRecord and declared evidence | PlanProposal |
+| resolution | PlanProposal, competing claims and local resource view | ResolutionRecord plus admitted ActionCommands |
+| action | Admitted ActionCommand and scoped actuator state | ActionReceipt |
+| result | Receipts, subsequent observations and cohort specification | ResultRecord |
+| assurance | Results, execution evidence and frozen requirements | AssuranceReport with version-scoped claims |
+
+Scenario selection is a frozen study input, not an ablatable decision stage. Study-level aggregation is a fixed evaluation service. All seven stage providers have the three arms specified in [Stage arms](../docs/ECoRA/stage-arms.md); the initial factorial experiment varies only four stages.
+
+A provider implements `invoke(input_messages, prior_state, context) -> output_messages, next_state, trace`. This is a language-neutral contract, not a call to pass live objects. Context contains serialised configuration, the decision watermark and named random-stream state. Simulator and artifact access occurs through explicit ports whose requests and responses are also recorded. No mutable global board, simulator pointer, closure or unlogged database query may supply hidden input.
+
+Stateful blackboards and eco-agents additionally support serialisable snapshot/restore. Incremental marks, subscriptions, retries and expert activations have causal records. These internal records become inter-stage messages whenever they cross a declared boundary.
+
+## Message envelope and durable log
+
+Every inter-stage message, including control, error, timeout, empty and no-op messages, is serialisable and logged. This applies to in-process calls as well as files or network messages.
+
+The planned canonical representation is UTF-8 JSON under versioned schemas; append-only streams use JSON Lines. Numbers are finite, missing values use explicit quality/status fields, units are explicit and object IDs are strings. Canonical encoding rules and the digest algorithm are versioned before implementation. Binary datasets or large arrays use immutable content-addressed references with format, schema and checksums, never process-local pointers.
+
+| Field group | Required data |
+| --- | --- |
+| Study identity | study_id, scenario_set_version/hash, scenario_revision/hash, run_id |
+| Stage identity | stage_id, stage_invocation_id, provider_id/version, arm, configuration_hash |
+| Routing | message_id, message_type/schema_version, source_stage, destination_stage, sequence_number |
+| Causality | correlation_id, parent_message_ids, input_dataset_ids, output_dataset_id |
+| Time | simulation event time, available_at time, decision watermark, declared clock domain |
+| Evidence access | information_regime, privileged_source_refs, access-policy version |
+| Integrity | payload or immutable payload reference, content_hash, serialization_version |
+| Replay | original_run/invocation refs when applicable, replay_mode, snapshot/random-state refs |
+| Outcome | ok, empty, no_op, rejected, error or timeout, with typed reason |
+
+Run-scoped invocations use simulation timestamps. Study-level aggregation/reporting records retain their constituent invocation IDs and creation clock rather than inventing a common simulation time.
+
+An invocation lifecycle is `InputRecorded → Started → OutputRecorded → Delivered`, with logged rejection/error/timeout terminal alternatives. Persist inputs before invocation and outputs before downstream delivery. Record a dispatch intent before simulator mutation, then record/reconcile its receipt by idempotency key. A crash does not permit an unlogged command to be silently treated as applied.
+
+Consumers validate schemas, hashes, causal parents, study membership and privileges before delivery. At-least-once transport is permitted; duplicate message IDs must not cause duplicate effects. Gaps, out-of-order messages and logging failures become explicit integrity failures. Stop or quarantine a run when its evidence chain cannot be reconstructed.
+
+## Provenance and dataset ownership
+
+The required lineage is **study → scenario → run → stage → dataset**, with the immutable scenario-set version binding the study and scenario revision. A stage means a concrete invocation of a configured provider, not just its name.
+
+A StageInvocation owns one output DatasetArtifact manifest, which may describe zero output records plus a terminal reason. It references all consumed datasets and its prior-state snapshot. Subsequent stages consume those immutable artifacts, producing a lineage graph. Each dataset records schema, content hashes, record count, time coverage, producing invocation and source datasets. A study-scoped aggregate lists its contributing runs and stage datasets explicitly.
+
+Canonical messages plus snapshots form the replay evidence. A text explanation alone is insufficient. Logs retain Null and Oracle invocations, rejected proposals and unknown outcomes exactly as Proposed invocations.
+
+## Replay modes and limits
+
+| Mode | What is replayed | Valid claim |
+| --- | --- | --- |
+| Boundary playback | Recorded output of stage N into N+1 | Downstream reproducibility on identical inputs |
+| Component substitution | Recorded inputs to N plus its state snapshot; replacement output feeds N+1 | Stage behaviour and downstream decisions for the recorded context |
+| Closed-loop branch | Restore a compatible simulator/controller checkpoint or regenerate the causal prefix, then continue with substituted provider | Counterfactual service outcome under that continuation |
+| Trace-only evaluation | Fixed recorded results into result/assurance provider | Evaluator behaviour on the same evidence |
+
+To ablate N, replay its recorded inputs through the chosen arm, serialise its output and feed that output through the unchanged N+1 interface. Keep a boundary-playback control using the original output. Empty decisions still carry status and trace through every boundary.
+
+After a replacement changes an action, recorded future telemetry from the original run is not its counterfactual outcome. Service-effect claims require a new closed-loop branch/run with matched exogenous inputs. If ns-3 checkpointing is unavailable, regenerate the prefix under the recorded configuration/seeds and verify prefix hashes before branching. Otherwise restrict the result to component replay; do not claim equivalent continuation.
+
+State snapshots include pending events, blackboard revisions, local marks, random-stream states and ordering policy where relevant. If exact reconstruction is unsupported, report that limitation. Wall-clock timing requires a separate measurement; replaying a recorded computation time does not measure the new provider's latency.
+
+## Provider registry and configuration
+
+The registry maps `stage_id + provider_id + provider_version` to input/output schemas, arm, information permissions, supported state format and capability requirements. Null is a real provider, never an absent configuration entry. Missing bindings, unresolved versions, schema mismatch or unavailable Oracle support fail study admission.
+
+Illustrative configuration shape, not an executable run configuration:
+
+```json
+{
+  "binding": {
+    "stage_id": "diagnosis",
+    "arm": "null",
+    "provider_id": "diagnosis.first_candidate",
+    "provider_version": "design-v1",
+    "input_schema": "TelemetryBatch/v1",
+    "output_schema": "DiagnosisRecord/v1",
+    "information_regime": "contract_only"
+  },
+  "logging": {
+    "all_boundaries": true,
+    "serialization": "json",
+    "state_snapshots": true
+  }
+}
+```
+
+Changing an arm changes a registry binding in the declared treatment matrix, not the orchestration code or the network model. Oracle access is capability-scoped and its use taints the invocation and descendants. A provider cannot shed that label by emitting an otherwise ordinary DiagnosisRecord.
+
+## Contract readiness before pipeline code
+
+The interfaces, [telemetry contract](telemetry-contract.md) and [action contract](action-contract.md) must have agreed schemas, example traces and acceptance criteria before pipeline implementation. Required checks include round-trip serialisation, determinism on replayable inputs, logging completeness, no-op propagation, state restoration, privilege isolation, schema-compatible provider substitution and the separation of replay from closed-loop counterfactual claims.
+
+This document specifies those obligations; it does not claim they are implemented or tested.

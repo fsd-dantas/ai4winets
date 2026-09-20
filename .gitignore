@@ -1,0 +1,32 @@
+# AI assistant profiles — must never reach the remote
+CLAUDE.md
+AGENTS.md
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local editor scaffolding
+*.code-workspace
+
+# Figure generators are local tooling; the figures they produce under
+# docs/assets/ are versioned.
+docs/assets/src/

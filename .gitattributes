@@ -1,0 +1,8 @@
+# Files consumed by Linux tooling (make, patch, ns-3) keep LF endings on every platform.
+Makefile      text eol=lf
+*.patch       text eol=lf
+*.scn         text eol=lf
+*.cc          text eol=lf
+*.h           text eol=lf
+*.sh          text eol=lf
+requirements-*.txt text eol=lf

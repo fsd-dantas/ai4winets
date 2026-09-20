@@ -1,0 +1,50 @@
+cff-version: 1.2.0
+title: >-
+  ai4winets: a reproducible research portfolio on assurance, autonomy and
+  cyber-physical resilience in critical wireless networks
+message: If you use this repository, please cite it using these metadata.
+type: software
+authors:
+  - family-names: Dantas
+    given-names: Fernando Sabino
+    email: fernando@sdantas.com.br
+repository-code: https://github.com/fsd-dantas/ai4winets
+license: MIT
+version: 0.1.0
+date-released: "2026-09-20"
+keywords:
+  - artificial intelligence
+  - critical wireless networks
+  - service assurance
+  - multi-RAT
+  - private LTE
+  - smart grid
+  - digital twin
+  - self-healing networks
+  - cyber-physical resilience
+  - deterministic communications
+  - network simulation
+  - ns-3
+  - reproducible research
+abstract: >-
+  A research knowledge base, reproducible experimentation environment and
+  scholarly portfolio for artificial intelligence applied to wireless
+  communication systems, with an emphasis on critical networks in which
+  communication performance, availability, security and recovery behaviour
+  affect safety, continuity of service or cyber-physical operation. The
+  portfolio is organised around service assurance rather than average network
+  performance: whether a critical service meets its deadline with a stated
+  probability, and what it costs to keep that guarantee under faults,
+  degradation, congestion, outages and adversarial activity. Three exploratory
+  directions share one experimental substrate and are maintained as
+  alternatives until evidence justifies narrowing: assurance-constrained
+  multi-RAT intelligence, digital-twin-assisted self-healing, and cyber-
+  resilient deterministic communications. Experiments are treated as
+  evidence-bearing artefacts that declare their question, model, assumptions,
+  execution procedure, metrics, limitations and reproducibility status, and
+  the repository distinguishes explicitly between implemented, simulated,
+  planned and unsupported capabilities. All scenarios are synthetic and all
+  thresholds nominal and uncalibrated unless a calibration procedure is
+  documented. This record documents research evolution; it is not a thesis
+  proposal, an institutional commitment or a validated critical-infrastructure
+  solution.

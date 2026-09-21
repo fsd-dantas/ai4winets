@@ -58,12 +58,19 @@ Canonical messages plus snapshots form the replay evidence. A text explanation a
 
 ## Replay modes and limits
 
-| Mode | What is replayed | Valid claim |
-| --- | --- | --- |
-| Boundary playback | Recorded output of stage N into N+1 | Downstream reproducibility on identical inputs |
-| Component substitution | Recorded inputs to N plus its state snapshot; replacement output feeds N+1 | Stage behaviour and downstream decisions for the recorded context |
-| Closed-loop branch | Restore a compatible simulator/controller checkpoint or regenerate the causal prefix, then continue with substituted provider | Counterfactual service outcome under that continuation |
-| Trace-only evaluation | Fixed recorded results into result/assurance provider | Evaluator behaviour on the same evidence |
+| Mode | What is replayed | Valid claim | Status |
+| --- | --- | --- | --- |
+| Boundary playback | Recorded output of stage N into N+1 | Downstream reproducibility on identical inputs | Implemented |
+| Component substitution | Recorded inputs to N plus its state snapshot; replacement output feeds N+1 | Stage behaviour and downstream decisions for the recorded context | Planned |
+| Closed-loop branch | Restore a compatible simulator/controller checkpoint or regenerate the causal prefix, then continue with substituted provider | Counterfactual service outcome under that continuation | Planned |
+| Trace-only evaluation | Fixed recorded results into result/assurance provider | Evaluator behaviour on the same evidence | Implemented |
+
+A replay re-enters recorded payloads under the replaying run's scope, carrying the run and
+invocation they were recorded in, so replayed evidence is attributable and is never joined
+to the original run's lineage. Provider state restores from a recorded snapshot through
+the same seam, and privilege travels with what is replayed. The two unimplemented modes
+are refused rather than approximated: a mode that would license a counterfactual claim
+must not be served by machinery that cannot support one.
 
 To ablate N, replay its recorded inputs through the chosen arm, serialise its output and feed that output through the unchanged N+1 interface. Keep a boundary-playback control using the original output. Empty decisions still carry status and trace through every boundary.
 
@@ -105,8 +112,11 @@ The interfaces, [telemetry contract](telemetry-contract.md) and [action contract
 The [contract package](../software/README.md) now implements versioned schemas, frozen
 admission, immutable records/datasets, the provider registry, boundary logging, capability
 checks and privilege propagation. Its synthetic substitution demo and tests exercise that
-foundation. Simulator/controller state restoration, boundary playback and closed-loop
-continuation remain M2 work; runtime decision providers remain later work.
+foundation. Provider state restoration and boundary
+playback are implemented, alongside a deterministic finite reference world, Null providers
+for every stage and run orchestration with independent named random streams. Component
+substitution and verified closed-loop continuation remain M2 work; runtime decision
+providers remain later work.
 
 ## Executable representation
 

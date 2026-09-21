@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **57 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **64 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -34,6 +34,15 @@ SCADA, a disturbance that degrades service and then drains its backlog without l
 exported observations that satisfy the telemetry contract. It is a deterministic
 queueing model with no radio, protocol conformance or calibrated value, and no run of it
 is evidence about a wireless network.
+
+**Boundary playback** is exercised against a stage whose output depends on its input,
+with a negative control: different recorded evidence must not reproduce the same output,
+so the test can fail if playback delivered the wrong thing. Replayed evidence names the
+run and invocation it was recorded in, belongs to the replaying run's scope, claims no
+lineage there, and cannot shed the privilege of what it replays. A provider resumes from a
+recorded state snapshot and continues its own counter. Component substitution and
+closed-loop continuation are refused rather than approximated, because neither the
+simulator continuation nor the prefix verification they would need exists yet.
 
 **Run orchestration** is exercised end to end: a run produces an assurance report that
 resolves to its frozen benchmark and run identity; two runs of one treatment under one

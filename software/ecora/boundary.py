@@ -89,7 +89,7 @@ class Boundary:
         self.store.append("Started", {"invocation_id": invocation_id})
 
     def _finish(self, invocation_id, stage, binding, dataset_ids, payloads, prior, next_state,
-                random_state, trace, watermark, refs, status, reason, destination=None):
+                random_state, trace, watermark, refs, status, reason, destination=None, replay=None):
         require(status in STATUSES, "unknown terminal status")
         refs = sorted(refs)
         regime = "oracle_state" if refs else "contract_only"
@@ -125,7 +125,8 @@ class Boundary:
                 "clock_domain": "simulation", "event_time_s": watermark, "available_at_s": watermark,
                 "decision_watermark_s": watermark, "information_regime": regime, "privileged_source_refs": refs,
                 "access_policy_version": "v1", "serialization_version": "ecora-json-v1",
-                "replay": {"mode": "none", "original_run_id": None, "original_invocation_id": None},
+                "replay": replay or {"mode": "none", "original_run_id": None,
+                                     "original_invocation_id": None},
                 "status": status, "reason": reason, "payload": payload.to_dict(),
             })
             self.store.put(message)
@@ -157,16 +158,19 @@ class Boundary:
                                               "dataset_hash": self.store.put(dataset)})
         return dataset
 
-    def _harness(self, invocation_id, payload, destination, dataset_ids, watermark_s, refs, provider_id):
-        require(destination in STAGES and payload.kind in INPUT_TYPES[destination], "unsupported harness seam")
+    def _harness(self, invocation_id, payloads, destination, dataset_ids, watermark_s, refs,
+                 provider_id, replay=None):
+        require(destination in STAGES and payloads, "unsupported harness seam")
         caps = [c["capability_id"] for c in self.run.capabilities.data["capabilities"]]
         binding = {"provider_id": provider_id, "provider_version": "1", "arm": "oracle" if refs else "proposed",
                    "configuration_hash": self.run.scenario.content_hash, "capability_ids": caps, "state_schema_version": "1"}
-        self._payload_checks(payload, binding, watermark_s, refs)
+        for payload in payloads:
+            require(payload.kind in INPUT_TYPES[destination], "unsupported harness seam")
+            self._payload_checks(payload, binding, watermark_s, refs)
         prior = Record("Snapshot", {"state": {}, "privileged_source_refs": sorted(refs), "state_schema_version": "1"})
-        self._start(invocation_id, dataset_ids, (payload, prior))
-        return self._finish(invocation_id, "harness", binding, dataset_ids, (payload,), prior, {}, {}, {},
-                            watermark_s, refs, "ok", None, destination)
+        self._start(invocation_id, dataset_ids, (*payloads, prior))
+        return self._finish(invocation_id, "harness", binding, dataset_ids, tuple(payloads), prior, {}, {}, {},
+                            watermark_s, refs, "ok", None, destination, replay)
 
     def ingest(self, invocation_id, payload, *, destination="telemetry", watermark_s=0):
         """Trusted, logged adapter ingress; not a substitute simulator or truth port."""
@@ -174,7 +178,7 @@ class Boundary:
         if payload.kind in ("AdapterObservationBatch", "TelemetryBatch"):
             for observation in payload.data["observations"]:
                 refs.update(observation["privileged_source_refs"])
-        return self._harness(invocation_id, payload, destination, (), watermark_s, refs, "adapter.ingress")
+        return self._harness(invocation_id, (payload,), destination, (), watermark_s, refs, "adapter.ingress")
 
     def assemble(self, invocation_id, destination, dataset_ids, payload, *, watermark_s=0):
         """Build a downstream stage input from retained upstream evidence.
@@ -193,7 +197,41 @@ class Boundary:
             require(source["scope"] == self.run.scope, "assembly input belongs to another run or benchmark")
             refs.update(source["privileged_source_refs"])
         self._conforms(destination, payload)
-        return self._harness(invocation_id, payload, destination, dataset_ids, watermark_s, refs, "harness.assembler")
+        return self._harness(invocation_id, (payload,), destination, dataset_ids, watermark_s, refs,
+                             "harness.assembler")
+
+    def replay(self, invocation_id, destination, *, source_dataset_id, source_store=None,
+               watermark_s=0, mode="boundary_playback"):
+        """Feed a stage's recorded output into the next stage without re-running its producer.
+
+        Boundary playback supports exactly one claim: that the downstream stage reproduces
+        on identical inputs. It is not a counterfactual. Nothing downstream of a changed
+        action follows from recorded evidence, because the recorded future belongs to the
+        actions that were actually taken; that needs a new simulator continuation.
+
+        The replayed payloads re-enter under this run's scope, carrying the run and
+        invocation they were recorded in, so replayed evidence is never mistaken for the
+        original and never silently joined to it.
+        """
+        require(mode in ("boundary_playback", "trace_only"),
+                "component substitution and closed-loop continuation are not implemented")
+        store = source_store or self.store
+        source = store.dataset(source_dataset_id).data
+        payloads, refs, origins = [], set(), set()
+        for message in store.messages(source_dataset_id):
+            data = message.data
+            if data["destination_stage"] != destination:
+                continue
+            payloads.append(Record.from_dict(data["payload"]))
+            refs.update(data["privileged_source_refs"])
+            origins.add((data["scope"]["run_id"], data["stage_invocation_id"]))
+        require(payloads, f"the recorded dataset addressed nothing to {destination}")
+        require(len(origins) == 1, "a replayed dataset must come from one recorded invocation")
+        original_run_id, original_invocation_id = origins.pop()
+        replay = {"mode": mode, "original_run_id": original_run_id,
+                  "original_invocation_id": original_invocation_id}
+        return self._harness(invocation_id, tuple(payloads), destination, (), watermark_s, refs,
+                             "harness.replay", replay)
 
     def _conforms(self, destination, payload):
         """The frozen study owns what is assembled; the run owns only the measured parts."""

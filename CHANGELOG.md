@@ -7,6 +7,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **Boundary playback and state restore**: a recorded stage output can be fed into the
+  next stage without re-running its producer, and a provider can resume from a recorded
+  state snapshot. Replayed payloads re-enter under the replaying run's scope carrying the
+  run and invocation they were recorded in, so replayed evidence is attributable and never
+  joined to the original run's lineage; privilege travels with what is replayed. Component
+  substitution and closed-loop continuation are **refused**, not approximated: a mode that
+  would license a counterfactual claim must not be served by machinery that cannot support
+  one. See [interfaces](system/interfaces.md) for the mode table and its status column.
 - **Run orchestration** in `software/ecora/runner.py`: a decision loop that advances the
   finite world, exports observations, drives all seven stages across the audited boundary,
   assembles the two built-from inputs and closes the run with a result and an assurance

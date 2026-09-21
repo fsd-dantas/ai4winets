@@ -57,7 +57,7 @@ applicable — unsafe-action rate.
 
 For every implemented experiment, preserve or document the source code and dependency versions, scenario
 definitions and configuration files, input-data origin and licence, random seeds and number of replications,
-execution commands, hardware and operating-system constraints, result artefacts, metric definitions and
+execution commands, hardware and operating-system constraints, result artifacts, metric definitions and
 analysis scripts, and known limitations.
 
 A successful installation is not validation of an experiment. Reproduce the documented command, compare the
@@ -69,7 +69,7 @@ stated outputs, and read the limitations before relying on a result.
 - `literature/` — **references**: literature reviews, critical analyses and evidence synthesis drawn from
   other people's work, with full citation.
 - The project **wiki** — **own findings**: theory notes, derivations and study material produced by the
-  maintainer. The wiki carries the reasoning; the repository carries the artefacts.
+  maintainer. The wiki carries the reasoning; the repository carries the artifacts.
 - `experiments/` — reproducible experiments whose main contribution is experimental evidence.
 - `software/` — packages, modules, integration code and setup material.
 - `scenarios/` — declared scenario definitions shared across experiments.
@@ -80,7 +80,7 @@ stated outputs, and read the limitations before relying on a result.
 Before publishing material that began in a structured learning setting, remove institutional identifiers,
 grades, assessment rubrics, restricted content, private data and copyrighted instructional material, and record
 provenance, revision status, assumptions, reproducibility information, limitations and research relevance in
-the artefact's README.
+the artifact's README.
 
 ## Images and figures
 
@@ -119,7 +119,7 @@ containing configuration, telemetry or topology, check:
 - [ ] no real IP addressing, hostname, serial number or equipment identifier;
 - [ ] no real coordinate, substation name, site name or field topology;
 - [ ] no customer, employer or project name, and no material carrying one;
-- [ ] identifiers are synthetic and declared as such in the artefact that uses them.
+- [ ] identifiers are synthetic and declared as such in the artifact that uses them.
 
 A file that fails any line of this checklist does not enter the repository, even in a branch.
 

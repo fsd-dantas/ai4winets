@@ -8,10 +8,15 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **32 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **35 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
+
+One test drives all seven stages in sequence, including the two assembled inputs, and
+checks that each invocation commits an `ok` dataset. The providers it drives are synthetic
+fixtures: they emit schema-valid payloads with no diagnostic, planning or measurement
+content, so this establishes that the contracts compose and nothing about behaviour.
 
 `python -m ecora demo .ecora-runs/example` runs the same invocation sequence for two
 frozen treatment bindings. Both produce valid DiagnosisRecord payloads with different

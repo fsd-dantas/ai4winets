@@ -40,6 +40,12 @@ The repository currently explores three interconnected directions:
 | **Digital-twin-assisted self-healing** | How can a calibrated network representation use telemetry to predict service degradation, evaluate remedial actions, and safely support closed-loop recovery? | NS-3 scenarios, telemetry exports, causal replay, versioned results, ontology, and diagnosis contracts |
 | **Cyber-resilient deterministic communications** | How can a critical wireless network preserve availability, timing, and integrity during cyber-physical failures and adversarial activity? | Fault diagnosis, provenance-aware telemetry, recovery workflows, service differentiation, and planned threat modelling |
 
+These are held open as alternatives and possible combinations; narrowing follows evidence rather than
+preference. Each is weighed the same way: the clarity and novelty of the gap it addresses, its relevance to
+critical wireless and cyber-physical systems, its feasibility against the available simulation, telemetry and
+laboratory assets and a tractable action space, the theoretical, systems and experimental contribution it
+would make, and the risk of over-scoping it within a doctoral timeframe.
+
 ## Repository Map
 
 ```text
@@ -110,41 +116,13 @@ When an experiment lands, its directory carries the objective and hypothesis, th
 
 Frameworks are listed here only as the source of a study's design. A framework proposal on its own is not experimental evidence, and no entry above should be read as a result.
 
-## Candidate Research Directions
-
-The `research-directions/` area is where a theme is studied without premature commitment.
-
-Each candidate direction carries:
-
-```text
-research-directions/<theme>/
-├── overview.md                # Motivation, scope, and terminology
-├── research-gap.md            # Evidence-supported gap statement
-├── candidate-questions.md     # Provisional research questions and hypotheses
-├── study-plan.md              # Literature, skills, prototypes, and milestones
-├── evidence-log.md            # Traceable findings that update the assessment
-└── viability-assessment.md    # Fit, novelty, feasibility, risk, and decision rationale
-```
-
-Directions are compared against the same criteria, so that narrowing follows evidence rather than preference:
-
-- Scientific novelty and gap clarity.
-- Relevance to critical wireless and cyber-physical systems.
-- Compatibility with available simulation, emulation, and testbed assets.
-- Data, telemetry, and observability requirements.
-- Action-space and control feasibility.
-- Reproducibility and evaluation tractability.
-- Expected theoretical, systems, and experimental contributions.
-- Risk of over-scoping within a doctoral timeframe.
-- Alignment with future laboratory infrastructure and collaborators.
-
 ## Learning Artifacts and External Work
 
 This repository may contain technical artifacts initially produced in structured learning settings when they have been revised into reusable scholarly material. Such artifacts are included to document intellectual development, strengthen reproducibility, and support research-direction assessment.
 
 They are not presented as institutional submissions, graded work, institutional positions, or formally approved research outputs.
 
-Such an artifact is placed by what it contributes: an evidence-synthesis critique in `literature/`, a reproducible implementation or simulation in `experiments/`, a theme comparison in `research-directions/`. Notes, derivations and study material recording the maintainer's **own** reasoning go to the project wiki rather than here — the wiki carries the reasoning, the repository carries the artifacts it produced. Nothing is published before the sanitisation checklist in [CONTRIBUTING.md](CONTRIBUTING.md) has been applied to it.
+Such an artifact is placed by what it contributes: an evidence-synthesis critique in `literature/`, a reproducible implementation or simulation in `experiments/`, a framing or feasibility study in `research/`. Notes, derivations and study material recording the maintainer's **own** reasoning go to the project wiki rather than here — the wiki carries the reasoning, the repository carries the artifacts it produced. Nothing is published before the sanitisation checklist in [CONTRIBUTING.md](CONTRIBUTING.md) has been applied to it.
 
 Each artifact records its own provenance, revision status, assumptions, reproducibility information, limitations and research relevance, using this template:
 

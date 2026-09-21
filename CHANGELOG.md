@@ -20,7 +20,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 - Repository charter in [`README.md`](README.md): purpose, research focus, the three exploratory research
   directions, the experimental philosophy and its four capability levels, reproducibility requirements, and
-  the status and limitations that govern how any artefact here should be read.
+  the status and limitations that govern how any artifact here should be read.
 - System contract stubs under [`system/`](system/): architecture, domain model, interfaces, control loop,
   assurance mode, and the telemetry and action contracts. Each declares `Status: planned` and states its
   intended scope; none carries a normative specification yet.
@@ -51,6 +51,20 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Changed
 
+- Stage inputs that the interface defines as **built from** upstream evidence — a
+  `PlanningProblem` from a `DiagnosisRecord`, a `ResultInput` from receipts and a cohort
+  specification — are assembled by a separate logged harness invocation rather than routed
+  as the previous stage's raw output. That construction carries goal and cohort selection,
+  which a study holds fixed across a stage's Null, Proposed and Oracle arms, so it cannot
+  sit inside the provider being compared. A record the next stage cannot consume is now
+  addressed to `sink` and retained as evidence. One test drives all seven stages.
+- An invocation is marked delivered when a single consumer has received its whole output
+  dataset. Delivery was previously pooled across consumers, which would report completion
+  when no one consumer held all of it.
+- `README.md` drops the *Candidate Research Directions* section; it prescribed a template
+  under a `research-directions/` directory that does not exist. The three directions remain
+  in *Research Focus*, which now states the criteria each is weighed against.
+- Spelling normalised to `artifact` throughout.
 - The quick start moved from `README.md` into [`docs/ECoRA/README.md`](docs/ECoRA/README.md), where the
   reading order and the eventual Python and ns-3 environments belong to the framework they describe.
   `README.md` points to that quick start; it now distinguishes the executable contract

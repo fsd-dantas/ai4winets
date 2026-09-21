@@ -121,8 +121,20 @@ avoid circular hashes between a message and its owning dataset.
 
 Explicit `BoundaryOutcome` records represent empty/no-op/rejected/error/timeout output
 when no domain output exists. `AdapterObservationBatch` and `ResultInput` make the ingress
-and cohort/receipt input seams executable. All stage schemas exist, but the bundled
-providers are contract fixtures. The registry requires every stage binding at admission.
+and cohort/receipt input seams executable. All stage schemas exist, and the bundled
+fixture providers exercise every stage, but they are contract fixtures carrying no
+diagnostic, planning or measurement content. The registry requires every stage binding at
+admission.
+
+Two stage inputs are **built from** upstream evidence rather than being the previous
+stage's output: a `PlanningProblem` is built from a `DiagnosisRecord`, and a `ResultInput`
+from receipts, subsequent observations and a cohort specification. That construction
+carries goal selection and cohort choice, which a study holds fixed across a stage's Null,
+Proposed and Oracle arms; placing it inside the provider would vary it with the arm under
+comparison. It is therefore a separate logged harness invocation that consumes the
+upstream dataset for lineage and emits the assembled input. A record the next stage cannot
+consume — `DiagnosisRecord`, `ResolutionRecord`, `ActionReceipt` — is addressed to `sink`
+and retained as evidence rather than delivered into a seam that would reject it.
 
 Run-scoped messages use simulation seconds; standalone study-level AssuranceReport records
 use UTC creation timestamps and contributing run/dataset identities. The current boundary

@@ -41,13 +41,20 @@ def command(**changes):
 
 
 class FixtureProvider:
+    """Emits schema-valid payloads at every stage so the seams are exercised.
+
+    These carry no diagnostic, planning or measurement content. They establish that the
+    contracts compose; they are not the research Null, Proposed and Oracle methods.
+    """
+
     def __init__(self, stage):
         self.stage = stage
 
     def invoke(self, inputs, prior_state, context):
+        watermark = context.data["decision_watermark_s"]
+        payloads = [Record.from_dict(m.data["payload"]) for m in inputs]
         if self.stage == "telemetry":
-            payload = Record.from_dict(inputs[0].data["payload"])
-            return ProviderResult((Record("TelemetryBatch", payload.data),), {}, {"fixture": True})
+            return ProviderResult((Record("TelemetryBatch", payloads[0].data),), {}, {"fixture": True})
         if self.stage == "diagnosis":
             label = context.data["configuration"]["label"]
             output = Record("DiagnosisRecord", {"hypotheses": [{"label": label, "support_ids": [],
@@ -55,6 +62,50 @@ class FixtureProvider:
                              "unresolved_conflicts": [], "confidence_semantics": "categorical"})
             return ProviderResult((output,), {"seen": prior_state.data["state"].get("seen", 0) + 1},
                                   {"fixture": True})
+        if self.stage == "planning":
+            proposal = Record("PlanProposal", {"proposal_id": "proposal:fixture", "agent_id": "agent:site-1:ami",
+                              "site_id": "site-1", "service": "ami", "steps": [], "assumptions": [],
+                              "estimated_cost": 0, "valid_until_s": watermark + 1,
+                              "goal_status": "unknown", "certificate_ref": None})
+            return ProviderResult((proposal,), {}, {"fixture": True})
+        if self.stage == "resolution":
+            proposal_ids = [p.data["proposal_id"] for p in payloads if p.kind == "PlanProposal"]
+            issued = command(not_before_s=watermark, expires_at_s=watermark + 1) if proposal_ids else None
+            record = Record("ResolutionRecord", {"resolution_id": "resolution:fixture",
+                            "proposal_ids": proposal_ids,
+                            "decisions": [{"proposal_id": pid, "disposition": "admit", "reason": reason(),
+                                           "conflicting_proposal_ids": []} for pid in proposal_ids],
+                            "claim_versions": {},
+                            "command_ids": [issued.data["command_id"]] if issued else []})
+            return ProviderResult((record, issued) if issued else (record,), {}, {"fixture": True})
+        if self.stage == "action":
+            receipts = tuple(Record("ActionReceipt", {"command_id": c.data["command_id"],
+                             "idempotency_key": c.data["idempotency_key"], "disposition": "no_op",
+                             "applied_at_s": None, "resulting_state": {}, "application_observation_ids": [],
+                             "reason": reason("no_actuator", "No simulator is attached to this fixture.")})
+                             for c in payloads if c.kind == "ActionCommand")
+            return ProviderResult(receipts, {}, {"fixture": True}, "ok" if receipts else "no_op",
+                                  None if receipts else reason())
+        if self.stage == "result":
+            return ProviderResult((Record("ResultRecord", {
+                "before_window": {"start_s": 0, "end_s": watermark},
+                "after_window": {"start_s": watermark, "end_s": watermark},
+                "cohorts": payloads[0].data["cohorts"],
+                "measurements": [{"metric": "within_age_delivery", "unit": "ratio", "value": None,
+                                  "quality": "unknown", "numerator": 0, "denominator": 0}],
+                "action_ids": [], "uncertainty": "Synthetic fixture; no simulated service."}),),
+                {}, {"fixture": True})
+        if self.stage == "assurance":
+            scope = inputs[0].data["scope"]
+            return ProviderResult((Record("AssuranceReport", {
+                "study_id": scope["study_id"], "scenario_set_version": scope["scenario_set_version"],
+                "scenario_set_hash": scope["scenario_set_hash"], "contributing_run_ids": [scope["run_id"]],
+                "contributing_invocation_ids": [], "contributing_dataset_ids": [],
+                "evaluator_version": "fixture-1",
+                "claims": [{"requirement_id": "req:delivery", "verdict": "inconclusive", "evidence_refs": [],
+                            "reason": reason("no_evidence", "No simulated service evidence exists.")}],
+                "limitations": ["Contract fixture; establishes composition, not service behaviour."],
+                "created_at_utc": "2026-09-21T00:00:00Z"}),), {}, {"fixture": True})
         return ProviderResult((), {}, {"fixture": True}, "no_op", reason())
 
 

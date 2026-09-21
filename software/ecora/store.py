@@ -238,8 +238,9 @@ class ArtifactStore:
                     self._delivered.add(key)
                     self._delivery_sequences[stream_key] = m["sequence_number"] + 1
                     ds = self.dataset(m["output_dataset_id"]).data
-                    delivered_ids = {message for _, message in self._delivered}
-                    if set(ds["message_ids"]) <= delivered_ids:
+                    # Delivered means one consumer received the whole dataset. Pooling across
+                    # consumers would mark it complete when no single consumer holds it all.
+                    if all((consumer, mid) in self._delivered for mid in ds["message_ids"]):
                         self._states[m["stage_invocation_id"]] = "Delivered"
         elif typ == "IntegrityFailure":
             require(bool(data.get("reason")), "integrity failure needs reason")

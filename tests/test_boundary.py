@@ -72,6 +72,69 @@ class BoundaryTests(unittest.TestCase):
             self.assertEqual(store.verify()["datasets"], 3)
         self.assertEqual(labels, ["fixture_a", "fixture_b"])
 
+    def test_all_seven_stages_compose_through_assembled_inputs(self):
+        store, boundary = self.setup_boundary()
+        source = self.source(boundary)
+        stages = {"harness": source.data["dataset_id"]}
+        stages["telemetry"] = boundary.invoke(
+            "telemetry", "t", [stages["harness"]], watermark_s=0).data["dataset_id"]
+        stages["diagnosis"] = boundary.invoke(
+            "diagnosis", "d", [stages["telemetry"]], watermark_s=0).data["dataset_id"]
+        # Planning consumes a PlanningProblem built from the retained DiagnosisRecord.
+        problem = Record("PlanningProblem", {
+            "known_predicates": ["selected_lte"], "unknown_predicates": ["reachable_alternative"],
+            "goals": ["selected_alternative"], "operator_catalog_version": "v1",
+            "action_costs": {"select_path": 2}, "expansion_budget": 100, "time_budget_s": 2,
+            "memory_budget_bytes": 1024, "horizon_steps": 8})
+        stages["problem"] = boundary.assemble(
+            "assemble-plan", "planning", [stages["diagnosis"]], problem, watermark_s=0).data["dataset_id"]
+        stages["planning"] = boundary.invoke(
+            "planning", "p", [stages["problem"]], watermark_s=0).data["dataset_id"]
+        stages["resolution"] = boundary.invoke(
+            "resolution", "r", [stages["planning"]], watermark_s=0).data["dataset_id"]
+        stages["action"] = boundary.invoke(
+            "action", "a", [stages["resolution"]], watermark_s=0).data["dataset_id"]
+        cohort = {"cohort_id": "cohort:ami", "generation_window": {"start_s": 0, "end_s": 0},
+                  "generated": 1, "delivered_on_time": 0, "delivered_late": 0, "lost": 0,
+                  "pending": 1, "duplicate_deliveries": 0, "censored": True, "deadline_s": 10}
+        result_input = Record("ResultInput", {"receipt_ids": [], "observation_ids": [], "cohorts": [cohort]})
+        stages["cohorts"] = boundary.assemble(
+            "assemble-result", "result", [stages["action"]], result_input, watermark_s=0).data["dataset_id"]
+        stages["result"] = boundary.invoke(
+            "result", "res", [stages["cohorts"]], watermark_s=0).data["dataset_id"]
+        stages["assurance"] = boundary.invoke(
+            "assurance", "as", [stages["result"]], watermark_s=0).data["dataset_id"]
+        for name, dataset_id in stages.items():
+            with self.subTest(stage=name):
+                self.assertEqual(store.dataset(dataset_id).data["terminal_status"], "ok")
+        report = Record.from_dict(store.messages(stages["assurance"])[0].data["payload"])
+        self.assertEqual(report.kind, "AssuranceReport")
+        self.assertEqual(report.data["claims"][0]["verdict"], "inconclusive")
+        self.assertEqual(report.data["contributing_run_ids"], ["run:fixture"])
+
+    def test_records_the_next_stage_cannot_consume_terminate_as_evidence(self):
+        store, boundary = self.setup_boundary()
+        source = self.source(boundary)
+        telemetry = boundary.invoke("telemetry", "t", [source.data["dataset_id"]], watermark_s=0)
+        diagnosis = boundary.invoke("diagnosis", "d", [telemetry.data["dataset_id"]], watermark_s=0)
+        message = store.messages(diagnosis.data["dataset_id"])[0]
+        self.assertEqual(Record.from_dict(message.data["payload"]).kind, "DiagnosisRecord")
+        self.assertEqual(message.data["destination_stage"], "sink")
+
+    def test_delivery_completion_is_per_consumer(self):
+        store, boundary = self.setup_boundary()
+        source = self.source(boundary)
+        telemetry = boundary.invoke("telemetry", "t", [source.data["dataset_id"]], watermark_s=0)
+        resolution = boundary.invoke("resolution", "r", [telemetry.data["dataset_id"]], watermark_s=0)
+        messages = store.messages(resolution.data["dataset_id"])
+        self.assertGreaterEqual(len(messages), 1)
+        invocation = messages[0].data["stage_invocation_id"]
+        for index, message in enumerate(messages):
+            store.deliver(message, f"consumer-{index}", lambda m: None,
+                          destination=message.data["destination_stage"], watermark_s=0)
+        if len(messages) > 1:
+            self.assertNotEqual(store._states[invocation], "Delivered")
+
     def test_every_terminal_alternative_is_durable(self):
         expected = {"ok": "empty", "empty": "empty", "no_op": "no_op", "rejected": "rejected",
                     "error": "error", "timeout": "timeout", "bad_output": "rejected",
@@ -113,7 +176,7 @@ class BoundaryTests(unittest.TestCase):
         source = boundary.ingest("command-source", command(), destination="action", watermark_s=0)
         first = boundary.invoke("action", "first-action", [source.data["dataset_id"]], watermark_s=0)
         second = boundary.invoke("action", "duplicate-action", [source.data["dataset_id"]], watermark_s=0)
-        self.assertEqual(first.data["terminal_status"], "no_op")
+        self.assertEqual(first.data["terminal_status"], "ok")
         self.assertEqual(second.data["terminal_status"], "rejected")
         self.assertIn("idempotency", second.data["reason"]["detail"])
         self.assertEqual(sum(e["event"] == "DispatchIntent" for e in store._events), 1)

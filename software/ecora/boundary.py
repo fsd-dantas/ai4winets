@@ -107,7 +107,10 @@ class Boundary:
         messages, sequences = [], {}
         for index, payload in enumerate(payloads):
             target = destination or NEXT_STAGE.get(stage, "telemetry")
-            if stage == "resolution" and payload.kind == "ResolutionRecord":
+            # A record the next stage does not accept terminates here. DiagnosisRecord,
+            # ResolutionRecord and ActionReceipt are retained evidence; the input the next
+            # stage consumes is built by assemble() from this dataset.
+            if target != "sink" and payload.kind not in INPUT_TYPES.get(target, ()):
                 target = "sink"
             key = (stage, target)
             sequence = sequences.get(key, self.store.next_sequence(self.run.run_id, stage, target))
@@ -154,21 +157,42 @@ class Boundary:
                                               "dataset_hash": self.store.put(dataset)})
         return dataset
 
-    def ingest(self, invocation_id, payload, *, destination="telemetry", watermark_s=0):
-        """Trusted, logged adapter ingress; not a substitute simulator or truth port."""
-        require(destination in STAGES and payload.kind in INPUT_TYPES[destination], "unsupported ingress seam")
-        refs = set()
+    def _harness(self, invocation_id, payload, destination, dataset_ids, watermark_s, refs, provider_id):
+        require(destination in STAGES and payload.kind in INPUT_TYPES[destination], "unsupported harness seam")
         caps = [c["capability_id"] for c in self.run.capabilities.data["capabilities"]]
-        if payload.kind in ("AdapterObservationBatch", "TelemetryBatch"):
-            for observation in payload.data["observations"]:
-                refs.update(observation["privileged_source_refs"])
-        binding = {"provider_id": "adapter.ingress", "provider_version": "1", "arm": "oracle" if refs else "proposed",
+        binding = {"provider_id": provider_id, "provider_version": "1", "arm": "oracle" if refs else "proposed",
                    "configuration_hash": self.run.scenario.content_hash, "capability_ids": caps, "state_schema_version": "1"}
         self._payload_checks(payload, binding, watermark_s, refs)
         prior = Record("Snapshot", {"state": {}, "privileged_source_refs": sorted(refs), "state_schema_version": "1"})
-        self._start(invocation_id, (), (payload, prior))
-        return self._finish(invocation_id, "harness", binding, (), (payload,), prior, {}, {}, {}, watermark_s,
-                            refs, "ok", None, destination)
+        self._start(invocation_id, dataset_ids, (payload, prior))
+        return self._finish(invocation_id, "harness", binding, dataset_ids, (payload,), prior, {}, {}, {},
+                            watermark_s, refs, "ok", None, destination)
+
+    def ingest(self, invocation_id, payload, *, destination="telemetry", watermark_s=0):
+        """Trusted, logged adapter ingress; not a substitute simulator or truth port."""
+        refs = set()
+        if payload.kind in ("AdapterObservationBatch", "TelemetryBatch"):
+            for observation in payload.data["observations"]:
+                refs.update(observation["privileged_source_refs"])
+        return self._harness(invocation_id, payload, destination, (), watermark_s, refs, "adapter.ingress")
+
+    def assemble(self, invocation_id, destination, dataset_ids, payload, *, watermark_s=0):
+        """Build a downstream stage input from retained upstream evidence.
+
+        The interface defines planning input as a PlanningProblem built from a
+        DiagnosisRecord, and result input as receipts plus a cohort specification. That
+        construction carries goal selection and cohort choice, which the experimental
+        design holds fixed across a stage's Null, Proposed and Oracle arms. It therefore
+        cannot sit inside the provider whose arms are being compared, and is logged here
+        as its own harness invocation with explicit lineage.
+        """
+        dataset_ids = tuple(dataset_ids)
+        refs = set()
+        for dataset_id in dataset_ids:
+            source = self.store.dataset(dataset_id).data
+            require(source["scope"] == self.run.scope, "assembly input belongs to another run or benchmark")
+            refs.update(source["privileged_source_refs"])
+        return self._harness(invocation_id, payload, destination, dataset_ids, watermark_s, refs, "harness.assembler")
 
     def invoke(self, stage, invocation_id, dataset_ids, *, watermark_s, prior_state_hash=None, random_state=None):
         require(stage in STAGES, "unknown stage")

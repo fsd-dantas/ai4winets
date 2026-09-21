@@ -1,0 +1,794 @@
+[
+  {
+    "content_hash": "1bf2fb280cc897f3eb288f2e0f4a2e83a311f5603942b6797f7cf271b663c449",
+    "data": {
+      "access_policy_version": "v1",
+      "analysis_version": "fixture-1",
+      "capability_manifest_hash": "3370f44beacfb06105be735d75b3d2e4294a9c229e399d455d9bab8b7e39c5c6",
+      "compute_budget_s": 60,
+      "frozen": true,
+      "parameter_set_hash": "ffbc2dfc402782325da71132100e74ff511d1585dd80e4ea196ed4bcace3fef2",
+      "scenario_set_hash": "5e2b968ef3fe12d6b43db24bf7f588911c096570cdf4c60010ace760e7cc4f40",
+      "scenario_set_version": "1",
+      "scoring_version": "fixture-1",
+      "seed_manifest": {
+        "fixture": 0
+      },
+      "storage_budget_bytes": 10485760,
+      "study_id": "study:fixture",
+      "treatments": [
+        {
+          "bindings": [
+            {
+              "allow_privileged_inputs": false,
+              "arm": "proposed",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {},
+              "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "AdapterObservationBatch"
+              ],
+              "output_types": [
+                "TelemetryBatch"
+              ],
+              "provider_id": "fixture.telemetry",
+              "provider_version": "1",
+              "stage_id": "telemetry",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "proposed",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {
+                "label": "fixture_a"
+              },
+              "configuration_hash": "027627ac6d23f42602390e4122efa17b08f00fbd5826cbb14657832d4225386d",
+              "information_regime": "contract_only",
+              "input_types": [
+                "TelemetryBatch"
+              ],
+              "output_types": [
+                "DiagnosisRecord"
+              ],
+              "provider_id": "fixture.diagnosis",
+              "provider_version": "1",
+              "stage_id": "diagnosis",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "proposed",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {},
+              "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "PlanningProblem"
+              ],
+              "output_types": [
+                "PlanProposal"
+              ],
+              "provider_id": "fixture.planning",
+              "provider_version": "1",
+              "stage_id": "planning",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "proposed",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {},
+              "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "PlanProposal"
+              ],
+              "output_types": [
+                "ResolutionRecord",
+                "ActionCommand"
+              ],
+              "provider_id": "fixture.resolution",
+              "provider_version": "1",
+              "stage_id": "resolution",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "proposed",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {},
+              "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "ActionCommand"
+              ],
+              "output_types": [
+                "ActionReceipt"
+              ],
+              "provider_id": "fixture.action",
+              "provider_version": "1",
+              "stage_id": "action",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "proposed",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {},
+              "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "ResultInput"
+              ],
+              "output_types": [
+                "ResultRecord"
+              ],
+              "provider_id": "fixture.result",
+              "provider_version": "1",
+              "stage_id": "result",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "proposed",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {},
+              "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "ResultRecord"
+              ],
+              "output_types": [
+                "AssuranceReport"
+              ],
+              "provider_id": "fixture.assurance",
+              "provider_version": "1",
+              "stage_id": "assurance",
+              "state_schema_version": "1"
+            }
+          ],
+          "treatment_id": "reference"
+        },
+        {
+          "bindings": [
+            {
+              "allow_privileged_inputs": false,
+              "arm": "proposed",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {},
+              "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "AdapterObservationBatch"
+              ],
+              "output_types": [
+                "TelemetryBatch"
+              ],
+              "provider_id": "fixture.telemetry",
+              "provider_version": "1",
+              "stage_id": "telemetry",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "null",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {
+                "label": "fixture_b"
+              },
+              "configuration_hash": "34d2b3adc86583a5324b715e22b4b316a000dd7aeee01593568730f122182331",
+              "information_regime": "contract_only",
+              "input_types": [
+                "TelemetryBatch"
+              ],
+              "output_types": [
+                "DiagnosisRecord"
+              ],
+              "provider_id": "fixture.diagnosis_alternate",
+              "provider_version": "1",
+              "stage_id": "diagnosis",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "proposed",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {},
+              "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "PlanningProblem"
+              ],
+              "output_types": [
+                "PlanProposal"
+              ],
+              "provider_id": "fixture.planning",
+              "provider_version": "1",
+              "stage_id": "planning",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "proposed",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {},
+              "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "PlanProposal"
+              ],
+              "output_types": [
+                "ResolutionRecord",
+                "ActionCommand"
+              ],
+              "provider_id": "fixture.resolution",
+              "provider_version": "1",
+              "stage_id": "resolution",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "proposed",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {},
+              "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "ActionCommand"
+              ],
+              "output_types": [
+                "ActionReceipt"
+              ],
+              "provider_id": "fixture.action",
+              "provider_version": "1",
+              "stage_id": "action",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "proposed",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {},
+              "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "ResultInput"
+              ],
+              "output_types": [
+                "ResultRecord"
+              ],
+              "provider_id": "fixture.result",
+              "provider_version": "1",
+              "stage_id": "result",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "proposed",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {},
+              "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "ResultRecord"
+              ],
+              "output_types": [
+                "AssuranceReport"
+              ],
+              "provider_id": "fixture.assurance",
+              "provider_version": "1",
+              "stage_id": "assurance",
+              "state_schema_version": "1"
+            }
+          ],
+          "treatment_id": "substitution"
+        }
+      ]
+    },
+    "record_type": "StudyManifest",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "5e2b968ef3fe12d6b43db24bf7f588911c096570cdf4c60010ace760e7cc4f40",
+    "data": {
+      "benchmark_definition": "Synthetic contract fixture, not a research benchmark.",
+      "members": [
+        {
+          "content_hash": "aae0c276165bf79e7826fbf1b8fbebc0fab1cb2c122da3b41de62ad6030a807e",
+          "revision": "1",
+          "scenario_id": "scenario:fixture",
+          "weight": 1
+        }
+      ],
+      "parent_hash": null,
+      "set_id": "set:fixture",
+      "version": "1"
+    },
+    "record_type": "ScenarioSetManifest",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "aae0c276165bf79e7826fbf1b8fbebc0fab1cb2c122da3b41de62ad6030a807e",
+    "data": {
+      "disturbances": [],
+      "flows": [
+        {
+          "deadline_s": 10,
+          "destination": "central-1",
+          "flow_id": "flow:ami",
+          "generation": {
+            "period_s": 1
+          },
+          "max_deferral_s": 2,
+          "payload_bytes": 512,
+          "service": "ami",
+          "source": "site-1"
+        }
+      ],
+      "initial_state": {},
+      "parameter_set_hash": "ffbc2dfc402782325da71132100e74ff511d1585dd80e4ea196ed4bcace3fef2",
+      "required_capability_ids": [
+        "observe.ami.queue"
+      ],
+      "requirements": [
+        {
+          "comparator": "ge",
+          "denominator": "generated readings",
+          "metric": "within_age_delivery",
+          "missingness_limit": 0,
+          "requirement_id": "req:delivery",
+          "service": "ami",
+          "target": "site-1",
+          "threshold": 0.99,
+          "unit": "ratio",
+          "window_s": 10
+        }
+      ],
+      "revision": "1",
+      "scenario_id": "scenario:fixture",
+      "synthetic": true,
+      "topology": {
+        "purpose": "contract fixture",
+        "site": "site-1"
+      }
+    },
+    "record_type": "ScenarioSpec",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "3370f44beacfb06105be735d75b3d2e4294a9c229e399d455d9bab8b7e39c5c6",
+    "data": {
+      "adapter_id": "fixture",
+      "adapter_version": "1",
+      "capabilities": [
+        {
+          "capability_id": "observe.ami.queue",
+          "evidence_refs": [
+            "fixture:observation"
+          ],
+          "kind": "observe",
+          "name": "queue_occupancy",
+          "service": "ami",
+          "target": "site-1",
+          "unit": "byte"
+        },
+        {
+          "capability_id": "actuate.ami.pacing",
+          "evidence_refs": [
+            "fixture:actuation"
+          ],
+          "kind": "actuate",
+          "name": "set_ami_pacing",
+          "service": "ami",
+          "target": "site-1",
+          "unit": null
+        }
+      ],
+      "limitations": [
+        "Fixture only; no enabled simulator."
+      ],
+      "model_version": "fixture-1",
+      "timing_mode": "logical"
+    },
+    "record_type": "CapabilityManifest",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "0e23b7ee88efbabe9a810e185d780164517a2669aa3f14d479047fbbcf6d1208",
+    "data": {
+      "completeness": 1,
+      "observations": [
+        {
+          "assumptions": [
+            "Synthetic fixture; no network model or calibration."
+          ],
+          "available_at_s": 0,
+          "capability_id": "observe.ami.queue",
+          "event_time_s": 0,
+          "evidence_kind": "measured",
+          "formula": null,
+          "metric": "queue_occupancy",
+          "missing_reason": null,
+          "observation_id": "observation:ami:0",
+          "privileged_source_refs": [],
+          "quality": "observed",
+          "sampling_policy": "fixture",
+          "service": "ami",
+          "source": "synthetic.adapter",
+          "source_observation_ids": [],
+          "subject": "site-1",
+          "unit": "byte",
+          "valid_max": 65536,
+          "valid_min": 0,
+          "value": 512,
+          "window": {
+            "end_s": 0,
+            "start_s": 0
+          }
+        }
+      ],
+      "omitted_metrics": [],
+      "sequence": 0,
+      "watermark_s": 0,
+      "window": {
+        "end_s": 0,
+        "start_s": 0
+      }
+    },
+    "record_type": "AdapterObservationBatch",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "60daadc241b90f616f6de049eb10419b743efde682cd39caff064c07eee7eac1",
+    "data": {
+      "completeness": 1,
+      "observations": [
+        {
+          "assumptions": [
+            "Synthetic fixture; no network model or calibration."
+          ],
+          "available_at_s": 0,
+          "capability_id": "observe.ami.queue",
+          "event_time_s": 0,
+          "evidence_kind": "measured",
+          "formula": null,
+          "metric": "queue_occupancy",
+          "missing_reason": null,
+          "observation_id": "observation:ami:0",
+          "privileged_source_refs": [],
+          "quality": "observed",
+          "sampling_policy": "fixture",
+          "service": "ami",
+          "source": "synthetic.adapter",
+          "source_observation_ids": [],
+          "subject": "site-1",
+          "unit": "byte",
+          "valid_max": 65536,
+          "valid_min": 0,
+          "value": 512,
+          "window": {
+            "end_s": 0,
+            "start_s": 0
+          }
+        }
+      ],
+      "omitted_metrics": [],
+      "sequence": 0,
+      "watermark_s": 0,
+      "window": {
+        "end_s": 0,
+        "start_s": 0
+      }
+    },
+    "record_type": "TelemetryBatch",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "2323518e72e78a2dc4ebaf47da7c4e7d7dcec165ee2428f523a385937f2cca87",
+    "data": {
+      "argument_units": {},
+      "arguments": {
+        "profile": "restricted"
+      },
+      "authority_capability_id": "actuate.ami.pacing",
+      "catalog_version": "v1",
+      "command_id": "command:fixture",
+      "expected_state_version": 0,
+      "expires_at_s": 1,
+      "idempotency_key": "idempotency:fixture",
+      "issuer": "agent:site-1:ami",
+      "not_before_s": 0,
+      "operator": "set_ami_pacing",
+      "precondition_evidence_ids": [
+        "observation:ami:0"
+      ],
+      "read_set": [
+        "site-1/pacing_profile"
+      ],
+      "resolution_id": "resolution:fixture",
+      "resource_footprint": [
+        "site-1/ami"
+      ],
+      "scope": "ami_queue",
+      "service": "ami",
+      "target": "site-1",
+      "write_set": [
+        "site-1/pacing_profile"
+      ]
+    },
+    "record_type": "ActionCommand",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "5a32ee35fccc172f404f9c8c07b120a02a9710830c9ea9457e099c92c8202a6d",
+    "data": {
+      "confidence_semantics": "categorical",
+      "hypotheses": [],
+      "rule_trace": [],
+      "unresolved_conflicts": []
+    },
+    "record_type": "DiagnosisRecord",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "6c28d0b51f51ccfe6916e0d48e0755a0cfd35060b5ca5abfaef63bec8c116828",
+    "data": {
+      "action_costs": {
+        "select_path": 2
+      },
+      "expansion_budget": 100,
+      "goals": [
+        "selected_alternative"
+      ],
+      "horizon_steps": 8,
+      "known_predicates": [],
+      "memory_budget_bytes": 1024,
+      "operator_catalog_version": "v1",
+      "time_budget_s": 2,
+      "unknown_predicates": [
+        "reachable"
+      ]
+    },
+    "record_type": "PlanningProblem",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "4d1c983633a3e2bed4f5244bfc3f06893e49578a951ea150c480aa28edf546a4",
+    "data": {
+      "agent_id": "agent:site-1:ami",
+      "assumptions": [],
+      "certificate_ref": null,
+      "estimated_cost": 0,
+      "goal_status": "unknown",
+      "proposal_id": "proposal:fixture",
+      "service": "ami",
+      "site_id": "site-1",
+      "steps": [],
+      "valid_until_s": 1
+    },
+    "record_type": "PlanProposal",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "7d14fa103a64f8be171ae9d3c2ab3274bbeec4f8b44d7327612d951e8b6d15d5",
+    "data": {
+      "claim_versions": {},
+      "command_ids": [],
+      "decisions": [
+        {
+          "conflicting_proposal_ids": [],
+          "disposition": "defer",
+          "proposal_id": "proposal:fixture",
+          "reason": {
+            "code": "fixture",
+            "detail": "Synthetic contract fixture."
+          }
+        }
+      ],
+      "proposal_ids": [
+        "proposal:fixture"
+      ],
+      "resolution_id": "resolution:fixture"
+    },
+    "record_type": "ResolutionRecord",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "8eeff38b4d1b5ea4596228b88333920d18193852476fae444895ad0ed2c1a4dc",
+    "data": {
+      "application_observation_ids": [],
+      "applied_at_s": null,
+      "command_id": "command:fixture",
+      "disposition": "unknown",
+      "idempotency_key": "idempotency:fixture",
+      "reason": {
+        "code": "fixture",
+        "detail": "Synthetic contract fixture."
+      },
+      "resulting_state": {}
+    },
+    "record_type": "ActionReceipt",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "8e46d9922d44bb2882f9118a73c4244c56f05af99be5bbd3ec7ce0f5674e457c",
+    "data": {
+      "cohorts": [
+        {
+          "censored": true,
+          "cohort_id": "cohort:ami",
+          "deadline_s": 10,
+          "delivered_late": 0,
+          "delivered_on_time": 1,
+          "duplicate_deliveries": 1,
+          "generated": 2,
+          "generation_window": {
+            "end_s": 1,
+            "start_s": 0
+          },
+          "lost": 0,
+          "pending": 1
+        }
+      ],
+      "observation_ids": [],
+      "receipt_ids": []
+    },
+    "record_type": "ResultInput",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "fb9c67797b234fc74a89be478dc03d71eea7de4294dbd360fe40ab3c40248361",
+    "data": {
+      "action_ids": [],
+      "after_window": {
+        "end_s": 2,
+        "start_s": 1
+      },
+      "before_window": {
+        "end_s": 1,
+        "start_s": 0
+      },
+      "cohorts": [
+        {
+          "censored": true,
+          "cohort_id": "cohort:ami",
+          "deadline_s": 10,
+          "delivered_late": 0,
+          "delivered_on_time": 1,
+          "duplicate_deliveries": 1,
+          "generated": 2,
+          "generation_window": {
+            "end_s": 1,
+            "start_s": 0
+          },
+          "lost": 0,
+          "pending": 1
+        }
+      ],
+      "measurements": [
+        {
+          "denominator": 2,
+          "metric": "delivery",
+          "numerator": 1,
+          "quality": "unknown",
+          "unit": "ratio",
+          "value": null
+        }
+      ],
+      "uncertainty": "Censored fixture."
+    },
+    "record_type": "ResultRecord",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "ebf9edccd16e06d9203e562772b069e986aca43e977a1691f4661513b3cd3c26",
+    "data": {
+      "claims": [
+        {
+          "evidence_refs": [],
+          "reason": {
+            "code": "fixture",
+            "detail": "Synthetic contract fixture."
+          },
+          "requirement_id": "req:delivery",
+          "verdict": "inconclusive"
+        }
+      ],
+      "contributing_dataset_ids": [],
+      "contributing_invocation_ids": [],
+      "contributing_run_ids": [
+        "run:fixture"
+      ],
+      "created_at_utc": "2026-09-21T00:00:00Z",
+      "evaluator_version": "fixture-1",
+      "limitations": [
+        "No simulated evidence."
+      ],
+      "scenario_set_hash": "5e2b968ef3fe12d6b43db24bf7f588911c096570cdf4c60010ace760e7cc4f40",
+      "scenario_set_version": "1",
+      "study_id": "study:fixture"
+    },
+    "record_type": "AssuranceReport",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "86942ed641b3c0863af19bc1de35619656a1879f9b2959b320f1091980c9e5a9",
+    "data": {
+      "reason": {
+        "code": "fixture",
+        "detail": "Synthetic contract fixture."
+      },
+      "status": "no_op"
+    },
+    "record_type": "BoundaryOutcome",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "85c351b167f7ff6c230f1b2b40899d9fca6ab091f1420ba05fe3d52e87b23222",
+    "data": {
+      "privileged_source_refs": [],
+      "state": {
+        "counter": 0
+      },
+      "state_schema_version": "1"
+    },
+    "record_type": "Snapshot",
+    "schema_version": "1"
+  },
+  {
+    "content_hash": "33438a27cf55fc36bce3763f7f194962ff9ac35704d65daae4dff3a5ff0fd60e",
+    "data": {
+      "configuration": {},
+      "decision_watermark_s": 0,
+      "information_regime": "contract_only",
+      "privileged_source_refs": [],
+      "random_state": {}
+    },
+    "record_type": "ProviderContext",
+    "schema_version": "1"
+  }
+]

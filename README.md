@@ -65,11 +65,13 @@ The repository currently explores three interconnected directions:
 
 - [Research question and scope](research/research-questions.md) — the question under study, the comparisons that address it, and the boundary of what its evidence can claim.
 - [Literature](literature/) — references, citation conventions, and provenance notes for every borrowed   formulation. This directory holds engagement with other people's work, always cited.
-- [System contracts](system/) — telemetry and action contracts are normative; the remaining documents are
-  stubs pending adoption into executable form.
+- [System contracts](system/) — normative interfaces, telemetry and action contracts; executable validation
+  and audited provider boundaries are in the [contract package](software/README.md).
 - [Framework proposals](docs/) — the architectures the studies are built on. The first is [ECoRA](docs/ECoRA/), a planned framework for measuring how observation, reasoning, planning and coordination contribute to network control under declared service requirements. It is one framework this repository uses, not the repository's subject; its full package stays in its own folder.
 
-**No executable software has landed yet, so there is nothing to install.** The framework's [quick start](docs/ECoRA/README.md#quick-start) gives the reading order and the environments that will apply once software arrives.
+**The ECoRA contract foundation is executable.** The framework's [quick start](docs/ECoRA/README.md#quick-start)
+links installation, tests and a synthetic provider-substitution demo. Simulation and research
+decision methods remain planned; contract tests are not network-performance evidence.
 
 Documents below are not yet written. They are listed so the intended structure is visible; each becomes a link when it lands.
 

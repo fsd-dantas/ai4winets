@@ -1,6 +1,6 @@
 # System contracts
 
-**Status:** planned
+**Status:** executable contract foundation implemented; simulator and decision methods planned
 
 Index of the contracts that define the research system: what it observes, what it may do, how it decides, and the boundaries between its parts. Each contract is normative for the experiments that claim to implement it. This directory holds the specification; `software/` holds the code that must satisfy it.
 
@@ -12,4 +12,7 @@ Read these normative design specifications before pipeline implementation:
 - [Telemetry contract](telemetry-contract.md): observable evidence, missingness, locality and privileged Oracle access.
 - [Action contract](action-contract.md): allowed effects, safety, authority, receipts and execution arms.
 
-The remaining documents here are planned placeholders. No runtime provider, executable schema or validation result is implied by this specification.
+The [Python contract package](../software/README.md) implements schemas, frozen-study
+admission, provider substitution, boundary logging and provenance checks, with synthetic
+fixtures and executable tests. The remaining documents here are placeholders; simulator,
+research providers and causal replay are not implemented by this foundation.

@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ecora"
+version = "0.1.0"
+description = "Executable contracts and audited provider boundaries for ECoRA research"
+readme = "software/README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = ["jsonschema==4.26.0"]
+
+[project.scripts]
+ecora = "ecora.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["software"]
+include = ["ecora*"]

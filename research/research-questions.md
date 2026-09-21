@@ -110,4 +110,5 @@ requires a separate literature synthesis; this document makes no such claim.
 The [v1 scope](../docs/ECoRA/v1-scope.md) and
 [initial parameter block](../docs/ECoRA/experiments.md#initial-v1-values) complete these
 design decisions. Implementation, pilot calibration and study freeze remain later work;
-all runtime capabilities remain planned.
+the simulator and research methods remain planned. The [contract foundation](../software/README.md)
+now supplies executable schemas and audited provider boundaries, without an empirical answer to RQ0.

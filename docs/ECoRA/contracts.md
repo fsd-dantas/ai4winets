@@ -1,6 +1,6 @@
 # Contracts and causal execution
 
-**Status: planned interfaces, not implemented schemas.** [Index](README.md)
+**Status: executable contract schemas and boundary checks implemented; domain providers and simulator planned.** [Index](README.md)
 
 This document is the end-to-end contract map. The normative stage boundaries are [Interfaces](../../system/interfaces.md), [Telemetry](../../system/telemetry-contract.md) and [Action](../../system/action-contract.md). Their serialisation, logging, authority and substitution rules apply to every arm. Catalogs below summarise those contracts; future changes must update the normative owner first.
 

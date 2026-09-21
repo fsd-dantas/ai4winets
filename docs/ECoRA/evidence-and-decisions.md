@@ -22,10 +22,12 @@ The official [ns-3 LTE model description](https://www.nsnam.org/docs/models/html
 
 | Capability | ECoRA status | Promotion evidence required |
 | --- | --- | --- |
-| Versioned scenario/telemetry/action contracts | Planned | Executable validation and artifact round trip |
-| Study-level scenario-set freeze | Planned | Immutable membership/hash checks, run admission enforcement and version-scoped claims |
+| Versioned scenario/telemetry/action contracts | Implemented | [Contract package](../../software/README.md): structural and semantic validation, immutable records and round-trip tests |
+| Study-level scenario-set freeze | Implemented | Exact set/member/configuration hash checks and complete binding admission, exercised on synthetic manifests |
+| Provider registry and audited boundary | Implemented | Configuration-only fixture substitution, terminal logging, capability/privilege checks, delivery and dispatch deduplication |
+| Immutable stage datasets and journal | Implemented | Hash-addressed records, invocation ownership, checked ancestry and corruption/restart tests; no simulator continuation claim |
 | Configurable Null/Proposed/Oracle stage providers | Planned | Complete bindings, valid degenerate outputs and identical boundary schemas |
-| Serialised stage messages and replay datasets | Planned | Boundary logging, round trips, snapshots, provenance integrity and qualified continuation support |
+| Replay and simulator continuation | Planned | Restore state, replay boundaries and verify causal simulator continuation using the implemented artifacts |
 | Privileged Oracle and contract-limited references | Planned | Access isolation, truth mapping, scoped optimality certificates and matched-information comparisons |
 | Single expert and one-rule experts | Planned | Matched rule/snapshot comparison and trace validation |
 | STRIPS-domain, GPS and A* planning | Planned | Plan property tests, small-domain reference results and budgets |

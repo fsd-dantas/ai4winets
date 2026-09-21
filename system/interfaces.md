@@ -1,6 +1,6 @@
 # Stage interfaces, serialisation and replay
 
-**Status: planned normative specification; no pipeline implementation is provided.**
+**Status: normative specification; contract foundation implemented, simulator orchestration and replay planned.**
 
 [System index](README.md) · [ECoRA architecture](../docs/ECoRA/architecture.md) · [Stage arms](../docs/ECoRA/stage-arms.md)
 
@@ -102,4 +102,33 @@ Changing an arm changes a registry binding in the declared treatment matrix, not
 
 The interfaces, [telemetry contract](telemetry-contract.md) and [action contract](action-contract.md) must have agreed schemas, example traces and acceptance criteria before pipeline implementation. Required checks include round-trip serialisation, determinism on replayable inputs, logging completeness, no-op propagation, state restoration, privilege isolation, schema-compatible provider substitution and the separation of replay from closed-loop counterfactual claims.
 
-This document specifies those obligations; it does not claim they are implemented or tested.
+The [contract package](../software/README.md) now implements versioned schemas, frozen
+admission, immutable records/datasets, the provider registry, boundary logging, capability
+checks and privilege propagation. Its synthetic substitution demo and tests exercise that
+foundation. Simulator/controller state restoration, boundary playback and closed-loop
+continuation remain M2 work; runtime decision providers remain later work.
+
+## Executable representation
+
+The structural schema is [ecora-v1.schema.json](../data/schemas/ecora-v1.schema.json);
+cross-field and admission checks also require the Python validator. Each immutable record
+contains `record_type`, `schema_version`, `data` and `content_hash`. A `Message` record's
+data contains the envelope above and a nested validated payload record. Hashes use SHA-256
+over the canonical record excluding its own hash; the versioned `ecora-json-v1` encoding
+is specified in the [package guide](../software/README.md#serialization-and-provenance).
+Dataset IDs are invocation-owned identities; manifest content hashes remain separate to
+avoid circular hashes between a message and its owning dataset.
+
+Explicit `BoundaryOutcome` records represent empty/no-op/rejected/error/timeout output
+when no domain output exists. `AdapterObservationBatch` and `ResultInput` make the ingress
+and cohort/receipt input seams executable. All stage schemas exist, but the bundled
+providers are contract fixtures. The registry requires every stage binding at admission.
+
+Run-scoped messages use simulation seconds; standalone study-level AssuranceReport records
+use UTC creation timestamps and contributing run/dataset identities. The current boundary
+wrapper is run-scoped and does not implement the later independent study aggregator.
+
+One cooperative writer owns each journal. Complete duplicate delivery is suppressed;
+uncertain delivery/dispatch claims require reconciliation instead of automatic retries.
+The current implementation does not supply a transactional external actuator, TruthPort,
+plugin process sandbox, timer-based provider interruption or automatic crash recovery.

@@ -7,6 +7,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- Executable ECoRA contract foundation in `software/ecora`: versioned schemas, immutable
+  JSON records and dataset lineage, frozen-study admission, provider registry, audited
+  boundary execution, capability/privilege enforcement, terminal outcomes and duplicate
+  delivery/dispatch protection. Includes exported schemas, synthetic fixtures, installation
+  metadata, CLI and property/invariant tests. Simulator and research providers remain planned.
+
 - Selected ECoRA v1 research scope for synthetic wireless backhaul: workload obligations,
   label-free ordinary controller inputs, local agent and actuator boundaries, service/safety
   criteria, finite Oracle problems and preliminary parameter/resource budgets. The
@@ -47,7 +53,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 - The quick start moved from `README.md` into [`docs/ECoRA/README.md`](docs/ECoRA/README.md), where the
   reading order and the eventual Python and ns-3 environments belong to the framework they describe.
-  `README.md` keeps one line stating that no executable software has landed, pointing to it.
+  `README.md` points to that quick start; it now distinguishes the executable contract
+  foundation from the planned simulator and research methods.
 - `README.md` states what the repository is and guarantees, rather than instructing contributors. *Experimental
   philosophy* and *Reproducibility and scientific claims* merged into **Evidence and Reproducibility**; the
   metric list and the hold-conditions-fixed rule were removed in favour of the framework documents that make

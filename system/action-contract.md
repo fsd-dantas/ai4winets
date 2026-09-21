@@ -1,6 +1,6 @@
 # Action authority and stage substitution
 
-**Status: planned normative specification; actions remain disabled until adapter support is verified.**
+**Status: normative specification; command/receipt validation and dispatch intents implemented; simulator actions remain disabled until adapter support is verified.**
 
 [Interfaces](interfaces.md) · [Stage arms](../docs/ECoRA/stage-arms.md)
 

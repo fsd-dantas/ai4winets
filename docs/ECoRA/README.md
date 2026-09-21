@@ -71,7 +71,11 @@ Diagrams are embedded as Mermaid for review. The overview also has canonical SVG
 
 ## Scope and evidence boundary
 
-ECoRA is specified as a new system. All runtime capabilities described here are **planned** and require implementation and reproducible evidence in this repository. This documentation introduces no runtime implementation or experimental result. The interfaces, telemetry and action documents in `system/` are normative design specifications; other system documents remain placeholders. Executable schemas and providers are not yet implemented.
+The [contract foundation](../../software/README.md) is **implemented**: executable schemas,
+frozen admission, provider lookup, boundary logging and provenance/permission checks have
+synthetic test evidence. The simulator, research decision providers, certified Oracles and
+causal replay remain **planned**. No network experiment or service-performance result is
+established by the contract fixtures. The documents in `system/` remain normative owners.
 
 The initial scope includes synthetic traffic competition, explainable decisions, local coordination, action conflicts, reproducible simulation, and service assurance. Claims about a particular radio band, deployment type, SCADA/AMI protocol compliance, production network control or convergence require their own explicit models and validation.
 
@@ -101,11 +105,13 @@ All entities and example identifiers in this package are synthetic. Numeric expe
 
 ## Quick start
 
-**No executable software has landed yet, so there is nothing to install.** ECoRA exists as specification: contracts, methodology and experimental design. Clone the repository and read:
+The [package guide](../../software/README.md#install-and-validate) provides installation,
+tests and a synthetic substitution demo. The contract foundation can run now; the network
+simulator and research methods remain planned. Clone the repository to read or execute it:
 
 ```bash
 git clone https://github.com/fsd-dantas/ai4winets.git
-cd ai4winets/docs/ECoRA
+cd ai4winets
 ```
 
 A reading order, for someone arriving at the framework for the first time:
@@ -117,6 +123,8 @@ A reading order, for someone arriving at the framework for the first time:
 
 The [research question and scope](../../research/research-questions.md) sits above all of this: it states what is being asked, and the boundary of what this framework's evidence could support. The remaining documents under [`system/`](../../system/) are placeholders awaiting adoption of these contracts into executable form.
 
-When software arrives, two environments will apply: the Python package on any supported Python environment, and the ns-3 wireless-backhaul experiment on Linux, with Ubuntu or WSL2 as the documented setup path. Each experiment directory will carry the README stating its exact execution and validation procedure.
+The contract package requires Python 3.11 or newer. The later ns-3 wireless-backhaul
+experiment targets Linux, with Ubuntu or WSL2 as the documented setup path. Each future
+experiment directory will state its exact execution and validation procedure.
 
 A successful installation is not validation of an experiment. A result is confirmed by reproducing the documented command, comparing the stated outputs, and reading the experiment's limitations.

@@ -1,6 +1,6 @@
 # Telemetry and information-access contract
 
-**Status: planned normative specification; no adapter is implemented by this document.**
+**Status: normative specification; schema, watermark and capability checks implemented; simulator adapter planned.**
 
 [Interfaces](interfaces.md) · [Stage arms](../docs/ECoRA/stage-arms.md)
 

@@ -1,6 +1,6 @@
 # ECoRA v1 scope decisions
 
-**Status: scope selected, 2026-09-21; implementation and validation remain planned.**
+**Status: scope selected, 2026-09-21; contract foundation implemented, simulator and research-method validation planned.**
 
 [Index](README.md) · [Research questions](../../research/research-questions.md) ·
 [Parameter register](experiments.md#parameter-register)

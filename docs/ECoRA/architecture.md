@@ -4,6 +4,10 @@
 
 ## Purpose and domain decomposition
 
+The [selected v1 application](v1-scope.md) controls wireless backhaul between site and
+central aggregation gateways. Field access networks are outside this model. Ordinary
+controllers receive operational observations without injected-failure labels.
+
 The core domain is choosing and coordinating explainable interventions under partial observation, then assessing their service consequences. Simulation, artifact storage and experiment scheduling support that domain. An expert system is a deterministic symbolic component in this proposal; no language model or external service is required.
 
 ECoRA begins as a modular application with an ns-3 adapter. Bounded contexts express semantic and transactional ownership, not an obligation to deploy microservices. Logical eco-agents can share a process while retaining local information boundaries.

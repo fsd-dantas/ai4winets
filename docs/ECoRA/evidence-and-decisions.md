@@ -68,6 +68,11 @@ Status is scoped to this design, not a judgement that a technology is impossible
 | ADR-20 | Screen four three-arm factors, then confirm conditional effects | Budget 81 configurations on a small frozen set and 9 on a separately frozen full set; declare extra studies and interaction checks |
 | ADR-21 | Complete interface, telemetry and action specifications before pipeline code | These normative contracts define the ablation seams; executable schemas and replay acceptance checks are prerequisites |
 | ADR-22 | Keep independent study scoring fixed across assurance arms | A substituted assurance provider cannot improve measured service by changing verdict policy |
+| ADR-23 | Select site-to-central wireless backhaul as the v1 system boundary | Field access is outside scope; LTE transport and a point-to-point alternative surrogate support no second-RAT claim |
+| ADR-24 | Fix v1 workload, locality and action semantics | Central SCADA transactions and independent site AMI readings retain obligations; site path switching and AMI release control follow [v1 scope](v1-scope.md) |
+| ADR-25 | Exclude failure labels from ordinary controller inputs | Proposed/Null use availability-gated operational evidence; truth access belongs to logged privileged references and independent evaluation |
+| ADR-26 | Restrict exact optimisation to finite declared problems | Configuration planning, proposal-subset resolution and a supplemental information-ambiguity problem have explicit objectives, horizons and certificates, not global packet-service bounds |
+| ADR-27 | Select initial parameters and a bounded local execution envelope | [Initial values](experiments.md#initial-v1-values) are synthetic and uncalibrated; pilots establish feasibility before study freeze |
 
 These are proposed architecture decisions, not claims of implementation acceptance.
 
@@ -88,18 +93,20 @@ These are proposed architecture decisions, not claims of implementation acceptan
 
 Implement each component against its declared contract and acceptance criteria. Dependency selection follows the current research requirements and capability needs.
 
-## Open research decisions
+## Remaining implementation and study obligations
 
-- Exact SCADA and AMI workload semantics and requirements require a parameterised pilot.
-- Whether the alternative path remains a surrogate or becomes a genuine second RAT depends on the research question.
-- Agent granularity and neighbourhood visibility require sensitivity experiments.
-- The first conflict mechanism should be selected from backoff, expiring claims and local handshake after the logical reference model exposes their assumptions.
-- Performance prediction for planning is optional; if introduced, its calibration and error must be evaluated separately.
-- Exact Oracle models, objectives/horizons and truth mappings must be selected and certified on tractable cases before factorial admission; heuristic references cannot silently fill unsupported Oracle cells.
-- The screening/full-set membership, replications, meaningful-effect thresholds and storage/compute budgets remain to be frozen before any study runs.
-- The exact bibliographic source for the user's eco-problem-solving description is not established here. The local-satisfaction methodology is the agreed design premise; historical attribution should be added only after source verification.
+The [v1 scope](v1-scope.md) closes the initial workload, backhaul model, agent/locality,
+safety, reference-problem and preliminary budget decisions. The alternative remains a
+surrogate in v1. Initial resolution uses local intent marks and backoff; performance
+prediction is excluded from the initial configuration planner.
 
-None of these open decisions prevents documenting the architecture. They do prevent treating the proposal as a calibrated or executed experimental system.
+- Implement workload accounting, gateway forwarding, visibility enforcement and causal replay; verify the shared bottleneck and enabled actuators.
+- Execute finite reference enumeration and certificate checks; unsupported or timed-out Oracles cannot be silently replaced by heuristics.
+- Pilot nominal parameters, run cost, storage and uncertainty. Revise candidate values with rationale when needed; freeze final membership, replications, contrasts and budgets before comparative measurement.
+- Evaluate separately budgeted agent/activation-order, planner, expert-organisation and communication sensitivities; initial choices are not claims of optimality.
+- Establish the bibliographic source for eco-problem solving before historical attribution, and complete literature synthesis before any novelty claim.
+
+Scope selection supplies no calibration, runtime implementation or experimental result.
 
 ## Maintenance against stale references
 

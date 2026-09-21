@@ -7,6 +7,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- Selected ECoRA v1 research scope for synthetic wireless backhaul: workload obligations,
+  label-free ordinary controller inputs, local agent and actuator boundaries, service/safety
+  criteria, finite Oracle problems and preliminary parameter/resource budgets. The
+  presentation and experimental questions are linked to the scope; runtime work remains planned.
+
 - Repository charter in [`README.md`](README.md): purpose, research focus, the three exploratory research
   directions, the experimental philosophy and its four capability levels, reproducibility requirements, and
   the status and limitations that govern how any artefact here should be read.

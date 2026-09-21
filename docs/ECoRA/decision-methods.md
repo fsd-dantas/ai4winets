@@ -68,7 +68,10 @@ The original STRIPS paper motivates the distinction between represented actions 
 
 ## Eco-problem solving
 
-The proposed agent boundary is **one service-class queue at a synthetic edge site**. This keeps SCADA and AMI interests distinct while allowing bounded local control. Agent granularity is a later sensitivity factor, not a settled claim that per-queue control is best.
+The selected v1 agent boundary is **one service-class queue at a synthetic backhaul site**.
+The [v1 scope](v1-scope.md#agent-scope-observations-and-control) fixes same-site visibility,
+actuator ownership and initial mark/backoff resolution. This keeps SCADA and AMI interests
+distinct; later granularity sensitivity does not imply this initial choice is optimal.
 
 A local agent owns its internal state, visible signals, interpretation function, satisfaction predicate and candidate actions. It cannot read global queue state, future disturbances or the evaluator's truth labels.
 
@@ -132,6 +135,9 @@ Evaluate mechanisms separately before combinations. Do not make a global priorit
 
 ### Stabilisation and limits
 
-Define stabilisation using the declared rolling window, bounded action/claim churn, bounded allocation changes and persistent service verdicts. Report coordination stability independently from service satisfaction.
+Define stabilisation using the declared rolling window and bounded action/claim churn,
+allocation changes and stale retries. Service verdicts are reported alongside stability,
+never included in its predicate. The [v1 scope](v1-scope.md#service-objectives-and-safety)
+defines service satisfaction and sustained recovery separately.
 
 No convergence theorem is claimed. Test repeated states, resource oscillation, deadlock, livelock, starvation and sensitivity to activation order, mark expiry, initial allocation and communication delay. A watchdog records failure at the run boundary; it does not secretly install a central solution.

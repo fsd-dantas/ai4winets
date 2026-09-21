@@ -1,14 +1,16 @@
 # ECoRA — Expert Coordination, Resolution, and Assurance
 
-**Status: planned architecture. Revision: 0.3. Date: 2026-09-20.**
+**Status: planned architecture; v1 scope selected. Revision: 0.4. Date: 2026-09-21.**
 
 ## What is ECoRA?
 
 **ECoRA means Expert Coordination, Resolution, and Assurance. It is a simulation-based research architecture and experimental framework for measuring how observation, reasoning, planning and agent coordination contribute to autonomous network control and evidence-backed service assurance.** Its stages are replaceable interfaces: each has Null, Proposed and Oracle providers, with serialised, logged messages for replay and controlled ablation.
 
-ECoRA is the framework that hosts single experts, blackboard-controlled rule experts, STRIPS/GPS/A* planning and eco-problem-solving agents. Eco-problem solving is one method within ECoRA, not its entire definition. Its first proposed application is competition between synthetic SCADA and AMI traffic over an ns-3 LTE path and an explicitly characterised alternative radio-path model. It remains a planned research system, not a deployed network controller.
+ECoRA is the framework that hosts single experts, blackboard-controlled rule experts, STRIPS/GPS/A* planning and eco-problem-solving agents. Eco-problem solving is one method within ECoRA, not its entire definition. Its first application is synthetic SCADA/AMI competition over wireless backhaul between site and central aggregation gateways, using an ns-3 LTE transport leg and an abstract alternative path. Field access networks are outside scope. It remains a planned research system, not a deployed network controller.
 
-The research question is: **under which workload, observability, and resource conditions can expert reasoning or local self-organisation restore acceptable service, and what evidence supports that conclusion?**
+For system presentation: **without failure labels available to the controller, how can knowledge-based diagnosis, symbolic recovery planning and local conflict resolution be integrated into an auditable control loop, with outcomes verifiable through evidence, over a simulated wireless backhaul network?** Privileged references and the evaluator retain only their declared truth access.
+
+The research question is: **under which workload, resource and observability conditions do expert reasoning, planning and local agent coordination improve the maintenance or recovery of declared SCADA and AMI service requirements over fixed and trivial control baselines, and how much of the remaining performance gap is attributable to decision methods versus available information?** The [research framing](../../research/research-questions.md) defines the comparisons, success criteria and claim boundaries.
 
 ECoRA separates two nested loops with different clocks and authority:
 
@@ -21,6 +23,7 @@ Each study freezes one scenario-set version before comparative measurement. All 
 
 | Document | Purpose |
 | --- | --- |
+| [Selected v1 scope](v1-scope.md) | Backhaul model, workload semantics, agents, safety, finite references and execution budget |
 | [Architecture](architecture.md) | DDD context map, ownership, aggregates, deployment and control loop |
 | [Domain and ontology](ontology.md) | Ubiquitous language, relations, epistemic distinctions and constraints |
 | [Ontology vocabulary](ontology.ttl) | Machine-readable RDF/OWL vocabulary; a design artifact, not a deployed reasoner |

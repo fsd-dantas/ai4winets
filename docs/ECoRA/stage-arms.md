@@ -34,6 +34,11 @@ The fixed study evaluator scores every treatment, including assurance-stage subs
 
 ## Oracles have information and optimisation contracts
 
+The [selected v1 references](v1-scope.md#finite-references-and-method-priorities) fix bounded
+configuration planning, proposal-subset resolution and current operational truth predicates.
+The separate information-ambiguity problem has an explicit finite reward and prior. These
+bindings do not claim an exact optimiser for stochastic ns-3 service outcomes.
+
 Every Oracle binding declares its truth access, time horizon, objective, allowed action set, computational budget, optimality certificate or reference status, and latency assumptions. A perfect diagnosis is meaningful only for labels the simulator actually establishes; an injected impairment is not proof of an unmodelled physical root cause.
 
 The initial stage Oracle arm uses **oracle_state**: current simulator truth at the decision watermark, never future arrivals, future random draws or an undisclosed disturbance schedule. A downstream Oracle can request truth independently of an upstream telemetry arm; this is an intentional, logged information intervention. Null/Oracle interactions can therefore reveal that bypass rather than a deployment capability.

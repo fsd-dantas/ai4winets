@@ -16,6 +16,16 @@ Configured ranges and sampling intervals live in the frozen ParameterSet. Rates 
 
 ## Signal catalog
 
+The [selected v1 projection](../docs/ECoRA/v1-scope.md#agent-scope-observations-and-control)
+is per site/service: own workload, queue/release and delivery summaries, local path
+selector/version, round-trip probe events and same-site marks. `path_probe` records the
+probe ID, leg, send/acknowledgement times and timeout disposition; all are availability-
+gated and do not imply a physical cause. Proposed and Null never receive injected-failure
+labels, configured loss rates, hidden capacity, other-site queues or future schedules.
+The central bottleneck trace is independent evaluator evidence, not extra local telemetry.
+Remote delivery summaries carry the declared delay. Optional radio measurements are
+excluded from the initial Proposed projection even if the LTE trace can export them.
+
 | Signal | Semantics and unit | Required source |
 | --- | --- | --- |
 | packet_generated | Unique packet/flow ID and generation time | Application trace |
@@ -26,6 +36,7 @@ Configured ranges and sampling intervals live in the frozen ParameterSet. Rates 
 | goodput | Unique received application bits/s, excluding duplicates | Receiver accounting |
 | packet_drop | Packet ID and reason where observable | Queue/device/application trace |
 | path_state | Applied path identifier and configuration version | Actuator observation |
+| path_probe | Probe/leg ID, send and acknowledgement times or timeout; seconds | Gateway probe application and delayed acknowledgement trace |
 | claim_state | Local claim owner, resource, version and expiry | Coordination substrate |
 | control_message | Message event, size, endpoints and visibility | Coordination transport |
 | link_measurement | Explicitly named metric and unit such as model-supported received power | Actual radio trace; absent on a surrogate without that model |

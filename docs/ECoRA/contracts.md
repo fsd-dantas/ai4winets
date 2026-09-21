@@ -36,7 +36,10 @@ Scenario validation resolves every required capability before a run starts. A ca
 
 Run admission verifies the study is frozen, the scenario revision belongs to its ScenarioSetManifest, all content hashes match and the treatment is declared in its matrix. A mismatch rejects admission. Runtime authority covers only allowed run-state mutations; neither the controller nor the runner can amend the scenario set, workload definition, requirements or scoring policy. Research revision creates a successor set and a new study under [Methodology](methodology.md).
 
-The proposed initial network model can contain an LTE path and an abstract alternative path. Its manifest must state the selected ns-3 helper classes and runtime attributes. Carrier frequencies, if relevant, require an explicit model, executed configuration and verification.
+The [selected v1 network](v1-scope.md#wireless-backhaul-model) is site-to-central wireless
+backhaul using an LTE transport leg and an abstract alternative path. Field access is
+outside scope. Its manifest must record the selected helper classes and resolved runtime
+attributes, including the nominal carrier settings; these do not support a deployment claim.
 
 An AMI workload needs its own generated messages, identifiers, queues or observable flow mapping, delivery trace and service requirements. Until that exists, AMI experiments remain planned.
 
@@ -54,6 +57,7 @@ All entries below are planned ECoRA observations. Availability is checked per ad
 | goodput | Unique delivered application bits/s | Receiver trace, excluding duplicates |
 | packet_drop | Event and reason where available | Queue/device/application trace |
 | path_state | Applied route/path and version | Actuator state observation |
+| path_probe | Probe/leg identity, send/acknowledgement times or timeout | Gateway probe application, with availability gating |
 | claim_state | Claim ID, owner, resource and expiry | Local coordination substrate |
 | control_message | Event, size and endpoints | Coordination transport |
 | link_measurement | Named radio metric and unit | Actual model trace; unavailable on an abstract path unless explicitly modelled |

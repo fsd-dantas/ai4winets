@@ -6,6 +6,10 @@ The [methodology](methodology.md) separates within-run operational control from 
 
 ## Research questions and hypotheses
 
+These questions operationalise [RQ0 and its scope](../../research/research-questions.md).
+They test contributions, information limits and evidence quality without assuming that
+any method improves service in every condition.
+
 | ID | Question | Falsifiable hypothesis |
 | --- | --- | --- |
 | RQ-E | Does distributing rules across experts change results or cost? | With identical snapshots, rules and conflict policy, single and multi-expert diagnoses agree; orchestration cost can differ |
@@ -23,11 +27,17 @@ These hypotheses may be rejected. No method is presumed universally superior.
 
 First use a small logical resource model to verify contracts and expose coordination behaviour. Then repeat applicable cases in ns-3 with identical workload definitions and an explicitly declared network abstraction.
 
-The proposed ns-3 topology has synthetic SCADA and AMI endpoints at edge sites, a destination/application endpoint, an LTE path and an alternative abstract path. Both classes must share at least one measured bottleneck. Otherwise the run does not test competition.
+The selected [v1 topology](v1-scope.md#wireless-backhaul-model) carries synthetic SCADA/AMI
+traffic between site and central aggregation gateways over an LTE backhaul transport leg
+and an alternative abstract path. Field access networks are outside scope. Both classes
+share the instrumented central egress queue. A run without measured competition does not
+test contention, irrespective of aggregate offered bitrate.
 
 SCADA uses identifiable request/response transactions. AMI uses separately identified periodic readings and optional declared bursts. Synthetic UDP payloads can model these workload roles without claiming SCADA or AMI protocol conformance.
 
-If the adapter only permits site-level path switching, experiments must honour that scope. Per-class path selection is disabled until supported. Queue-local agents can still coordinate eligible pacing/defer actions once those actions are implemented.
+v1 selects site-level path switching for both classes together. Per-class path selection
+is excluded. Queue-local AMI agents can coordinate eligible pacing/defer actions once
+those actions are implemented; all actions remain disabled until their adapter checks pass.
 
 ## Scenario catalog
 
@@ -108,7 +118,10 @@ One-factor substitutions do not establish interaction effects. Marks × conflict
 
 ## Parameter register
 
-This is the single source of proposed parameter names for this architecture. **All values are unset, nominal and uncalibrated until pilot experiments define a versioned ParameterSet.** Units below are definitions, not recommended settings.
+This is the single source of parameter names and initial values for this architecture.
+**The v1 values below are selected, synthetic, nominal and uncalibrated.** Pilots may revise
+them with a recorded rationale before freezing a versioned ParameterSet. They are not
+industry requirements or experimental findings. The [v1 scope](v1-scope.md) owns semantics.
 
 | Group | Parameters | How values are chosen |
 | --- | --- | --- |
@@ -126,7 +139,57 @@ This is the single source of proposed parameter names for this architecture. **A
 | Evidence | max_observation_age_s, missingness_limit, action_expiry_s, receipt_timeout_s | Timing contract and coverage study |
 | Substrate | mark_delay_s, mark_loss_probability, mark_transport_model, controller_delay_s | Separate idealised from communication-aware treatments |
 
-Numeric IDs in this document identify treatments and are not runtime settings. No frequency, band or ownership type is a default parameter.
+Numeric scenario/treatment IDs identify cases, not runtime settings. Carrier settings below
+are synthetic model inputs and support no frequency-specific deployment claim.
+
+### Initial v1 values
+
+This is the canonical value block, identified as `v1-nominal-2026-09-21`. All bytes are
+application payload bytes unless named otherwise; capacities are bits/s. Values for
+scenario-specific interventions override the baseline only in a versioned scenario.
+
+| Group | Selected initial values |
+| --- | --- |
+| Topology | `site_count=2`; one SCADA responder and one AMI generator per site; one central application, one eNB; synthetic stationary site coordinates `(100,0,0)` and `(200,0,0)` m relative to eNB `(0,0,0)`; `initial_path=lte` |
+| LTE | `ns3_release=3.45`; `dl_bandwidth_rb=25`; `ul_bandwidth_rb=25`; `dl_earfcn=100`; `ul_earfcn=18100`; `enb_tx_dbm=30`; `ue_tx_dbm=23`; `enb_noise_figure_db=5`; `ue_noise_figure_db=9`; release-pinned remaining defaults exported in the manifest |
+| Transport | `alternative_capacity_bps=1000000` per direction/site; `alternative_delay_s=0.010`; baseline packet loss probability `0`; `shared_egress_capacity_bps=256000` per direction; `shared_egress_delay_s=0.001`; internal/field-stub wired links `100000000` bits/s and `0.001` s; `queue_limit_bytes=65536` for each application release and configured point-to-point queue |
+| Forwarding | `envelope_bytes=32` in addition to UDP/IP headers; `gateway_processing_delay_s=0.001` per gateway; no payload fragmentation in the nominal workload |
+| SCADA | `scada_period_s=0.100` per site; `request_bytes=128`; `response_bytes=512`; `scada_processing_delay_s=0.001`; `scada_deadline_s=0.250`; fixed phase offsets distributed evenly across the period by site ID |
+| AMI | `ami_period_s=1`; `reading_bytes=512`; `ami_age_limit_s=10`; `ami_max_deferral_s=2`; pacing profiles `normal=64000`, `restricted=16000`, `minimum=4096` bits/s per site; initial profile `normal`; token bucket initially allows one reading |
+| Requirements | `scada_miss_budget=0.01`; `scada_delivery_min=0.99`; `ami_within_age_delivery_min=0.99`; `ami_service_min_bps=2048` per continuously backlogged site; `starvation_limit_s=5`; `ami_guard_interval_s=1`; `service_window_s=10` |
+| Run timing | `warmup_s=10`; `measurement_s=120`; `drain_s=10`; total `run_duration_s=140`; `observation_window_s=1`; `decision_period_s=0.100`; `service_window_stride_s=1`; `recovery_window_s=10` |
+| Control/evidence | `controller_delay_s=0.010`; `action_expiry_s=0.200` after proposal; `receipt_timeout_s=0.300`; `max_observation_age_s=0.500`; `delivery_summary_delay_s=0.010`; independent evaluator missingness tolerance `0`; missing observations are unknown, not grounds to drop outcomes |
+| Probes | `probe_period_s=0.200` per site/leg; `probe_payload_bytes=32`; `probe_timeout_s=0.150`; recent acknowledgement validity `0.500` s; probes use each leg in both directions, consume service and stop at measurement end |
+| Eco | `mark_ttl_s=0.300`; `contention_interval_s=0.100`; uniform retry `backoff_min_s=0.100`, `backoff_max_s=0.300`; one pending mutation proposal per agent per decision; primary `mark_transport_model=ideal_local`, delay/loss `0`; no grants or lease renewal |
+| Stability | `stability_window_s=10`; `action_churn_limit=2` successful configuration changes per site/window; `claim_churn_limit=4` changed intents per site/window; `stale_retry_limit=2` consecutive stale-write rejections per agent |
+| Disturbance candidates | `disturbance_time_s=40` absolute run time; `impairment_duration_s=20`; S1 adds `burst_size=64` AMI readings per site at onset; S2 uses `scada_burst_period_s=0.020` during impairment interval; S3 starts on alternative path, reduces its rate to `64000` bits/s then restores it; S4 uses `ami_period_s=0.010` throughout measurement; independent loss sensitivity uses alternative packet loss `0.10` |
+| Other cases | S5 seeds incompatible same-site path proposals at onset; S6 delays delivery summaries by `0.600` s and drops every second summary during impairment; delayed-mark supplement uses `mark_delay_s=0.150`, loss probability `0.10`; S7 compares all-LTE/normal with all-alternative/restricted initial configurations at the same demand; S0 is baseline, subject to pilot verification of slack |
+| Logical planning | two paths and three pacing profiles per site, at most `36` configuration states for fixed exogenous predicates; `oracle_horizon=8` mutation steps; `select_path_cost=2`; `set_ami_pacing_cost=1`; defer cost `1`; marks/yield/no-op cost `0`, excluded as state-preserving edges from shortest-path expansion |
+| Logical transport/diagnosis | `logical_lte_capacity_bps=1000000` per direction/site; `logical_lte_delay_s=0.010`; alternative/common-link settings as in Transport; `queue_pressure_fraction=0.75`; `ami_age_warning_s=5`; overdue SCADA uses its transaction deadline; missing probe acknowledgement uses the registered timeout |
+| Reference/search budgets | `expansion_budget=100000`; `time_budget_s=2` host seconds/invocation; `memory_budget_bytes=268435456`; `gps_depth_bound=8`; initial A* `h=0`; resolution horizon is one invocation with at most `4` input proposals; certificate required for optimal status |
+| Information microproblem | hidden states `left_only` and `right_only`, prior `0.5` each; current selected leg fixed across states; actions are retain/switch/abstain subject to the same safety checks; one transfer reward `1` if delivered, otherwise `0`; no subsequent arrivals or hidden state transitions |
+| Preliminary studies | `screening_scenario_set={logical_contention,logical_conflict,logical_ambiguity}`; `screening_replications=5`; `full_scenario_set={S0,S1,S2,S3,S4,S5,S6,S7}`; `confirmation_replications=10`; `supplemental_run_reserve=400`; `pilot_run_reserve=60`; S8 and additional initial-state/method/communication variants draw from the supplemental reserve |
+| Host/storage budget | `max_workers=2`; total worker memory ceiling `8589934592` bytes; `max_compute_time_s=345600` aggregate worker CPU seconds; `max_wall_time_s=259200`; `max_log_storage_bytes=107374182400`; per-run log ceiling `268435456` bytes; target average log size at most `33554432` bytes; no required evidence may be discarded to meet these limits |
+| Preliminary analysis | paired run differences, `confidence_level=0.95`; candidate primary outcome is fraction of complete service windows with joint satisfaction; `meaningful_effect_gap=0.05` absolute; target CI half-width `0.05`; confirmatory stage family is eight conditional contrasts with Holm adjustment; screening is exploratory; final estimators, precision-driven replications and families frozen before measurement |
+
+The nominal base budget is `81 * 3 * 5 = 1215` logical runs plus
+`9 * 8 * 10 = 720` backhaul runs. With supplemental and pilot reserves the envelope is
+`2395` runs. At the target average log size this uses about `74.84 GiB`, leaving space
+within the total storage ceiling for manifests, certificates and reports. The per-run
+ceiling is an interruption bound, not an allocation promised to every run. CPU, wall time,
+storage and precision feasibility must be measured in pilots before final study freeze.
+
+Service windows use generation cohorts and are evaluated after their obligations mature;
+online agents use the latest matured window plus current risk signals. Recovery requires
+all complete service windows whose starts lie in the sustained recovery interval to pass;
+the drain permits classification of the final cohorts, not additional measurement starts.
+Only service windows fully contained in the measurement interval are eligible. Require
+at least one generated item for each class cohort to evaluate its delivery predicate;
+an empty cohort is not applicable rather than perfect delivery. Report evaluable-window
+counts, and never treat an interval missing a required verdict as joint satisfaction.
+For a SCADA delivery denominator, the delivery cutoff is the transaction deadline; late
+completion is reported separately. Queue bytes include the configured layer's headers;
+all traces name that layer, and the common payload ledger remains independent of it.
 
 ## Metrics and denominators
 

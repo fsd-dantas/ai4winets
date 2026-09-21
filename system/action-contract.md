@@ -14,6 +14,17 @@ ActionReceipt names the command, disposition, actual application time when appli
 
 ## Candidate action catalog
 
+### Selected v1 binding
+
+The [v1 scope](../docs/ECoRA/v1-scope.md#agent-scope-observations-and-control) binds
+`select_path` to a site-wide gateway selector for both directions and classes, with one
+versioned writer at a time. Only the site's AMI agent owns its pacing/deferral actuator.
+SCADA deferral, per-class path switching, packet duplication and radio scheduler changes
+are excluded. Switching affects newly released packets; in-flight packets keep their leg.
+Marks are site-local advisory intentions, not reservations. AMI hard first-release limits
+and immutable generation/obligation accounting apply in every arm. These are selected
+specifications; none enables an action before implementation and validation.
+
 | Operator | Preconditions and scope | Predicted effect | Reversibility and limit |
 | --- | --- | --- | --- |
 | select_path | Supported site/flow scope, existing target, current evidence for reachability and valid claim | Change selected path | Another path selection can compensate; cannot undo lost packets |

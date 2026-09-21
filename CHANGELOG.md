@@ -7,6 +7,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **`ecora showcase`**: runs the Null baseline and the closed loop over one frozen study,
+  differing in the action binding alone, and prints the sensed and relayed signal counts,
+  the applied actions, the resulting path, the assurance verdict, the provenance of the
+  claim and a re-read integrity check. It completes in about three seconds and is covered
+  by a test, because it is meant to be run in front of people.
 - **Verified simulator continuation** in `software/ecora/runner.py`: a recorded run's
   causal prefix is regenerated under the recorded configuration and the commands that run
   actually applied, then verified against the observations it ingested before anything may

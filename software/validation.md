@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **75 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **77 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -90,16 +90,34 @@ still present, so deleted evidence is still caught on the read that needs it, wh
 whose contents changed underneath the process is caught by `verify()` or by reopening the
 store. Both are exercised by tests.
 
-Projected against the nominal parameter block this still does not fit the declared
-envelope. At `run_duration_s=140` and `decision_period_s=0.100` a run is 1400 epochs,
-about **4.8 minutes**; the 1935 base runs need roughly **6.4 days** against a declared
-`max_wall_time_s` of 259200 s, exceeding it by about a factor of two rather than twenty.
+Projected against the nominal parameter block, at `run_duration_s=140` and
+`decision_period_s=0.100` a run is 1400 epochs, about **4.8 minutes**. The 1935 base runs
+then need about **6.43 days of aggregate worker CPU**. The two declared ceilings are
+missed by different amounts, and an earlier note here conflated them:
 
-Closing the remainder is a budget decision rather than an engineering one, and belongs to
-the pilot that freezes it. `fsync` is now about a quarter of the per-epoch cost, so group
-committing journal appends would reach roughly 4.9 days; raising `decision_period_s` to
-0.200 halves the epoch count. Either alone is insufficient and both together fit. These
-are measurements of this harness on one workstation, not properties of the design.
+| Resource | Needed | Declared ceiling | Over by |
+| --- | --- | --- | --- |
+| Aggregate worker CPU | 6.43 days | `max_compute_time_s` = 4.00 days | 1.61x |
+| Wall clock at `max_workers=2` | 3.21 days | `max_wall_time_s` = 3.00 days | 1.07x |
+
+CPU is the binding constraint, not wall clock, so raising `max_workers` does not help.
+With the declared supplemental and pilot reserves (2395 runs) the CPU figure is 1.99x.
+
+These ceilings are nominal and uncalibrated by declaration, and the pilot that freezes the
+final budget is where measurement replaces them. Raising `decision_period_s` to 0.200
+halves the epoch count and fits comfortably, but the decision period governs controller
+responsiveness and so changes what is being measured; fewer replications trade against the
+declared precision target. Group committing journal appends is the one lever with no
+research cost, and `fsync` is now about a quarter of the per-epoch figure.
+
+Every number here was measured against the finite reference model, which is a toy. The
+ns-3 cost is unmeasured, so **6.43 CPU days is a floor rather than an estimate**.
+
+`python -m ecora showcase .ecora-runs/showcase` runs the Null baseline and the closed
+loop over one frozen study, differing in the action binding alone, and prints the sensed
+and relayed signal counts, the applied actions, the resulting path, the assurance verdict,
+the provenance of the claim and a re-read integrity check. It completes in about three
+seconds and is covered by a test, since it is demonstrated live.
 
 `python -m ecora demo .ecora-runs/example` runs the same invocation sequence for two
 frozen treatment bindings. Both produce valid DiagnosisRecord payloads with different

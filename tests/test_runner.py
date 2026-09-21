@@ -114,6 +114,31 @@ class RunTests(unittest.TestCase):
             for observation_id in receipt["application_observation_ids"]:
                 self.assertIn(observation_id, exported)
 
+    def test_the_showcase_runs_and_reports_both_arms(self):
+        """It is demonstrated live, so a silent break is worse than a slow test."""
+        import io
+        from contextlib import redirect_stdout
+        from ecora.__main__ import main
+        captured = io.StringIO()
+        with redirect_stdout(captured):
+            main(["showcase", str(Path(self.temp.name) / "showcase"), "--epochs", "2"])
+        printed = captured.getvalue()
+        for expected in ("null_baseline", "closed_loop", "sensed", "relayed",
+                         "differ in the action stage alone", "Provenance",
+                         "Nothing here is a network result"):
+            with self.subTest(expected=expected):
+                self.assertIn(expected, printed)
+        # The two arms must actually diverge, or the demonstration shows nothing.
+        self.assertIn("lte", printed)
+        self.assertIn("alternative", printed)
+
+    def test_the_showcase_refuses_to_overwrite_an_existing_directory(self):
+        from ecora.__main__ import main
+        target = Path(self.temp.name) / "twice"
+        (target / "null_baseline").mkdir(parents=True)
+        with self.assertRaises(SystemExit):
+            main(["showcase", str(target)])
+
     def test_the_record_cache_is_transparent_to_the_evidence(self):
         """A cache too small to hold the working set must change nothing but the timing."""
         cached, _, _ = self.execute("closed_loop", "cache-warm", "run:cache")

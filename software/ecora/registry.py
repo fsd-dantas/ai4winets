@@ -63,6 +63,9 @@ class Registry:
     def key(data):
         return data["stage_id"], data["provider_id"], data["provider_version"]
 
+    def registered(self, stage_id, provider_id, provider_version):
+        return (stage_id, provider_id, provider_version) in self._entries
+
     def register(self, spec: Record, factory):
         require(spec.kind == "ProviderSpec", "registry needs a ProviderSpec")
         d = spec.data

@@ -7,6 +7,19 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **Run orchestration** in `software/ecora/runner.py`: a decision loop that advances the
+  finite world, exports observations, drives all seven stages across the audited boundary,
+  assembles the two built-from inputs and closes the run with a result and an assurance
+  report. Named random streams (`arrivals`, `errors`, `disturbances`, `controller`) are
+  independent generators, so controller draws cannot shift the exogenous inputs and two
+  treatments face the same world. Runs are byte-reproducible from the frozen seed plan.
+  A closed-loop treatment binds the action stage to the finite world and differs from the
+  Null treatment in that one binding, so a paired comparison attributes the difference to
+  the stage rather than to the orchestration around it.
+- **Measured orchestration cost**: about 2.1 s per decision epoch, dominated by `fsync`.
+  Projected against the nominal parameter block this exceeds the declared wall-time budget
+  by more than twenty times. Recorded in [`software/validation.md`](software/validation.md)
+  so the pilot that freezes the final budget starts from a measurement.
 - **Null providers for all seven stages** in `software/ecora/nulls.py`, implementing the
   policies declared in [stage arms](docs/ECoRA/stage-arms.md): omitted telemetry with
   explicit coverage, a first-candidate diagnosis labelled an unvalidated guess, a

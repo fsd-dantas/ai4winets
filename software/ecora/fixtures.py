@@ -15,8 +15,8 @@ def reason(code="fixture", detail="Synthetic contract fixture."):
 # The assembled stage inputs a study freezes, so that goal and cohort selection cannot
 # vary with the arm under comparison. Synthetic; no calibrated budget or deadline.
 ASSEMBLY = {
-    "planning": {"goals": ["restricted_ami_pacing"], "operator_catalog_version": "v1",
-                 "action_costs": {"set_ami_pacing": 1}, "expansion_budget": 100,
+    "planning": {"goals": ["selected_alternative"], "operator_catalog_version": "v1",
+                 "action_costs": {"select_path": 2}, "expansion_budget": 100,
                  "time_budget_s": 2, "memory_budget_bytes": 1024, "horizon_steps": 8},
     "result": {"cohorts": [{"cohort_id": "cohort:ami",
                             "generation_window": {"start_s": 0, "end_s": 0}, "deadline_s": 10}]},
@@ -28,8 +28,8 @@ ASSEMBLY = {
 NULL_CONFIGURATION = {
     "diagnosis": {"candidate_order": ["queue_pressure", "ami_age_risk"]},
     "planning": {"target": "site-1", "service": "ami", "agent_id": "agent:site-1:ami",
-                 "arguments": {"profile": "restricted"}, "validity_s": 1},
-    "resolution": {"authority": {"set_ami_pacing": "actuate.ami.pacing"}, "validity_s": 1},
+                 "arguments": {"path": "alternative"}, "validity_s": 1},
+    "resolution": {"authority": {"select_path": "actuate.shared.path"}, "validity_s": 1},
     "assurance": {"requirement_ids": ["req:delivery"]},
 }
 
@@ -148,21 +148,26 @@ class FixtureProvider:
         return ProviderResult((), {}, {"fixture": True}, "no_op", reason())
 
 
-def fixture_environment(*, allow_privileged=False, extra_capabilities=()):
+def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assembly=None):
     """All identities, values and capabilities in this fixture are synthetic."""
     registry = Registry()
     cap = {"capability_id": "observe.ami.queue", "kind": "observe", "target": "site-1",
            "service": "ami", "name": "queue_occupancy", "unit": "byte", "evidence_refs": ["fixture:observation"]}
+    path_cap = {"capability_id": "observe.shared.path", "kind": "observe", "target": "site-1",
+                "service": "shared", "name": "path_state", "unit": "id", "evidence_refs": ["fixture:observation"]}
     actuator = {"capability_id": "actuate.ami.pacing", "kind": "actuate", "target": "site-1",
                 "service": "ami", "name": "set_ami_pacing", "unit": None, "evidence_refs": ["fixture:actuation"]}
+    path_actuator = {"capability_id": "actuate.shared.path", "kind": "actuate", "target": "site-1",
+                     "service": "shared", "name": "select_path", "unit": None, "evidence_refs": ["fixture:actuation"]}
+    granted = [cap, path_cap, actuator, path_actuator]
     caps = Record("CapabilityManifest", {"adapter_id": "fixture", "adapter_version": "1", "model_version": "fixture-1",
-                  "capabilities": [cap, actuator, *extra_capabilities], "limitations": ["Fixture only; no enabled simulator."],
+                  "capabilities": [*granted, *extra_capabilities], "limitations": ["Fixture only; no enabled simulator."],
                   "timing_mode": "logical"})
     base = []
     for stage in STAGES:
         spec = Record("ProviderSpec", {"stage_id": stage, "provider_id": f"fixture.{stage}", "provider_version": "1",
                       "arm": "proposed", "input_types": list(INPUT_TYPES[stage]), "output_types": list(OUTPUT_TYPES[stage]),
-                      "state_schema_version": "1", "capability_ids": [cap["capability_id"], actuator["capability_id"]],
+                      "state_schema_version": "1", "capability_ids": [c["capability_id"] for c in granted],
                       "direct_truth_access": False})
         registry.register(spec, partial(FixtureProvider, stage))
         config = {"label": "fixture_a"} if stage == "diagnosis" else {}
@@ -175,7 +180,7 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=()):
     alternate = [dict(b) for b in base]
     alternate[1] = {**alternate[1], "provider_id": "fixture.diagnosis_alternate",
                     "configuration": {"label": "fixture_b"}, "configuration_hash": digest({"label": "fixture_b"})}
-    nulls = null_bindings(registry, [cap["capability_id"], actuator["capability_id"]], NULL_CONFIGURATION)
+    nulls = null_bindings(registry, [c["capability_id"] for c in granted], NULL_CONFIGURATION)
     scenario = Record("ScenarioSpec", {"scenario_id": "scenario:fixture", "revision": "1", "synthetic": True,
                       "topology": {"site": "site-1", "purpose": "contract fixture"},
                       "flows": [{"flow_id": "flow:ami", "source": "site-1", "destination": "central-1",
@@ -195,7 +200,7 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=()):
                    "treatments": [{"treatment_id": "reference", "bindings": base},
                                   {"treatment_id": "substitution", "bindings": alternate},
                                   {"treatment_id": "null_baseline", "bindings": nulls}],
-                   "assembly": ASSEMBLY,
+                   "assembly": assembly or ASSEMBLY,
                    "capability_manifest_hash": caps.content_hash, "parameter_set_hash": scenario.data["parameter_set_hash"],
                    "analysis_version": "fixture-1", "scoring_version": "fixture-1", "seed_manifest": {"fixture": 0},
                    "compute_budget_s": 60, "storage_budget_bytes": 10485760, "access_policy_version": "v1"})

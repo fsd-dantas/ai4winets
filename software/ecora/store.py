@@ -276,6 +276,14 @@ class ArtifactStore:
     def messages(self, dataset_id):
         return tuple(self.get(h) for h in self.dataset(dataset_id).data["message_hashes"])
 
+    def invocation(self, invocation_id):
+        require(invocation_id in self._invocations, f"unresolved invocation: {invocation_id}")
+        return self.get(self._invocations[invocation_id])
+
+    def head(self):
+        """Hash of the last journal event: a run's reproducibility fingerprint."""
+        return self._events[-1]["content_hash"] if self._events else None
+
     def next_sequence(self, run_id, source, destination):
         return self._sequences.get((run_id, source, destination), 0)
 

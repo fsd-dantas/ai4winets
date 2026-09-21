@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **48 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **56 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -34,6 +34,31 @@ SCADA, a disturbance that degrades service and then drains its backlog without l
 exported observations that satisfy the telemetry contract. It is a deterministic
 queueing model with no radio, protocol conformance or calibrated value, and no run of it
 is evidence about a wireless network.
+
+**Run orchestration** is exercised end to end: a run produces an assurance report that
+resolves to its frozen benchmark and run identity; two runs of one treatment under one
+seed plan produce byte-identical journals; stage state carries forward between epochs; a
+closed-loop treatment applies the command the Null arm suppresses, and its applied
+receipts cite observations the run actually exports. Named random streams are independent:
+500 controller draws leave the arrival and disturbance sequences unchanged.
+
+## Measured orchestration cost
+
+A closed-loop run on this workstation costs about **2.1 s per decision epoch** (measured
+over 4-epoch and 16-epoch runs, 32 and 116 committed datasets). The cost is dominated by
+`fsync` on every object write and journal append, which is the durability the artifact
+store deliberately buys.
+
+Projected against the nominal parameter block, this does not fit the declared envelope.
+At `run_duration_s=140` and `decision_period_s=0.100` a single run is 1400 epochs, roughly
+**49 minutes**; the 1935 base runs of the screening and confirmation designs would need
+about **66 days** of wall time against a declared `max_wall_time_s` of 259200 s, exceeding
+it by more than twenty times.
+
+This is a measurement of the current harness, not a property of the design. Group-committed
+journal appends, a declared durability mode for exploratory runs, or a longer decision
+period would each move it. It is recorded here so the pilot that freezes the final budget
+starts from a number rather than an assumption.
 
 `python -m ecora demo .ecora-runs/example` runs the same invocation sequence for two
 frozen treatment bindings. Both produce valid DiagnosisRecord payloads with different

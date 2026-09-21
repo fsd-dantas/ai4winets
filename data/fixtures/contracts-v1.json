@@ -1,17 +1,17 @@
 [
   {
-    "content_hash": "04ad93c8c72ec6e6efa54a07841f33208997c8ef6dd2d51ad0d6297404e5f956",
+    "content_hash": "3bc7415ddf9411c0540bcc86a21565d66212a175bed772e67f835de946a66294",
     "data": {
       "access_policy_version": "v1",
       "analysis_version": "fixture-1",
       "assembly": {
         "planning": {
           "action_costs": {
-            "set_ami_pacing": 1
+            "select_path": 2
           },
           "expansion_budget": 100,
           "goals": [
-            "restricted_ami_pacing"
+            "selected_alternative"
           ],
           "horizon_steps": 8,
           "memory_budget_bytes": 1024,
@@ -31,7 +31,7 @@
           ]
         }
       },
-      "capability_manifest_hash": "3370f44beacfb06105be735d75b3d2e4294a9c229e399d455d9bab8b7e39c5c6",
+      "capability_manifest_hash": "9ce6d133c15935a88a05dc081bff35e81e33c38338a8b863d501799cdd7c5239",
       "compute_budget_s": 60,
       "frozen": true,
       "parameter_set_hash": "ffbc2dfc402782325da71132100e74ff511d1585dd80e4ea196ed4bcace3fef2",
@@ -51,7 +51,9 @@
               "arm": "proposed",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -72,7 +74,9 @@
               "arm": "proposed",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {
                 "label": "fixture_a"
@@ -95,7 +99,9 @@
               "arm": "proposed",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -116,7 +122,9 @@
               "arm": "proposed",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -138,7 +146,9 @@
               "arm": "proposed",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -159,7 +169,9 @@
               "arm": "proposed",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -180,7 +192,9 @@
               "arm": "proposed",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -206,7 +220,9 @@
               "arm": "proposed",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -227,7 +243,9 @@
               "arm": "proposed",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {
                 "label": "fixture_b"
@@ -250,7 +268,9 @@
               "arm": "proposed",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -271,7 +291,9 @@
               "arm": "proposed",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -293,7 +315,9 @@
               "arm": "proposed",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -314,7 +338,9 @@
               "arm": "proposed",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -335,7 +361,9 @@
               "arm": "proposed",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -361,7 +389,9 @@
               "arm": "null",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -382,7 +412,9 @@
               "arm": "null",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {
                 "candidate_order": [
@@ -408,18 +440,20 @@
               "arm": "null",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {
                 "agent_id": "agent:site-1:ami",
                 "arguments": {
-                  "profile": "restricted"
+                  "path": "alternative"
                 },
                 "service": "ami",
                 "target": "site-1",
                 "validity_s": 1
               },
-              "configuration_hash": "58820a1c4a5e71db3ec671008cf2c3e12672f4a72ff4a92d515e830772cb4d2a",
+              "configuration_hash": "c5d6fbea33b0e127729c30d70ab11d974bc606dc932324f834ce30ebac143fdd",
               "information_regime": "contract_only",
               "input_types": [
                 "PlanningProblem"
@@ -437,15 +471,17 @@
               "arm": "null",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {
                 "authority": {
-                  "set_ami_pacing": "actuate.ami.pacing"
+                  "select_path": "actuate.shared.path"
                 },
                 "validity_s": 1
               },
-              "configuration_hash": "6d83eeaca68f1e661e618803da1ed935753b77176333135c478d0af5a957e010",
+              "configuration_hash": "0866377294cfa5ec3e00dd0e24d8f9421596b5e9f9305f0140b9251c29ab0b48",
               "information_regime": "contract_only",
               "input_types": [
                 "PlanProposal"
@@ -464,7 +500,9 @@
               "arm": "null",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -485,7 +523,9 @@
               "arm": "null",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -506,7 +546,9 @@
               "arm": "null",
               "capability_ids": [
                 "observe.ami.queue",
-                "actuate.ami.pacing"
+                "observe.shared.path",
+                "actuate.ami.pacing",
+                "actuate.shared.path"
               ],
               "configuration": {
                 "requirement_ids": [
@@ -602,7 +644,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "3370f44beacfb06105be735d75b3d2e4294a9c229e399d455d9bab8b7e39c5c6",
+    "content_hash": "9ce6d133c15935a88a05dc081bff35e81e33c38338a8b863d501799cdd7c5239",
     "data": {
       "adapter_id": "fixture",
       "adapter_version": "1",
@@ -619,6 +661,17 @@
           "unit": "byte"
         },
         {
+          "capability_id": "observe.shared.path",
+          "evidence_refs": [
+            "fixture:observation"
+          ],
+          "kind": "observe",
+          "name": "path_state",
+          "service": "shared",
+          "target": "site-1",
+          "unit": "id"
+        },
+        {
           "capability_id": "actuate.ami.pacing",
           "evidence_refs": [
             "fixture:actuation"
@@ -626,6 +679,17 @@
           "kind": "actuate",
           "name": "set_ami_pacing",
           "service": "ami",
+          "target": "site-1",
+          "unit": null
+        },
+        {
+          "capability_id": "actuate.shared.path",
+          "evidence_refs": [
+            "fixture:actuation"
+          ],
+          "kind": "actuate",
+          "name": "select_path",
+          "service": "shared",
           "target": "site-1",
           "unit": null
         }

@@ -192,7 +192,10 @@ def null_bindings(registry, capability_ids, configurations):
             "arm": "null", "input_types": list(INPUT_TYPES[stage]),
             "output_types": list(OUTPUT_TYPES[stage]), "state_schema_version": "1",
             "capability_ids": list(capability_ids), "direct_truth_access": False})
-        registry.register(spec, partial(NullProvider, stage))
+        # A Null policy is registered once; a second treatment differs by configuration,
+        # never by a second registration of the same provider version.
+        if not registry.registered(stage, spec.data["provider_id"], VERSION):
+            registry.register(spec, partial(NullProvider, stage))
         configuration = configurations.get(stage, {})
         bindings.append({k: v for k, v in spec.data.items() if k != "direct_truth_access"} |
                         {"information_regime": "contract_only", "allow_privileged_inputs": False,

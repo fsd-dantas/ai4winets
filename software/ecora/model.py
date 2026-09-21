@@ -205,6 +205,16 @@ class FiniteModel:
 
     # -- observation ----------------------------------------------------------
 
+    @staticmethod
+    def observation_id(site, metric, at_s):
+        """The canonical identity of an exported signal.
+
+        The exporter and an actuator receipt citing applied evidence derive the identity
+        here rather than each formatting its own string, so a receipt cannot reference an
+        observation the run will never export.
+        """
+        return f"observation:{site}:{metric}:{at_s}"
+
     def observations(self, *, capability_ids, window_s=1.0):
         """Export the declared observable signals. Truth predicates are not included."""
         start = max(0.0, self.now - window_s)
@@ -215,13 +225,13 @@ class FiniteModel:
             capability = capability_ids.get((site, "queue_occupancy"))
             if capability:
                 exported.append(self._observation(
-                    f"observation:{site}:queue:{self.now}", site, "ami", "queue_occupancy",
-                    "byte", self._queues[key].occupied_bytes, capability, window))
+                    self.observation_id(site, "queue_occupancy", self.now), site, "ami",
+                    "queue_occupancy", "byte", self._queues[key].occupied_bytes, capability, window))
             capability = capability_ids.get((site, "path_state"))
             if capability:
                 exported.append(self._observation(
-                    f"observation:{site}:path:{self.now}", site, "shared", "path_state",
-                    "id", self.path[site], capability, window))
+                    self.observation_id(site, "path_state", self.now), site, "shared",
+                    "path_state", "id", self.path[site], capability, window))
         return exported
 
     def _observation(self, observation_id, site, service, metric, unit, value, capability, window):

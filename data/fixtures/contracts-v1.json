@@ -1,17 +1,17 @@
 [
   {
-    "content_hash": "6630f20c42d952941392821853cad77ea2132ca75301cca19a7ff906264a2bea",
+    "content_hash": "04ad93c8c72ec6e6efa54a07841f33208997c8ef6dd2d51ad0d6297404e5f956",
     "data": {
       "access_policy_version": "v1",
       "analysis_version": "fixture-1",
       "assembly": {
         "planning": {
           "action_costs": {
-            "select_path": 2
+            "set_ami_pacing": 1
           },
           "expansion_budget": 100,
           "goals": [
-            "selected_alternative"
+            "restricted_ami_pacing"
           ],
           "horizon_steps": 8,
           "memory_budget_bytes": 1024,
@@ -224,7 +224,7 @@
             },
             {
               "allow_privileged_inputs": false,
-              "arm": "null",
+              "arm": "proposed",
               "capability_ids": [
                 "observe.ami.queue",
                 "actuate.ami.pacing"
@@ -353,6 +353,181 @@
             }
           ],
           "treatment_id": "substitution"
+        },
+        {
+          "bindings": [
+            {
+              "allow_privileged_inputs": false,
+              "arm": "null",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {},
+              "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "AdapterObservationBatch"
+              ],
+              "output_types": [
+                "TelemetryBatch"
+              ],
+              "provider_id": "null.telemetry",
+              "provider_version": "null-v1",
+              "stage_id": "telemetry",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "null",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {
+                "candidate_order": [
+                  "queue_pressure",
+                  "ami_age_risk"
+                ]
+              },
+              "configuration_hash": "b2c61e8168ae90338319a9ef3585b0a2aaec7a9339bc33dba4a9f7db0c96ccbd",
+              "information_regime": "contract_only",
+              "input_types": [
+                "TelemetryBatch"
+              ],
+              "output_types": [
+                "DiagnosisRecord"
+              ],
+              "provider_id": "null.diagnosis",
+              "provider_version": "null-v1",
+              "stage_id": "diagnosis",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "null",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {
+                "agent_id": "agent:site-1:ami",
+                "arguments": {
+                  "profile": "restricted"
+                },
+                "service": "ami",
+                "target": "site-1",
+                "validity_s": 1
+              },
+              "configuration_hash": "58820a1c4a5e71db3ec671008cf2c3e12672f4a72ff4a92d515e830772cb4d2a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "PlanningProblem"
+              ],
+              "output_types": [
+                "PlanProposal"
+              ],
+              "provider_id": "null.planning",
+              "provider_version": "null-v1",
+              "stage_id": "planning",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "null",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {
+                "authority": {
+                  "set_ami_pacing": "actuate.ami.pacing"
+                },
+                "validity_s": 1
+              },
+              "configuration_hash": "6d83eeaca68f1e661e618803da1ed935753b77176333135c478d0af5a957e010",
+              "information_regime": "contract_only",
+              "input_types": [
+                "PlanProposal"
+              ],
+              "output_types": [
+                "ResolutionRecord",
+                "ActionCommand"
+              ],
+              "provider_id": "null.resolution",
+              "provider_version": "null-v1",
+              "stage_id": "resolution",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "null",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {},
+              "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "ActionCommand"
+              ],
+              "output_types": [
+                "ActionReceipt"
+              ],
+              "provider_id": "null.action",
+              "provider_version": "null-v1",
+              "stage_id": "action",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "null",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {},
+              "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+              "information_regime": "contract_only",
+              "input_types": [
+                "ResultInput"
+              ],
+              "output_types": [
+                "ResultRecord"
+              ],
+              "provider_id": "null.result",
+              "provider_version": "null-v1",
+              "stage_id": "result",
+              "state_schema_version": "1"
+            },
+            {
+              "allow_privileged_inputs": false,
+              "arm": "null",
+              "capability_ids": [
+                "observe.ami.queue",
+                "actuate.ami.pacing"
+              ],
+              "configuration": {
+                "requirement_ids": [
+                  "req:delivery"
+                ]
+              },
+              "configuration_hash": "aae9c133cab2e98d67cf9535f81d0f803817d3dd579e4badc5527fc29c681a6b",
+              "information_regime": "contract_only",
+              "input_types": [
+                "ResultRecord"
+              ],
+              "output_types": [
+                "AssuranceReport"
+              ],
+              "provider_id": "null.assurance",
+              "provider_version": "null-v1",
+              "stage_id": "assurance",
+              "state_schema_version": "1"
+            }
+          ],
+          "treatment_id": "null_baseline"
         }
       ]
     },

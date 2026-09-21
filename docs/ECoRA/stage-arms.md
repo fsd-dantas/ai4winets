@@ -1,6 +1,6 @@
 # Stage substitution, oracles and headroom
 
-**Status: planned experimental architecture; providers are specifications, not implemented components.** [Index](README.md)
+**Status: Null providers implemented for all seven stages; Proposed and Oracle providers remain specifications.** [Index](README.md)
 
 Ablation replaces behaviour while preserving the contract. Every stage has at least a Null, Proposed and Oracle provider. The stage, its typed output, its invocation record and its place in the provenance chain remain present in every arm.
 

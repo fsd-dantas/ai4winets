@@ -3,6 +3,7 @@
 from functools import partial
 
 from .contracts import Record, digest
+from .nulls import null_bindings
 from .registry import ProviderResult, Registry
 from .schema import INPUT_TYPES, OUTPUT_TYPES, STAGES
 
@@ -14,11 +15,22 @@ def reason(code="fixture", detail="Synthetic contract fixture."):
 # The assembled stage inputs a study freezes, so that goal and cohort selection cannot
 # vary with the arm under comparison. Synthetic; no calibrated budget or deadline.
 ASSEMBLY = {
-    "planning": {"goals": ["selected_alternative"], "operator_catalog_version": "v1",
-                 "action_costs": {"select_path": 2}, "expansion_budget": 100,
+    "planning": {"goals": ["restricted_ami_pacing"], "operator_catalog_version": "v1",
+                 "action_costs": {"set_ami_pacing": 1}, "expansion_budget": 100,
                  "time_budget_s": 2, "memory_budget_bytes": 1024, "horizon_steps": 8},
     "result": {"cohorts": [{"cohort_id": "cohort:ami",
                             "generation_window": {"start_s": 0, "end_s": 0}, "deadline_s": 10}]},
+}
+
+
+# Declared policy settings for the Null arm. Fixed before measurement: a Null policy
+# changed after seeing results invalidates the comparison it anchors.
+NULL_CONFIGURATION = {
+    "diagnosis": {"candidate_order": ["queue_pressure", "ami_age_risk"]},
+    "planning": {"target": "site-1", "service": "ami", "agent_id": "agent:site-1:ami",
+                 "arguments": {"profile": "restricted"}, "validity_s": 1},
+    "resolution": {"authority": {"set_ami_pacing": "actuate.ami.pacing"}, "validity_s": 1},
+    "assurance": {"requirement_ids": ["req:delivery"]},
 }
 
 
@@ -158,11 +170,12 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=()):
                     {"information_regime": "contract_only", "allow_privileged_inputs": allow_privileged,
                      "configuration": config, "configuration_hash": digest(config)})
     alternate_spec = Record("ProviderSpec", {**registry.resolve(base[1]).spec.data,
-                             "provider_id": "fixture.diagnosis_alternate", "arm": "null"})
+                             "provider_id": "fixture.diagnosis_alternate", "arm": "proposed"})
     registry.register(alternate_spec, partial(FixtureProvider, "diagnosis"))
     alternate = [dict(b) for b in base]
-    alternate[1] = {**alternate[1], "provider_id": "fixture.diagnosis_alternate", "arm": "null",
+    alternate[1] = {**alternate[1], "provider_id": "fixture.diagnosis_alternate",
                     "configuration": {"label": "fixture_b"}, "configuration_hash": digest({"label": "fixture_b"})}
+    nulls = null_bindings(registry, [cap["capability_id"], actuator["capability_id"]], NULL_CONFIGURATION)
     scenario = Record("ScenarioSpec", {"scenario_id": "scenario:fixture", "revision": "1", "synthetic": True,
                       "topology": {"site": "site-1", "purpose": "contract fixture"},
                       "flows": [{"flow_id": "flow:ami", "source": "site-1", "destination": "central-1",
@@ -180,7 +193,8 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=()):
     study = Record("StudyManifest", {"study_id": "study:fixture", "frozen": True,
                    "scenario_set_version": "1", "scenario_set_hash": scenario_set.content_hash,
                    "treatments": [{"treatment_id": "reference", "bindings": base},
-                                  {"treatment_id": "substitution", "bindings": alternate}],
+                                  {"treatment_id": "substitution", "bindings": alternate},
+                                  {"treatment_id": "null_baseline", "bindings": nulls}],
                    "assembly": ASSEMBLY,
                    "capability_manifest_hash": caps.content_hash, "parameter_set_hash": scenario.data["parameter_set_hash"],
                    "analysis_version": "fixture-1", "scoring_version": "fixture-1", "seed_manifest": {"fixture": 0},

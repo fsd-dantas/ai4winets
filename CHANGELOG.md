@@ -7,6 +7,22 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **Null providers for all seven stages** in `software/ecora/nulls.py`, implementing the
+  policies declared in [stage arms](docs/ECoRA/stage-arms.md): omitted telemetry with
+  explicit coverage, a first-candidate diagnosis labelled an unvalidated guess, a
+  one-step first-feasible plan recorded as `unmet`, first-feasible resolution with the
+  rest deferred, a suppressed action receipt, a receipt-only result and inconclusive
+  assurance claims. An all-Null treatment runs every stage and produces a complete
+  traceable report in which nothing was observed, decided or applied. A Null arm is a
+  declared experimental baseline, not scaffolding; its policies are versioned so that
+  changing one after seeing results is visible.
+- **Finite reference model** in `software/ecora/model.py`: a deterministic discrete-event
+  world of byte-service FIFO queues with finite limits, explicit propagation, two legs
+  per site, a shared egress, SCADA and AMI obligations, AMI pacing, path selection and
+  scheduled link disturbances. It exports contract-valid observations and frozen cohort
+  counts, and keeps model truth separate from observable evidence. It is not an LTE
+  emulator and carries no radio, protocol conformance or calibrated value; its declared
+  simplifications are listed in the module.
 - Executable ECoRA contract foundation in `software/ecora`: versioned schemas, immutable
   JSON records and dataset lineage, frozen-study admission, provider registry, audited
   boundary execution, capability/privilege enforcement, terminal outcomes and duplicate

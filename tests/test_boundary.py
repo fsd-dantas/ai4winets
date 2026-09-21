@@ -106,6 +106,77 @@ class BoundaryTests(unittest.TestCase):
         self.assertEqual(report.data["claims"][0]["verdict"], "inconclusive")
         self.assertEqual(report.data["contributing_run_ids"], ["run:fixture"])
 
+    def test_null_arm_runs_every_stage_and_reports_inconclusively(self):
+        store, boundary = self.setup_boundary(treatment="null_baseline", run_id="run:null")
+        source = self.source(boundary)
+        datasets = {}
+        datasets["telemetry"] = boundary.invoke(
+            "telemetry", "n-t", [source.data["dataset_id"]], watermark_s=0).data["dataset_id"]
+        datasets["diagnosis"] = boundary.invoke(
+            "diagnosis", "n-d", [datasets["telemetry"]], watermark_s=0).data["dataset_id"]
+        datasets["problem"] = boundary.assemble(
+            "n-assemble-plan", "planning", [datasets["diagnosis"]], planning_problem(),
+            watermark_s=0).data["dataset_id"]
+        datasets["planning"] = boundary.invoke(
+            "planning", "n-p", [datasets["problem"]], watermark_s=0).data["dataset_id"]
+        datasets["resolution"] = boundary.invoke(
+            "resolution", "n-r", [datasets["planning"]], watermark_s=0).data["dataset_id"]
+        datasets["action"] = boundary.invoke(
+            "action", "n-a", [datasets["resolution"]], watermark_s=0).data["dataset_id"]
+        datasets["cohorts"] = boundary.assemble(
+            "n-assemble-result", "result", [datasets["action"]], result_input(),
+            watermark_s=0).data["dataset_id"]
+        datasets["result"] = boundary.invoke(
+            "result", "n-res", [datasets["cohorts"]], watermark_s=0).data["dataset_id"]
+        datasets["assurance"] = boundary.invoke(
+            "assurance", "n-as", [datasets["result"]], watermark_s=0).data["dataset_id"]
+        for stage, dataset_id in datasets.items():
+            with self.subTest(stage=stage):
+                self.assertEqual(store.dataset(dataset_id).data["terminal_status"], "ok")
+                self.assertEqual(store.dataset(dataset_id).data["arm"],
+                                 "null" if stage in ("telemetry", "diagnosis", "planning",
+                                                     "resolution", "action", "result",
+                                                     "assurance") else "proposed")
+
+        def payload(stage, index=0):
+            return Record.from_dict(store.messages(datasets[stage])[index].data["payload"])
+
+        # Null telemetry declares zero coverage and names what it withheld.
+        telemetry = payload("telemetry")
+        self.assertEqual(telemetry.data["observations"], [])
+        self.assertEqual(telemetry.data["completeness"], 0)
+        self.assertEqual(telemetry.data["omitted_metrics"], ["queue_occupancy"])
+        # A first-candidate guess carries no supporting evidence.
+        hypothesis = payload("diagnosis").data["hypotheses"][0]
+        self.assertEqual(hypothesis["label"], "queue_pressure")
+        self.assertEqual((hypothesis["status"], hypothesis["support_ids"]), ("unknown", []))
+        # A one-step plan is structurally valid while leaving the goal unmet.
+        plan = payload("planning")
+        self.assertEqual(len(plan.data["steps"]), 1)
+        self.assertEqual(plan.data["goal_status"], "unmet")
+        # The mutation is admitted, then suppressed rather than applied.
+        self.assertEqual(payload("resolution").data["decisions"][0]["disposition"], "admit")
+        receipt = payload("action")
+        self.assertEqual(receipt.data["disposition"], "suppressed")
+        self.assertIsNone(receipt.data["applied_at_s"])
+        # No service outcome is extracted and no requirement is decided.
+        self.assertEqual(payload("result").data["measurements"], [])
+        report = payload("assurance")
+        self.assertEqual([c["verdict"] for c in report.data["claims"]], ["inconclusive"])
+        self.assertEqual(report.data["contributing_dataset_ids"], [datasets["result"]])
+
+    def test_null_resolution_cannot_act_without_precondition_evidence(self):
+        store, boundary = self.setup_boundary(treatment="null_baseline", run_id="run:null2")
+        source = self.source(boundary)
+        problem = boundary.assemble("n2-assemble", "planning", [source.data["dataset_id"]],
+                                    planning_problem(known_predicates=[]), watermark_s=0)
+        planning = boundary.invoke("planning", "n2-p", [problem.data["dataset_id"]], watermark_s=0)
+        resolution = boundary.invoke("resolution", "n2-r", [planning.data["dataset_id"]], watermark_s=0)
+        record = Record.from_dict(store.messages(resolution.data["dataset_id"])[0].data["payload"])
+        self.assertEqual(record.data["command_ids"], [])
+        self.assertEqual(record.data["decisions"][0]["disposition"], "defer")
+        self.assertEqual(len(store.messages(resolution.data["dataset_id"])), 1)
+
     def test_assembled_input_cannot_depart_from_the_frozen_study(self):
         store, boundary = self.setup_boundary()
         source = self.source(boundary)

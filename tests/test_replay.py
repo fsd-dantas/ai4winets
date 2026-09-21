@@ -98,13 +98,13 @@ class ReplayTests(unittest.TestCase):
             boundary.replay("replay:empty", "planning",
                             source_dataset_id=diagnosis.data["dataset_id"], watermark_s=0)
 
-    def test_counterfactual_modes_are_refused_rather_than_approximated(self):
+    def test_a_closed_loop_branch_is_not_offered_as_a_replayed_payload(self):
+        """A branch continues a regenerated world as a run; it cannot be spliced in here."""
         store, boundary = self.open("modes")
         telemetry, _ = self.record(store, boundary)
-        for mode in ("component_substitution", "closed_loop_branch"):
-            with self.subTest(mode=mode), self.assertRaises(ContractError):
-                boundary.replay(f"replay:{mode}", "diagnosis", mode=mode,
-                                source_dataset_id=telemetry.data["dataset_id"], watermark_s=0)
+        with self.assertRaises(ContractError):
+            boundary.replay("replay:branch", "diagnosis", mode="closed_loop_branch",
+                            source_dataset_id=telemetry.data["dataset_id"], watermark_s=0)
 
     def test_a_provider_resumes_from_its_recorded_state_snapshot(self):
         store, boundary = self.open("state")

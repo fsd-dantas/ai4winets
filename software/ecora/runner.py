@@ -61,6 +61,19 @@ class Streams:
         return {name: stream.snapshot() for name, stream in sorted(self._streams.items())}
 
 
+def observation_batch(model, capability_ids, at, period_s, sequence):
+    """Build the adapter batch for a moment in the world.
+
+    Regeneration and the original run share this, so a prefix that fails to verify has
+    diverged in the world rather than in how two code paths happened to describe it.
+    """
+    exported = model.observations(capability_ids=capability_ids, window_s=period_s)
+    return Record("AdapterObservationBatch", {
+        "observations": exported, "watermark_s": at,
+        "window": {"start_s": max(0.0, at - period_s), "end_s": at},
+        "sequence": sequence, "completeness": 1 if exported else 0, "omitted_metrics": []})
+
+
 class ModelActionProvider:
     """Applies an admitted command to the finite world and reports what it observed.
 
@@ -100,7 +113,8 @@ class ModelActionProvider:
 class Run:
     """One run of one treatment against one frozen scenario."""
 
-    def __init__(self, boundary, model, *, streams, capability_ids, period_s, epochs, assembly):
+    def __init__(self, boundary, model, *, streams, capability_ids, period_s, epochs, assembly,
+                 start_epoch=0):
         self.boundary = boundary
         self.model = model
         self.streams = streams
@@ -108,6 +122,9 @@ class Run:
         self.period_s = period_s
         self.epochs = epochs
         self.assembly = assembly
+        # A branch starts partway through, on a world regenerated and verified against the
+        # recorded prefix. Everything it produces from here is its own.
+        self.start_epoch = start_epoch
         self._state = {}
 
     def _advance(self, stage, invocation_id, dataset_ids, watermark):
@@ -140,17 +157,13 @@ class Run:
         return {f"selected_{self.model.path[site]}" for site in self.model.sites}
 
     def _export(self, label, at, sequence):
-        exported = self.model.observations(capability_ids=self.capability_ids, window_s=self.period_s)
-        batch = Record("AdapterObservationBatch", {
-            "observations": exported, "watermark_s": at,
-            "window": {"start_s": max(0.0, at - self.period_s), "end_s": at},
-            "sequence": sequence, "completeness": 1 if exported else 0, "omitted_metrics": []})
+        batch = observation_batch(self.model, self.capability_ids, at, self.period_s, sequence)
         return self.boundary.ingest(f"ingest:{label}", batch, watermark_s=at)
 
     def execute(self):
         """Run every epoch, then close the run with a result and an assurance report."""
         last_action = None
-        for index in range(self.epochs):
+        for index in range(self.start_epoch, self.epochs):
             last_action = self._epoch(index)
         closing = self.epochs * self.period_s
         self.model.advance_to(closing)
@@ -165,6 +178,57 @@ class Run:
             watermark_s=closing).data["dataset_id"]
         result = self._advance("result", "result", [cohorts], closing)
         return self._advance("assurance", "assurance", [result], closing)
+
+
+class Continuation:
+    """Regenerates a recorded run's causal prefix and verifies it before any branch.
+
+    Checkpointing the world is not available here, so the prefix is rebuilt under the
+    recorded configuration and the commands the recorded run actually applied, then checked
+    against the observations that run ingested. Verification is the whole point: a
+    counterfactual built on a prefix that did not reproduce is not a counterfactual, and an
+    unverified prefix is not a branch point.
+
+    What a verified branch supports is a service outcome under its own continuation. It
+    does not license reading the original run's later evidence as the counterfactual: that
+    evidence belongs to the actions that were actually taken.
+    """
+
+    def __init__(self, store, *, build_model, capability_ids, period_s):
+        self.store = store
+        self.build_model = build_model
+        self.capability_ids = capability_ids
+        self.period_s = period_s
+
+    def _payloads(self, dataset_id):
+        return [Record.from_dict(m.data["payload"]) for m in self.store.messages(dataset_id)]
+
+    def recorded_prefix(self, epochs):
+        """The observation payload each recorded epoch ingested."""
+        return [[p.content_hash for p in self._payloads(f"dataset:ingest:{index}")]
+                for index in range(epochs)]
+
+    def applied_commands(self, epoch):
+        """The commands the recorded run applied, not merely the ones it admitted."""
+        applied = {p.data["command_id"] for p in self._payloads(f"dataset:action:{epoch}")
+                   if p.kind == "ActionReceipt" and p.data["disposition"] == "applied"}
+        return [p for p in self._payloads(f"dataset:resolution:{epoch}")
+                if p.kind == "ActionCommand" and p.data["command_id"] in applied]
+
+    def regenerate(self, branch_epoch):
+        """Rebuild the world up to the branch point, refusing to continue if it diverges."""
+        recorded = self.recorded_prefix(branch_epoch)
+        model = self.build_model()
+        for index in range(branch_epoch):
+            at = index * self.period_s
+            model.advance_to(at)
+            batch = observation_batch(model, self.capability_ids, at, self.period_s, index)
+            require([batch.content_hash] == recorded[index],
+                    f"regenerated prefix diverges from the recorded run at epoch {index}")
+            for command in self.applied_commands(index):
+                applied, why = model.apply(command)
+                require(applied, f"a recorded command no longer applies at epoch {index}: {why}")
+        return model
 
 
 def closed_loop_environment(model, *, period_s, assembly=None):

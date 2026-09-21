@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **64 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **75 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -43,6 +43,22 @@ lineage there, and cannot shed the privilege of what it replays. A provider resu
 recorded state snapshot and continues its own counter. Component substitution and
 closed-loop continuation are refused rather than approximated, because neither the
 simulator continuation nor the prefix verification they would need exists yet.
+
+**Verified continuation** is exercised with its negative control. A recorded run's causal
+prefix is regenerated under the recorded configuration and the commands that run actually
+applied, and checked against the observations it ingested; rebuilding under a different
+world is refused, and the divergence it is refused on appears at the second epoch rather
+than the first, so verification has to catch a prefix that started out plausible. A branch
+from a verified prefix continues that world under a different treatment, produces evidence
+only from its branch point onward, and reports under its own run identity. A closed-loop
+branch is refused at the replay seam, because a branch is a run over a verified prefix
+rather than a payload spliced into another run's lineage.
+
+The **declared failure cases** each have a test: missing observations retained as unknown
+rather than dropped, a batch refused for claiming full coverage while withholding a signal,
+competing proposals resolved to one with the rest deferred and exactly one command issued,
+a receipt for a command that was never issued refused, an unknown receipt retained while
+claiming no application, and interrupted runs quarantined until inspected.
 
 **Run orchestration** is exercised end to end: a run produces an assurance report that
 resolves to its frozen benchmark and run identity; two runs of one treatment under one

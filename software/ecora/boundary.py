@@ -213,8 +213,10 @@ class Boundary:
         invocation they were recorded in, so replayed evidence is never mistaken for the
         original and never silently joined to it.
         """
-        require(mode in ("boundary_playback", "trace_only"),
-                "component substitution and closed-loop continuation are not implemented")
+        # A closed-loop branch is not a payload replay. It is a whole run continuing from a
+        # regenerated and verified world, so it is started as a run, not spliced in here.
+        require(mode in ("boundary_playback", "trace_only", "component_substitution"),
+                "a closed-loop branch is a new run over a verified prefix, not a replayed payload")
         store = source_store or self.store
         source = store.dataset(source_dataset_id).data
         payloads, refs, origins = [], set(), set()

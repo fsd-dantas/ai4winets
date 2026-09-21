@@ -7,6 +7,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **Verified simulator continuation** in `software/ecora/runner.py`: a recorded run's
+  causal prefix is regenerated under the recorded configuration and the commands that run
+  actually applied, then verified against the observations it ingested before anything may
+  branch from it. An unverified prefix is not a branch point. A branch is a new run with
+  its own identity that produces evidence only from the branch point onward, so an
+  action-changing replay generates its own subsequent outcomes instead of borrowing the
+  recorded ones. Component substitution re-runs a stage on its recorded inputs.
+- **Failure-case coverage** for the cases the milestone declares: missing observations,
+  stale commands, conflicting proposals, unknown receipts and interrupted runs, with the
+  module naming which test covers each.
 - **Boundary playback and state restore**: a recorded stage output can be fed into the
   next stage without re-running its producer, and a provider can resume from a recorded
   state snapshot. Replayed payloads re-enter under the replaying run's scope carrying the

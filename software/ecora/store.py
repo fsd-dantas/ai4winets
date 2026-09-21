@@ -13,11 +13,16 @@ class ArtifactStore:
     A process crash leaves the lock file; an operator must inspect it before removing it.
     """
 
-    def __init__(self, root):
+    def __init__(self, root, *, cache_records=8192):
         self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)
         self.objects = self.root / "objects"
         self.objects.mkdir(exist_ok=True)
+        # A record is content-addressed and immutable, so a hash identifies one validated
+        # record for the life of the process. Revalidating it on every read dominated run
+        # time. Eviction is least-recently-used and costs only a re-read.
+        self._records = {}
+        self._cache_records = cache_records
         self._lock_path = self.root / "writer.lock"
         try:
             self._lock_fd = os.open(self._lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
@@ -79,17 +84,33 @@ class ArtifactStore:
         except OSError:
             self._poisoned = True
             raise
+        self._remember(record.content_hash, record)
         return record.content_hash
 
-    def get(self, content_hash):
+    def get(self, content_hash, *, cached=True):
         require(type(content_hash) is str and len(content_hash) == 64
                 and all(c in "0123456789abcdef" for c in content_hash), "invalid object hash")
+        path = self.objects / f"{content_hash}.json"
+        if cached:
+            hit = self._records.pop(content_hash, None)
+            if hit is not None:
+                # Identity cannot change, so the record is not revalidated. Its file must
+                # still be there: removing evidence must not pass unnoticed on a read.
+                require(path.exists(), f"missing object: {content_hash}")
+                self._records[content_hash] = hit
+                return hit
         try:
-            record = Record.from_json((self.objects / f"{content_hash}.json").read_bytes())
+            record = Record.from_json(path.read_bytes())
         except OSError as exc:
             raise ContractError(f"missing object: {content_hash}") from exc
         require(record.content_hash == content_hash, "object address/hash mismatch")
+        self._remember(content_hash, record)
         return record
+
+    def _remember(self, content_hash, record):
+        if content_hash not in self._records and len(self._records) >= self._cache_records:
+            self._records.pop(next(iter(self._records)))
+        self._records[content_hash] = record
 
     def _verify_event(self, event):
         require(type(event) is dict and set(event) == {"sequence", "previous_hash", "event", "data", "content_hash"},
@@ -288,11 +309,17 @@ class ArtifactStore:
         return self._sequences.get((run_id, source, destination), 0)
 
     def verify(self):
-        """Read every addressed artifact again so post-admission mutation cannot hide."""
+        """Re-read and revalidate every addressed artifact from disk.
+
+        This is the integrity audit, and the only place that re-reads what the cache
+        already holds. An ordinary read checks that an object is still present but does
+        not revalidate it; a file whose contents changed underneath the process is caught
+        here, or when the store is reopened.
+        """
         for path in self.objects.glob("*.json"):
-            self.get(path.stem)
+            self.get(path.stem, cached=False)
         for content_hash in (*self._datasets.values(), *self._messages.values(), *self._invocations.values()):
-            self.get(content_hash)
+            self.get(content_hash, cached=False)
         return {"events": len(self._events), "datasets": len(self._datasets), "messages": len(self._messages)}
 
     def deliver(self, message, consumer_id, consumer, *, destination, watermark_s,

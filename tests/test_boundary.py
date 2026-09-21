@@ -370,8 +370,12 @@ class BoundaryTests(unittest.TestCase):
         source = self.source(boundary)
         path = store.objects / f"{source.content_hash}.json"
         path.write_bytes(b"{}")
+        # An ordinary read is served from the record cache and does not revalidate, so a
+        # file whose contents changed underneath the process survives it. Detecting that
+        # is the audit's job, and a reopen's; both must refuse this store.
+        self.assertEqual(store.get(source.content_hash), source)
         with self.assertRaises(ContractError):
-            store.dataset(source.data["dataset_id"])
+            store.verify()
         root = store.root
         store.close()
         with self.assertRaises(ContractError):

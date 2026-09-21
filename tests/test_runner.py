@@ -53,10 +53,10 @@ class RunTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
 
-    def execute(self, treatment, name, run_id):
+    def execute(self, treatment, name, run_id, cache_records=8192):
         model = world()
         registry, study, scenario_set, scenario, caps = closed_loop_environment(model, period_s=PERIOD)
-        store = ArtifactStore(Path(self.temp.name) / name)
+        store = ArtifactStore(Path(self.temp.name) / name, cache_records=cache_records)
         self.addCleanup(store.close)
         run = registry.admit(study, scenario_set, scenario, caps, treatment, run_id)
         boundary = Boundary(store, registry, run)
@@ -113,6 +113,13 @@ class RunTests(unittest.TestCase):
         for receipt in receipts:
             for observation_id in receipt["application_observation_ids"]:
                 self.assertIn(observation_id, exported)
+
+    def test_the_record_cache_is_transparent_to_the_evidence(self):
+        """A cache too small to hold the working set must change nothing but the timing."""
+        cached, _, _ = self.execute("closed_loop", "cache-warm", "run:cache")
+        cold, _, _ = self.execute("closed_loop", "cache-cold", "run:cache", cache_records=1)
+        self.assertEqual(cached.head(), cold.head())
+        self.assertEqual(cached.verify(), cold.verify())
 
     def test_stage_state_carries_forward_between_epochs(self):
         store, _, _ = self.execute("null_baseline", "state", "run:state")

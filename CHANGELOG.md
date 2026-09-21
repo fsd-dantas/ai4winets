@@ -16,10 +16,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
   A closed-loop treatment binds the action stage to the finite world and differs from the
   Null treatment in that one binding, so a paired comparison attributes the difference to
   the stage rather than to the orchestration around it.
-- **Measured orchestration cost**: about 2.1 s per decision epoch, dominated by `fsync`.
-  Projected against the nominal parameter block this exceeds the declared wall-time budget
-  by more than twenty times. Recorded in [`software/validation.md`](software/validation.md)
-  so the pilot that freezes the final budget starts from a measurement.
+- **Measured orchestration cost**: about 0.20 s per decision epoch, roughly 4.8 minutes
+  per nominal run and 6.4 days for the 1935 base runs, against a declared 3-day budget.
+  Recorded in [`software/validation.md`](software/validation.md) so the pilot that freezes
+  the final budget starts from a measurement rather than an assumption.
 - **Null providers for all seven stages** in `software/ecora/nulls.py`, implementing the
   policies declared in [stage arms](docs/ECoRA/stage-arms.md): omitted telemetry with
   explicit coverage, a first-candidate diagnosis labelled an unvalidated guess, a

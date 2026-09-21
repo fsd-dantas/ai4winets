@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **56 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **57 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -44,21 +44,37 @@ receipts cite observations the run actually exports. Named random streams are in
 
 ## Measured orchestration cost
 
-A closed-loop run on this workstation costs about **2.1 s per decision epoch** (measured
-over 4-epoch and 16-epoch runs, 32 and 116 committed datasets). The cost is dominated by
-`fsync` on every object write and journal append, which is the durability the artifact
-store deliberately buys.
+A closed-loop run on this workstation costs about **0.20 s per decision epoch**, measured
+over 8-epoch and 32-epoch runs (177 and 205 ms respectively; the difference is the growing
+model event history, not the store).
 
-Projected against the nominal parameter block, this does not fit the declared envelope.
-At `run_duration_s=140` and `decision_period_s=0.100` a single run is 1400 epochs, roughly
-**49 minutes**; the 1935 base runs of the screening and confirmation designs would need
-about **66 days** of wall time against a declared `max_wall_time_s` of 259200 s, exceeding
-it by more than twenty times.
+An earlier measurement put this at 2.1 s per epoch and attributed it to `fsync`. That
+attribution was wrong, and the correction is worth recording. Direct measurement shows
+57 `fsync` calls per epoch at 0.88 ms each, about 50 ms — under three per cent of the
+original figure. Stubbing `fsync` out entirely left the epoch cost essentially unchanged.
 
-This is a measurement of the current harness, not a property of the design. Group-committed
-journal appends, a declared durability mode for exploratory runs, or a longer decision
-period would each move it. It is recorded here so the pilot that freezes the final budget
-starts from a number rather than an assumption.
+Profiling found the actual cost: `ArtifactStore.get` was called 16417 times in a six-epoch
+run, roughly 2700 reads per epoch for nine invocations, and every read re-parsed the JSON
+and re-ran full schema validation on a record that is content-addressed and immutable.
+Twenty-one of thirty-five profiled seconds were inside `jsonschema`. Records are now
+memoised by content hash, which removes the revalidation without changing what is stored:
+a run under a one-entry cache produces the same journal as one under the default.
+
+The trade is explicit. An ordinary read no longer revalidates; it confirms the object is
+still present, so deleted evidence is still caught on the read that needs it, while a file
+whose contents changed underneath the process is caught by `verify()` or by reopening the
+store. Both are exercised by tests.
+
+Projected against the nominal parameter block this still does not fit the declared
+envelope. At `run_duration_s=140` and `decision_period_s=0.100` a run is 1400 epochs,
+about **4.8 minutes**; the 1935 base runs need roughly **6.4 days** against a declared
+`max_wall_time_s` of 259200 s, exceeding it by about a factor of two rather than twenty.
+
+Closing the remainder is a budget decision rather than an engineering one, and belongs to
+the pilot that freezes it. `fsync` is now about a quarter of the per-epoch cost, so group
+committing journal appends would reach roughly 4.9 days; raising `decision_period_s` to
+0.200 halves the epoch count. Either alone is insufficient and both together fit. These
+are measurements of this harness on one workstation, not properties of the design.
 
 `python -m ecora demo .ecora-runs/example` runs the same invocation sequence for two
 frozen treatment bindings. Both produce valid DiagnosisRecord payloads with different

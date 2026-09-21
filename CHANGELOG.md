@@ -39,6 +39,21 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
   machine-readable vocabulary, the stage contracts, the decision methods, the nested-loop methodology with its
   study freeze contract, the experimental design and ablation matrix, and the recorded architectural
   decisions. Every capability it describes is declared **planned**.
-- `README.md` presents ECoRA as a single instrumented pipeline: the two-loop separation, Coordination and
-  Resolution as cross-cutting concerns, the Null/Proposed/Oracle ablation arms, and an explicit statement that
-  no architectural novelty is claimed.
+- The ECoRA package presents the framework as a single instrumented pipeline: the two-loop separation,
+  Coordination and Resolution as cross-cutting concerns, the Null/Proposed/Oracle ablation arms, and an
+  explicit statement that no architectural novelty is claimed.
+
+### Changed
+
+- The quick start moved from `README.md` into [`docs/ECoRA/README.md`](docs/ECoRA/README.md), where the
+  reading order and the eventual Python and ns-3 environments belong to the framework they describe.
+  `README.md` keeps one line stating that no executable software has landed, pointing to it.
+- `README.md` states what the repository is and guarantees, rather than instructing contributors. *Experimental
+  philosophy* and *Reproducibility and scientific claims* merged into **Evidence and Reproducibility**; the
+  metric list and the hold-conditions-fixed rule were removed in favour of the framework documents that make
+  them binding, and the material duplicating [`CONTRIBUTING.md`](CONTRIBUTING.md) now points to it instead.
+- `README.md` is scoped to the repository rather than to one framework. The ECoRA exposition moved to
+  [`docs/ECoRA/README.md`](docs/ECoRA/README.md), which now carries the framework-element and arm tables and
+  the statement that every method in it is a baseline. In its place `README.md` carries an **experiment
+  index**: the studies this repository intends to run, the framework each is designed under, its status, and a
+  link to its design. Every entry is declared planned; `experiments/` is empty.

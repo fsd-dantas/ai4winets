@@ -19,6 +19,32 @@ ECoRA separates two nested loops with different clocks and authority:
 
 Each study freezes one scenario-set version before comparative measurement. All its runs instantiate members of that set, and every claim names the study, scenario-set version and relevant scenario revisions. Scenario-set v2 cannot replace v1 during an active study. A candidate successor is not evidence of improvement; controller improvement must be measured against the same frozen benchmark.
 
+## Framework elements
+
+Symbolic diagnosis, automated planning, expert coordination, self-organising resolution and simulated measurement are *methods* and *treatments* within one instrumented pipeline, not separate systems. Hosting them together is what makes them comparable: every method is exercised against the same scenarios, the same action space and the same assurance metrics.
+
+| Element | Role in ECoRA |
+| --- | --- |
+| Decision methods | Rule-based diagnosis, STRIPS and GPS planning, A* search |
+| Coordination | How multiple knowledge sources contribute to a shared solution state |
+| Resolution | How competing proposals are reduced to a decision, by central arbitration or local self-organisation |
+| Assurance | Evaluation of service requirements against evidence, scoped to a frozen study |
+| The plant | ns-3 behind an anti-corruption layer, supplying telemetry and applying actions |
+
+Coordination and Resolution are **concerns applied across the loop**, not single stages — candidates compete at diagnosis, at planning and at execution. Treating them as cross-cutting is what turns *expert* and *eco* modes from two incomparable architectures into two settings of one ablatable factor.
+
+Every stage binds a provider through configuration rather than code, in three arms:
+
+| Arm | What it is | What it measures |
+| --- | --- | --- |
+| **Null** | A degenerate policy — first match, first feasible action, no planning | Whether the stage contributes at all |
+| **Proposed** | The method under study | How much it contributes |
+| **Oracle** | Declared simulator truth, with its privileges explicitly labelled | How much conditional headroom remains |
+
+The Oracle arm carries the load that matters most here. If an Oracle diagnoser barely beats the Proposed one, the bottleneck may not be the method — it may be the telemetry. Establishing that requires the comparisons in [Stage arms](stage-arms.md#information-sufficiency-and-bottleneck-attribution); a small gap alone does not identify the limiting factor. Because every stage invocation logs its typed inputs and outputs, a stage can also be replayed in isolation.
+
+Every method here is a **baseline**, not a presumed solution. Future controllers, including optimisation-based, learning-based, digital-twin-assisted and security-aware mechanisms, are evaluated as additional treatments against the same frozen scenario set and the same assurance metrics.
+
 ## Reading guide
 
 | Document | Purpose |
@@ -72,3 +98,25 @@ Eco-problem solving here means local satisfaction-seeking agents whose interacti
 - Ablations and failed or inconclusive runs are retained alongside successful runs.
 
 All entities and example identifiers in this package are synthetic. Numeric experimental settings are owned by the single parameter register in [Experiments](experiments.md#parameter-register); no settings here claim calibration.
+
+## Quick start
+
+**No executable software has landed yet, so there is nothing to install.** ECoRA exists as specification: contracts, methodology and experimental design. Clone the repository and read:
+
+```bash
+git clone https://github.com/fsd-dantas/ai4winets.git
+cd ai4winets/docs/ECoRA
+```
+
+A reading order, for someone arriving at the framework for the first time:
+
+1. [What is ECoRA](#what-is-ecora) and [Framework elements](#framework-elements) — the two loops, the stages and their three arms.
+2. [Selected v1 scope](v1-scope.md) — what the first version simulates, observes, controls and claims.
+3. [Contracts](contracts.md) and [Normative interfaces](../../system/interfaces.md) — the seams every arm binds, with the [telemetry](../../system/telemetry-contract.md) and [action](../../system/action-contract.md) contracts that bound what any provider may see and do.
+4. [Experiments and ablation](experiments.md) — the comparisons, and [Methodology](methodology.md) for the freeze rules that scope what they can claim.
+
+The [research question and scope](../../research/research-questions.md) sits above all of this: it states what is being asked, and the boundary of what this framework's evidence could support. The remaining documents under [`system/`](../../system/) are placeholders awaiting adoption of these contracts into executable form.
+
+When software arrives, two environments will apply: the Python package on any supported Python environment, and the ns-3 wireless-backhaul experiment on Linux, with Ubuntu or WSL2 as the documented setup path. Each experiment directory will carry the README stating its exact execution and validation procedure.
+
+A successful installation is not validation of an experiment. A result is confirmed by reproducing the documented command, comparing the stated outputs, and reading the experiment's limitations.

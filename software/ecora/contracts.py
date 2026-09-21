@@ -190,6 +190,12 @@ def validate(kind, data):
             require(bool(cap["evidence_refs"]), "enabled capability needs evidence")
     elif kind == "StudyManifest":
         _unique(data["treatments"], "treatment_id")
+        assembly = data["assembly"]
+        _unique(assembly["result"]["cohorts"], "cohort_id")
+        for cohort in assembly["result"]["cohorts"]:
+            _window(cohort["generation_window"])
+        require(all(type(c) in (int, float) and c >= 0 for c in assembly["planning"]["action_costs"].values()),
+                "frozen action costs must be nonnegative numbers")
         for treatment in data["treatments"]:
             require({b["stage_id"] for b in treatment["bindings"]} == set(STAGES)
                     and len(treatment["bindings"]) == len(STAGES), "exactly one binding per stage required")

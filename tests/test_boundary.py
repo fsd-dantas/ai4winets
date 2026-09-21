@@ -6,7 +6,8 @@ from unittest.mock import patch
 
 from ecora.boundary import Boundary
 from ecora.contracts import ContractError, Record, canonical, decode, digest
-from ecora.fixtures import batch, command, fixture_environment, observation, reason
+from ecora.fixtures import (batch, command, fixture_environment, observation, planning_problem,
+                            reason, result_input)
 from ecora.registry import ProviderResult
 from ecora.store import ArtifactStore
 
@@ -81,25 +82,18 @@ class BoundaryTests(unittest.TestCase):
         stages["diagnosis"] = boundary.invoke(
             "diagnosis", "d", [stages["telemetry"]], watermark_s=0).data["dataset_id"]
         # Planning consumes a PlanningProblem built from the retained DiagnosisRecord.
-        problem = Record("PlanningProblem", {
-            "known_predicates": ["selected_lte"], "unknown_predicates": ["reachable_alternative"],
-            "goals": ["selected_alternative"], "operator_catalog_version": "v1",
-            "action_costs": {"select_path": 2}, "expansion_budget": 100, "time_budget_s": 2,
-            "memory_budget_bytes": 1024, "horizon_steps": 8})
         stages["problem"] = boundary.assemble(
-            "assemble-plan", "planning", [stages["diagnosis"]], problem, watermark_s=0).data["dataset_id"]
+            "assemble-plan", "planning", [stages["diagnosis"]], planning_problem(),
+            watermark_s=0).data["dataset_id"]
         stages["planning"] = boundary.invoke(
             "planning", "p", [stages["problem"]], watermark_s=0).data["dataset_id"]
         stages["resolution"] = boundary.invoke(
             "resolution", "r", [stages["planning"]], watermark_s=0).data["dataset_id"]
         stages["action"] = boundary.invoke(
             "action", "a", [stages["resolution"]], watermark_s=0).data["dataset_id"]
-        cohort = {"cohort_id": "cohort:ami", "generation_window": {"start_s": 0, "end_s": 0},
-                  "generated": 1, "delivered_on_time": 0, "delivered_late": 0, "lost": 0,
-                  "pending": 1, "duplicate_deliveries": 0, "censored": True, "deadline_s": 10}
-        result_input = Record("ResultInput", {"receipt_ids": [], "observation_ids": [], "cohorts": [cohort]})
         stages["cohorts"] = boundary.assemble(
-            "assemble-result", "result", [stages["action"]], result_input, watermark_s=0).data["dataset_id"]
+            "assemble-result", "result", [stages["action"]], result_input(),
+            watermark_s=0).data["dataset_id"]
         stages["result"] = boundary.invoke(
             "result", "res", [stages["cohorts"]], watermark_s=0).data["dataset_id"]
         stages["assurance"] = boundary.invoke(
@@ -111,6 +105,28 @@ class BoundaryTests(unittest.TestCase):
         self.assertEqual(report.kind, "AssuranceReport")
         self.assertEqual(report.data["claims"][0]["verdict"], "inconclusive")
         self.assertEqual(report.data["contributing_run_ids"], ["run:fixture"])
+
+    def test_assembled_input_cannot_depart_from_the_frozen_study(self):
+        store, boundary = self.setup_boundary()
+        source = self.source(boundary)
+        departures = [
+            ("planning", planning_problem(goals=["selected_lte"]), "goals"),
+            ("planning", planning_problem(expansion_budget=999), "expansion_budget"),
+            ("planning", planning_problem(action_costs={"select_path": 99}), "action_costs"),
+            ("result", result_input(cohorts=[{
+                "cohort_id": "cohort:ami", "generation_window": {"start_s": 0, "end_s": 5},
+                "generated": 1, "delivered_on_time": 0, "delivered_late": 0, "lost": 0,
+                "pending": 1, "duplicate_deliveries": 0, "censored": True, "deadline_s": 10}]),
+             "window"),
+        ]
+        for index, (destination, payload, label) in enumerate(departures):
+            with self.subTest(field=label), self.assertRaises(ContractError):
+                boundary.assemble(f"depart-{index}", destination,
+                                  [source.data["dataset_id"]], payload, watermark_s=0)
+        # Only the measured counts are free to vary from run to run.
+        accepted = boundary.assemble("counted", "result", [source.data["dataset_id"]],
+                                     result_input(), watermark_s=0)
+        self.assertEqual(accepted.data["terminal_status"], "ok")
 
     def test_records_the_next_stage_cannot_consume_terminate_as_evidence(self):
         store, boundary = self.setup_boundary()

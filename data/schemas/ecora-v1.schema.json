@@ -247,6 +247,22 @@
       ],
       "type": "object"
     },
+    "AssemblySpec": {
+      "additionalProperties": false,
+      "properties": {
+        "planning": {
+          "$ref": "#/$defs/PlanningAssembly"
+        },
+        "result": {
+          "$ref": "#/$defs/ResultAssembly"
+        }
+      },
+      "required": [
+        "planning",
+        "result"
+      ],
+      "type": "object"
+    },
     "AssuranceReport": {
       "additionalProperties": false,
       "properties": {
@@ -651,6 +667,28 @@
         "pending",
         "duplicate_deliveries",
         "censored",
+        "deadline_s"
+      ],
+      "type": "object"
+    },
+    "CohortSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "cohort_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        },
+        "deadline_s": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "generation_window": {
+          "$ref": "#/$defs/Window"
+        }
+      },
+      "required": [
+        "cohort_id",
+        "generation_window",
         "deadline_s"
       ],
       "type": "object"
@@ -1486,6 +1524,53 @@
         "add_effects",
         "delete_effects",
         "cost"
+      ],
+      "type": "object"
+    },
+    "PlanningAssembly": {
+      "additionalProperties": false,
+      "properties": {
+        "action_costs": {
+          "type": "object"
+        },
+        "expansion_budget": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "goals": {
+          "items": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "horizon_steps": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "memory_budget_bytes": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "operator_catalog_version": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        },
+        "time_budget_s": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "goals",
+        "operator_catalog_version",
+        "action_costs",
+        "expansion_budget",
+        "time_budget_s",
+        "memory_budget_bytes",
+        "horizon_steps"
       ],
       "type": "object"
     },
@@ -2438,6 +2523,23 @@
       ],
       "type": "object"
     },
+    "ResultAssembly": {
+      "additionalProperties": false,
+      "properties": {
+        "cohorts": {
+          "items": {
+            "$ref": "#/$defs/CohortSpec"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": false
+        }
+      },
+      "required": [
+        "cohorts"
+      ],
+      "type": "object"
+    },
     "ResultInput": {
       "additionalProperties": false,
       "properties": {
@@ -2890,6 +2992,9 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
           "type": "string"
         },
+        "assembly": {
+          "$ref": "#/$defs/AssemblySpec"
+        },
         "capability_manifest_hash": {
           "pattern": "^[0-9a-f]{64}$",
           "type": "string"
@@ -2943,6 +3048,7 @@
         "scenario_set_version",
         "scenario_set_hash",
         "treatments",
+        "assembly",
         "capability_manifest_hash",
         "parameter_set_hash",
         "analysis_version",

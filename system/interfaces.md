@@ -136,6 +136,13 @@ upstream dataset for lineage and emits the assembled input. A record the next st
 consume — `DiagnosisRecord`, `ResolutionRecord`, `ActionReceipt` — is addressed to `sink`
 and retained as evidence rather than delivered into a seam that would reject it.
 
+The StudyManifest owns what is assembled, in one `assembly` block per study rather than
+per treatment. It freezes the planning goals, operator catalog version, action costs,
+budgets and horizon, and the cohort identities, generation windows and deadlines. An
+assembled input that departs from it is rejected at the boundary. Only the run-derived
+parts stay free: known and unknown predicates for planning, and the measured counts for a
+cohort. Varying an assembly parameter is therefore a new study, not a new treatment.
+
 Run-scoped messages use simulation seconds; standalone study-level AssuranceReport records
 use UTC creation timestamps and contributing run/dataset identities. The current boundary
 wrapper is run-scoped and does not implement the later independent study aggregator.

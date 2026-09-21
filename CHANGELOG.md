@@ -51,6 +51,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Changed
 
+- `StudyManifest` gains a required study-level `assembly` block that freezes what the
+  assembled stage inputs contain: planning goals, operator catalog version, action costs,
+  budgets and horizon, and the cohort identities, generation windows and deadlines. An
+  assembled input departing from it is rejected at the boundary; only run-derived parts —
+  predicates, and a cohort's measured counts — stay free. It is study-level rather than
+  per treatment, so varying an assembly parameter starts a new study instead of becoming
+  an undeclared factor beside the arms being compared. This adds a required field to a
+  record type; no frozen study exists yet, so the contract stays at schema version 1.
 - Stage inputs that the interface defines as **built from** upstream evidence — a
   `PlanningProblem` from a `DiagnosisRecord`, a `ResultInput` from receipts and a cohort
   specification — are assembled by a separate logged harness invocation rather than routed

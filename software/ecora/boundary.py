@@ -192,7 +192,27 @@ class Boundary:
             source = self.store.dataset(dataset_id).data
             require(source["scope"] == self.run.scope, "assembly input belongs to another run or benchmark")
             refs.update(source["privileged_source_refs"])
+        self._conforms(destination, payload)
         return self._harness(invocation_id, payload, destination, dataset_ids, watermark_s, refs, "harness.assembler")
+
+    def _conforms(self, destination, payload):
+        """The frozen study owns what is assembled; the run owns only the measured parts."""
+        spec = self.run.study.data["assembly"]
+        if destination == "planning":
+            frozen = spec["planning"]
+            for field in ("goals", "operator_catalog_version", "action_costs", "expansion_budget",
+                          "time_budget_s", "memory_budget_bytes", "horizon_steps"):
+                require(payload.data[field] == frozen[field],
+                        f"assembled planning problem departs from the frozen study: {field}")
+        elif destination == "result":
+            frozen = {c["cohort_id"]: c for c in spec["result"]["cohorts"]}
+            require([c["cohort_id"] for c in payload.data["cohorts"]] == list(frozen),
+                    "assembled cohorts differ from the frozen study's cohort set")
+            for cohort in payload.data["cohorts"]:
+                declared = frozen[cohort["cohort_id"]]
+                require(cohort["generation_window"] == declared["generation_window"]
+                        and cohort["deadline_s"] == declared["deadline_s"],
+                        "assembled cohort departs from its frozen window or deadline")
 
     def invoke(self, stage, invocation_id, dataset_ids, *, watermark_s, prior_state_hash=None, random_state=None):
         require(stage in STAGES, "unknown stage")

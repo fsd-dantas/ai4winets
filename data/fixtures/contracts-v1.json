@@ -1,9 +1,36 @@
 [
   {
-    "content_hash": "1bf2fb280cc897f3eb288f2e0f4a2e83a311f5603942b6797f7cf271b663c449",
+    "content_hash": "6630f20c42d952941392821853cad77ea2132ca75301cca19a7ff906264a2bea",
     "data": {
       "access_policy_version": "v1",
       "analysis_version": "fixture-1",
+      "assembly": {
+        "planning": {
+          "action_costs": {
+            "select_path": 2
+          },
+          "expansion_budget": 100,
+          "goals": [
+            "selected_alternative"
+          ],
+          "horizon_steps": 8,
+          "memory_budget_bytes": 1024,
+          "operator_catalog_version": "v1",
+          "time_budget_s": 2
+        },
+        "result": {
+          "cohorts": [
+            {
+              "cohort_id": "cohort:ami",
+              "deadline_s": 10,
+              "generation_window": {
+                "end_s": 0,
+                "start_s": 0
+              }
+            }
+          ]
+        }
+      },
       "capability_manifest_hash": "3370f44beacfb06105be735d75b3d2e4294a9c229e399d455d9bab8b7e39c5c6",
       "compute_budget_s": 60,
       "frozen": true,

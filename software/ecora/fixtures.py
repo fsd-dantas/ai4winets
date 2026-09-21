@@ -11,6 +11,33 @@ def reason(code="fixture", detail="Synthetic contract fixture."):
     return {"code": code, "detail": detail}
 
 
+# The assembled stage inputs a study freezes, so that goal and cohort selection cannot
+# vary with the arm under comparison. Synthetic; no calibrated budget or deadline.
+ASSEMBLY = {
+    "planning": {"goals": ["selected_alternative"], "operator_catalog_version": "v1",
+                 "action_costs": {"select_path": 2}, "expansion_budget": 100,
+                 "time_budget_s": 2, "memory_budget_bytes": 1024, "horizon_steps": 8},
+    "result": {"cohorts": [{"cohort_id": "cohort:ami",
+                            "generation_window": {"start_s": 0, "end_s": 0}, "deadline_s": 10}]},
+}
+
+
+def planning_problem(**changes):
+    """A PlanningProblem conforming to ASSEMBLY; predicates stay run-derived."""
+    data = {**ASSEMBLY["planning"], "known_predicates": ["selected_lte"],
+            "unknown_predicates": ["reachable_alternative"]}
+    return Record("PlanningProblem", {**data, **changes})
+
+
+def result_input(**changes):
+    """A ResultInput whose cohort identities, windows and deadlines match ASSEMBLY."""
+    cohorts = [{**spec, "generated": 1, "delivered_on_time": 0, "delivered_late": 0,
+                "lost": 0, "pending": 1, "duplicate_deliveries": 0, "censored": True}
+               for spec in ASSEMBLY["result"]["cohorts"]]
+    return Record("ResultInput", {"receipt_ids": [], "observation_ids": [],
+                                  "cohorts": cohorts, **changes})
+
+
 def observation(**changes):
     data = {"observation_id": "observation:ami:0", "subject": "site-1", "service": "ami",
             "metric": "queue_occupancy", "unit": "byte", "value": 512, "quality": "observed",
@@ -154,6 +181,7 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=()):
                    "scenario_set_version": "1", "scenario_set_hash": scenario_set.content_hash,
                    "treatments": [{"treatment_id": "reference", "bindings": base},
                                   {"treatment_id": "substitution", "bindings": alternate}],
+                   "assembly": ASSEMBLY,
                    "capability_manifest_hash": caps.content_hash, "parameter_set_hash": scenario.data["parameter_set_hash"],
                    "analysis_version": "fixture-1", "scoring_version": "fixture-1", "seed_manifest": {"fixture": 0},
                    "compute_budget_s": 60, "storage_budget_bytes": 10485760, "access_policy_version": "v1"})

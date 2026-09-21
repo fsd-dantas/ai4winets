@@ -78,9 +78,18 @@ def definitions():
                                   capabilities=array(ref("Capability")), limitations=array(TEXT),
                                   timing_mode=enum("fixed_simulated", "logical"))
     d["Treatment"] = obj(treatment_id=ID, bindings=array(ref("Binding"), len(STAGES)))
+    # Assembled stage inputs are study-level, never per treatment: goal selection and
+    # cohort choice must not vary with the arm whose contribution is being measured.
+    d["PlanningAssembly"] = obj(goals=array(ID, 1, True), operator_catalog_version=ID,
+                                action_costs=JSON_OBJECT, expansion_budget=COUNT,
+                                time_budget_s=POSITIVE, memory_budget_bytes=COUNT,
+                                horizon_steps=COUNT)
+    d["CohortSpec"] = obj(cohort_id=ID, generation_window=ref("Window"), deadline_s=POSITIVE)
+    d["ResultAssembly"] = obj(cohorts=array(ref("CohortSpec"), 1))
+    d["AssemblySpec"] = obj(planning=ref("PlanningAssembly"), result=ref("ResultAssembly"))
     d["StudyManifest"] = obj(study_id=ID, frozen={"const": True},
                              scenario_set_version=ID, scenario_set_hash=HASH,
-                             treatments=array(ref("Treatment"), 1),
+                             treatments=array(ref("Treatment"), 1), assembly=ref("AssemblySpec"),
                              capability_manifest_hash=HASH, parameter_set_hash=HASH,
                              analysis_version=ID, scoring_version=ID, seed_manifest=JSON_OBJECT,
                              compute_budget_s=POSITIVE, storage_budget_bytes=COUNT,

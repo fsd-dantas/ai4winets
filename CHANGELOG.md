@@ -7,6 +7,19 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **Exact references for planning and resolution** in `software/ecora/exact.py`, kept
+  apart from the privileged ones because the distinction matters: an exact reference reads
+  no more than the arm it references, so Proposed-minus-exact is an algorithmic gap while
+  contract-limited-minus-privileged is an information gap, and reporting one as the other
+  would answer a question nobody asked. A plan is called optimal only when its cost matches
+  the enumerated table it is checked against, and a reference that cannot finish returns
+  unknown with its bound and no certificate.
+- **A finding about the experimental design.** The v1 configuration domain has six
+  reachable states with every goal one operator away, so uniform cost, A* and GPS return
+  the same optimal cost on every problem in it. Planning headroom is therefore zero here
+  by construction rather than by measurement, and the planning factor cannot discriminate
+  over this domain. S8's interacting-goal microbenchmark is where it can, which is what
+  that scenario is for; a test records the limitation so it stays visible.
 - **The diagnosis Oracle**, sharing the rule inventory and the inference with the
   Proposed arm so that the gap between them reads as a difference in information rather
   than two implementations disagreeing. It diagnoses only what the model establishes: an

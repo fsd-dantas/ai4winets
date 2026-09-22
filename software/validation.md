@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **154 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **166 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -34,6 +34,26 @@ SCADA, a disturbance that degrades service and then drains its backlog without l
 exported observations that satisfy the telemetry contract. It is a deterministic
 queueing model with no radio, protocol conformance or calibrated value, and no run of it
 is evidence about a wireless network.
+
+**Exact references at contract-limited information** cover planning and resolution. The
+exact planner enumerates the bounded configuration graph and will only call a plan optimal
+when its cost matches that enumerated table, so the claim is checked against an exact
+answer rather than asserted by the search that produced it. Where it cannot finish it says
+so: an unreachable goal, a space beyond its declared bound and an exhausted budget each
+yield no certificate and no optimality claim. The exact resolver enumerates proposal
+subsets, keeps the conflict-free ones and ranks them by the declared objective in its
+declared order, refusing rather than approximating when there are more proposals than its
+bound permits.
+
+Measuring the planning stage produced a finding about the experimental design rather than
+about any method. The v1 configuration domain has six reachable states and every goal is
+one operator away, so uniform cost, A* and GPS return the same optimal cost on every
+problem in it. Planning headroom against an exact reference is therefore zero here by
+construction rather than by measurement, and a factorial varying the planning stage over
+this domain would be varying something that cannot differ. The design already anticipates
+this, since S8 is a separate planner microbenchmark over interacting configuration goals,
+and a test now records the limitation so it stays visible. What does remain measurable on
+this domain is effort: means-ends expands fewer states than exhaustive search.
 
 The **diagnosis Oracle** shares the rule inventory and the inference with the Proposed
 arm, so the only difference between them is what each was given. On a faithful run the two

@@ -17,6 +17,7 @@ from .model import FiniteModel
 from .registry import ProviderResult
 from .schema import INPUT_TYPES, OUTPUT_TYPES
 from .eco import eco_binding
+from .exact import exact_binding
 from .experts import expert_binding
 from .planning import planner_binding
 from .telemetry import projection_binding
@@ -428,6 +429,15 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
     privileged = [dict(oracle_telemetry) if b["stage_id"] == "telemetry"
                   else {**b, "allow_privileged_inputs": True} for b in coordinated]
 
+    # Exact references at contract-limited information. Each is one binding from the arm
+    # it references, so the gap between them is algorithmic and not informational.
+    exact_plan = exact_binding(registry, granted, PLANNER, "planning")
+    planned_exactly = [dict(exact_plan) if b["stage_id"] == "planning" else dict(b)
+                       for b in coordinated]
+    exact_resolve = exact_binding(registry, granted, ECO, "resolution")
+    resolved_exactly = [dict(exact_resolve) if b["stage_id"] == "resolution" else dict(b)
+                        for b in planned_exactly]
+
     # A diagnosis Oracle reads truth directly, so it needs no Oracle upstream of it. This
     # treatment differs from eco in the diagnosis binding alone, which is what makes the
     # gap between them a difference in information rather than in anything else.
@@ -445,5 +455,7 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
                                    {"treatment_id": "planner", "bindings": planned},
                                    {"treatment_id": "eco", "bindings": coordinated},
                                    {"treatment_id": "oracle", "bindings": privileged},
+                                   {"treatment_id": "exact_planning", "bindings": planned_exactly},
+                                   {"treatment_id": "exact_resolution", "bindings": resolved_exactly},
                                    {"treatment_id": "oracle_diagnosis", "bindings": informed}]}
     return registry, Record("StudyManifest", data), scenario_set, scenario, caps

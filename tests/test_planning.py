@@ -136,6 +136,34 @@ class PlannerTests(unittest.TestCase):
                 self.assertIsNone(plan)
                 self.assertTrue(effort["exhausted"])
 
+    def test_this_domain_cannot_discriminate_planners_on_cost(self):
+        """A property of the v1 configuration domain, recorded rather than worked around.
+
+        The reachable configuration space is six states and every goal is one operator
+        away, so uniform cost, A* and GPS all return the optimal cost on every problem in
+        it. Planning headroom against an exact reference is therefore zero here by
+        construction and not by measurement, and a factorial that varied the planning
+        stage over this domain would be varying something that cannot differ.
+
+        The design already anticipates this: S8 is a separate planner microbenchmark over
+        interacting configuration goals, and that is where the planning factor can
+        actually discriminate. This test exists so the limitation stays visible.
+        """
+        problems = [[ON_ALT], [PACE_RESTRICTED], [ON_ALT, PACE_RESTRICTED],
+                    [predicate("pacing", "site-1", "minimum")]]
+        self.assertEqual(len(enumerate_space(INFORMED, frozenset(), OPERATORS, 64)), 6)
+        for goals in problems:
+            with self.subTest(goals=goals):
+                costs = {name: self.search(procedure, INFORMED, frozenset(), goals)[1]
+                         for name, procedure in (("uniform_cost", uniform_cost),
+                                                 ("astar", astar), ("gps", gps))}
+                self.assertEqual(len(set(costs.values())), 1, f"costs differ: {costs}")
+        # They do differ in effort, which is what remains measurable on this domain.
+        _, _, direct = self.search(gps, INFORMED, frozenset(), [ON_ALT, PACE_RESTRICTED])
+        _, _, exhaustive = self.search(uniform_cost, INFORMED, frozenset(),
+                                       [ON_ALT, PACE_RESTRICTED])
+        self.assertLess(direct["expansions"], exhaustive["expansions"])
+
     def test_a_planner_binding_is_checked_before_it_is_bound(self):
         with self.assertRaises(ContractError):
             planner_binding(Registry(), [], {"sites": SITES, "costs": COSTS}, search="telepathy")

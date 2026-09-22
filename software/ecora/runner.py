@@ -20,7 +20,7 @@ from .eco import eco_binding
 from .experts import expert_binding
 from .planning import planner_binding
 from .telemetry import projection_binding
-from .truth import TruthPort, truth_binding
+from .truth import TruthPort, oracle_diagnosis_binding, truth_binding
 
 STREAM_NAMES = ("arrivals", "errors", "disturbances", "controller")
 
@@ -102,6 +102,11 @@ PLANNER = {"sites": ["site-1"], "costs": {"select_path": 2, "set_ami_pacing": 1}
 # What the telemetry Oracle is permitted to read. Declared, not inferred.
 ORACLE = {"reads": ["truth.ami.queue_occupancy", "truth.shared.path_state",
                     "truth.ami.pacing_profile"]}
+
+# The diagnosis Oracle reads truth for exactly the signals the shared rules require, so
+# the only difference from the Proposed arm is what each was given, not what it asks.
+ORACLE_READS = ["truth.ami.queue_occupancy", "truth.shared.path_state",
+                "truth.ami.pacing_profile", "truth.probe.lte", "truth.probe.alternative"]
 
 ECO = {"mark_ttl_s": 0.3, "backoff_min_s": 0.1, "backoff_max_s": 0.3, "validity_s": 1,
        "mark_transport_model": "ideal_local",
@@ -423,6 +428,15 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
     privileged = [dict(oracle_telemetry) if b["stage_id"] == "telemetry"
                   else {**b, "allow_privileged_inputs": True} for b in coordinated]
 
+    # A diagnosis Oracle reads truth directly, so it needs no Oracle upstream of it. This
+    # treatment differs from eco in the diagnosis binding alone, which is what makes the
+    # gap between them a difference in information rather than in anything else.
+    oracle_diagnosis = oracle_diagnosis_binding(
+        registry, port, granted + truths,
+        {**(rules or RULES), "reads": ORACLE_READS})
+    informed = [dict(oracle_diagnosis) if b["stage_id"] == "diagnosis"
+                else {**b, "allow_privileged_inputs": True} for b in coordinated]
+
     data = {**data, "treatments": [*data["treatments"],
                                    {"treatment_id": "closed_loop", "bindings": bindings},
                                    {"treatment_id": "observing", "bindings": observing},
@@ -430,5 +444,6 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
                                    {"treatment_id": "blackboard", "bindings": reasoning},
                                    {"treatment_id": "planner", "bindings": planned},
                                    {"treatment_id": "eco", "bindings": coordinated},
-                                   {"treatment_id": "oracle", "bindings": privileged}]}
+                                   {"treatment_id": "oracle", "bindings": privileged},
+                                   {"treatment_id": "oracle_diagnosis", "bindings": informed}]}
     return registry, Record("StudyManifest", data), scenario_set, scenario, caps

@@ -5,7 +5,7 @@ from pathlib import Path
 from ecora.boundary import Boundary
 from ecora.contracts import ContractError, Record
 from ecora.model import FiniteModel, Link
-from ecora.runner import ORACLE, Run, Streams, closed_loop_environment
+from ecora.runner import ORACLE, ORACLE_READS, Run, Streams, closed_loop_environment
 from ecora.store import ArtifactStore
 from ecora.truth import TruthPort, truth_binding
 
@@ -170,6 +170,86 @@ class OracleArmTests(unittest.TestCase):
             registry.admit(Record("StudyManifest", declared), scenario_set, scenario, caps,
                            "eco", "run:declared")
         self.assertIn("truth capability granted to ordinary provider", str(caught.exception))
+
+    def test_a_diagnosis_oracle_cannot_shed_the_label_by_its_output_type(self):
+        """A DiagnosisRecord carries no observations, and must still be tainted.
+
+        Harvesting lineage from the payload would work for telemetry and silently fail for
+        a diagnosis, a plan or a receipt. A truth-holding provider declares what it read,
+        so the label follows the access rather than the shape of the output.
+        """
+        store, _, _, _ = self.run_arm("oracle_diagnosis", "labelled")
+        diagnosis = store.dataset("dataset:diagnosis:0").data
+        self.assertEqual(diagnosis["information_regime"], "oracle_state")
+        self.assertEqual(len(diagnosis["privileged_source_refs"]), len(ORACLE_READS))
+        # And it reaches everything downstream of it.
+        for stage in ("planning", "resolution", "action"):
+            with self.subTest(stage=stage):
+                self.assertEqual(store.dataset(f"dataset:{stage}:0").data["information_regime"],
+                                 "oracle_state")
+
+    def test_a_truth_holding_provider_that_declares_no_read_is_refused(self):
+        from ecora.registry import ProviderResult
+        registry, study, scenario_set, scenario, caps = closed_loop_environment(
+            world(), period_s=PERIOD)
+        binding = next(b for t in study.data["treatments"] if t["treatment_id"] == "oracle"
+                       for b in t["bindings"] if b["stage_id"] == "telemetry")
+        entry = registry.resolve(binding)
+        object.__setattr__(entry, "factory",
+                           lambda: type("Silent", (), {"invoke": lambda self, *a: ProviderResult(
+                               (), {}, {"organisation": "oracle_state"})})())
+        store = ArtifactStore(Path(self.temp.name) / "silent")
+        self.addCleanup(store.close)
+        run = registry.admit(study, scenario_set, scenario, caps, "oracle", "run:silent")
+        boundary = Boundary(store, registry, run)
+        result = boundary.invoke("telemetry", "telemetry:0", [], watermark_s=0)
+        self.assertEqual(result.data["terminal_status"], "rejected")
+        self.assertIn("declared no read", result.data["reason"]["detail"])
+
+    def test_the_oracle_measures_headroom_only_where_the_contract_loses_something(self):
+        """The first headroom number, and it is zero here, which is the finding.
+
+        With every signal relayed faithfully, exact truth concludes exactly what the
+        contract-limited arm concludes: the observation contract is sufficient for these
+        predicates in this state. Make the evidence stale and the gap appears.
+        """
+        informed, _, _, _ = self.run_arm("oracle_diagnosis", "informed")
+        limited, _, _, _ = self.run_arm("eco", "limited")
+
+        def concluded(store):
+            payload = Record.from_dict(
+                store.messages("dataset:diagnosis:0")[0].data["payload"]).data
+            return sorted(h["label"] for h in payload["hypotheses"] if h["status"] == "supported")
+
+        self.assertEqual(concluded(informed), concluded(limited),
+                         "no headroom where the contract relays everything")
+        self.assertTrue(concluded(informed), "and both actually concluded something")
+
+    def test_stale_evidence_opens_a_gap_exact_truth_does_not_have(self):
+        from ecora.runner import observation_batch
+        for treatment, name in (("eco", "stale-limited"), ("oracle_diagnosis", "stale-informed")):
+            model = world()
+            registry, study, scenario_set, scenario, caps = closed_loop_environment(
+                model, period_s=PERIOD)
+            store = ArtifactStore(Path(self.temp.name) / name)
+            self.addCleanup(store.close)
+            run = registry.admit(study, scenario_set, scenario, caps, treatment, f"run:{name}")
+            boundary = Boundary(store, registry, run)
+            model.advance_to(0.0)
+            boundary.ingest("ingest", observation_batch(model, CAPABILITIES, 0.0, PERIOD, 0),
+                            watermark_s=0.0)
+            model.advance_to(3.0)
+            telemetry = boundary.invoke("telemetry", "telemetry", ["dataset:ingest"],
+                                        watermark_s=3.0)
+            diagnosis = boundary.invoke("diagnosis", "diagnosis",
+                                        [telemetry.data["dataset_id"]], watermark_s=3.0)
+            payload = Record.from_dict(
+                store.messages(diagnosis.data["dataset_id"])[0].data["payload"]).data
+            labels = sorted(h["label"] for h in payload["hypotheses"] if h["status"] == "supported")
+            if treatment == "eco":
+                self.assertEqual(labels, [], "stale evidence supports no conclusion")
+            else:
+                self.assertTrue(labels, "exact truth is never stale")
 
     def test_an_oracle_cannot_declare_a_read_it_was_not_granted(self):
         from ecora.registry import Registry

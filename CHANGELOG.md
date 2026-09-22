@@ -7,6 +7,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **The diagnosis Oracle**, sharing the rule inventory and the inference with the
+  Proposed arm so that the gap between them reads as a difference in information rather
+  than two implementations disagreeing. It diagnoses only what the model establishes: an
+  unmodelled physical cause has no ground truth to read, so the gap it measures is bounded
+  by what the world represents.
+- **A privilege leak closed.** Lineage was harvested from the payload, which works for a
+  telemetry batch and silently fails for a diagnosis, a plan or a receipt, none of which
+  carry observations. A provider holding truth access now declares what it read and the
+  boundary taints the invocation with it, so the label follows the access rather than the
+  shape of the output; one that succeeds while declaring no read is refused.
 - **The restricted, logged truth interface** in `software/ecora/truth.py`, and the
   telemetry Oracle that uses it. Access is capability-scoped, so holding one truth grant
   is not permission to read anything else; it serves the current instant only, refusing a

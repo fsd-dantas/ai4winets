@@ -304,13 +304,22 @@ class Boundary:
             require(result.status in STATUSES, "unknown provider status")
             require(result.status == "ok" or result.reason is not None, "terminal provider status requires reason")
             if opens_truth:
-                # Lineage a truth-holding provider introduces is admitted here, but every
-                # value still has to clear the capability check below. The reference is a
-                # label; the capability is what decides whether the read was permitted.
+                # A provider holding truth access declares what it read, and the boundary
+                # taints the invocation with it. Harvesting from the payload instead would
+                # only work for payloads that carry observations, and a diagnosis, a plan
+                # or a receipt would slip through untainted. Declaring the reads is how a
+                # provider is prevented from shedding the label by choosing its output type.
+                declared = result.trace.get("privileged_source_refs", []) if isinstance(
+                    result.trace, dict) else []
+                require(isinstance(declared, list) and all(type(r) is str for r in declared),
+                        "a truth-holding provider must declare its reads as a list of references")
+                refs.update(declared)
                 for output in result.outputs:
                     if output.kind in ("TelemetryBatch", "AdapterObservationBatch"):
                         for observation in output.data["observations"]:
                             refs.update(observation["privileged_source_refs"])
+                require(refs or result.status != "ok",
+                        "a truth-holding provider that succeeded declared no read")
             for output in result.outputs:
                 require(isinstance(output, Record) and output.kind in (*OUTPUT_TYPES[stage], "BoundaryOutcome"),
                         "output schema seam mismatch")

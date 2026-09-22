@@ -41,24 +41,31 @@ def signal(observation):
     return metric if "/" not in subject else f"{subject}/{metric}"
 
 
-def _snapshot(inputs):
-    """The admissible evidence: a metric is present only if it was actually observed.
+def snapshot_from(observations):
+    """The admissible evidence: a signal is present only if it was actually observed.
 
-    An observation the projection marked missing is not evidence of anything, so it is
-    absent here rather than carrying a null that a comparison might silently accept.
+    An observation marked missing is not evidence of anything, so it is absent here rather
+    than carrying a null that a comparison might silently accept. Privileged and ordinary
+    evidence are read the same way, so an Oracle and a contract-limited arm differ in what
+    they were given and not in how it was interpreted.
     """
     observed, unknown = {}, set()
+    for observation in observations:
+        name = signal(observation)
+        if observation["quality"] == "missing":
+            unknown.add(name)
+        else:
+            observed[name] = (observation["value"], observation["observation_id"])
+    return observed, unknown
+
+
+def _snapshot(inputs):
+    relayed = []
     for message in inputs:
         payload = Record.from_dict(message.data["payload"])
-        if payload.kind != "TelemetryBatch":
-            continue
-        for observation in payload.data["observations"]:
-            name = signal(observation)
-            if observation["quality"] == "missing":
-                unknown.add(name)
-            else:
-                observed[name] = (observation["value"], observation["observation_id"])
-    return observed, unknown
+        if payload.kind == "TelemetryBatch":
+            relayed.extend(payload.data["observations"])
+    return snapshot_from(relayed)
 
 
 def evaluate(rule, observed, unknown, concluded):

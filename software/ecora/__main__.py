@@ -93,7 +93,7 @@ def showcase(directory, epochs, period_s=0.5):
     started = time.perf_counter()
     results = [_execute(directory, treatment, epochs, period_s)
                for treatment in ("null_baseline", "closed_loop", "observing", "expert",
-                                 "blackboard", "planner", "eco")]
+                                 "blackboard", "planner", "eco", "oracle_diagnosis")]
     scope = results[0]["scope"]
     print(f"ECoRA -- one frozen study, {len(results)} treatments, one binding apart\n")
     print(f"  study     {scope['study_id']}")
@@ -167,6 +167,20 @@ def showcase(directory, epochs, period_s=0.5):
         print(f"    activations       : single_engine {single['activations']},"
               f" blackboard {board['activations']}")
         print("  Agreement is a result here, not an assumption; a test asserts it and can fail.")
+    if {"eco", "oracle_diagnosis"} <= named.keys():
+        limited, informed = named["eco"], named["oracle_diagnosis"]
+        gap = sorted(set(informed["concluded"]) - set(limited["concluded"]))
+        print("\n  RQ0 headroom at diagnosis: what does exact current truth conclude that")
+        print("  the contract-limited arm, running the same rules, does not?")
+        print(f"    contract_only : {len(limited['concluded'])} conclusions")
+        print(f"    oracle_state  : {len(informed['concluded'])} conclusions")
+        print(f"    gap           : {gap if gap else 'none'}")
+        if not gap:
+            print("  No gap here, and that is the finding: for these predicates in this state")
+            print("  the observation contract loses nothing. A gap appears when evidence goes")
+            print("  stale or a signal is withheld, which a test exercises separately.")
+        print("  A small gap alone would not identify telemetry as the bottleneck; it could")
+        print("  equally be an adequate diagnoser, a downstream limit or a saturated metric.")
     print("\n  Only an arm that concluded something from evidence can act. A mutation needs")
     print("  precondition evidence, and the Null diagnosis offers a first-candidate guess")
     print("  carrying no support, so the first three arms reach no command at all. Capability")
@@ -207,7 +221,7 @@ def main(argv=None):
             print(f"Valid {record.kind}/1 {record.content_hash}")
         elif args.command == "showcase":
             for treatment in ("null_baseline", "closed_loop", "observing", "expert",
-                              "blackboard", "planner", "eco"):
+                              "blackboard", "planner", "eco", "oracle_diagnosis"):
                 if (args.directory / treatment).exists():
                     raise ContractError(f"showcase directory already exists: {args.directory / treatment}")
             showcase(args.directory, args.epochs)

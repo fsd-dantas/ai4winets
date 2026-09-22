@@ -1,6 +1,6 @@
 [
   {
-    "content_hash": "2276b7532ca35afaa76485c47d7d0ee6394c253fd3a9a0b0ebd11a70c44e2850",
+    "content_hash": "028bb5bcbcc38d413515e6861c9f6bd81c60561ffccdcde610a5294ad24c754d",
     "data": {
       "access_policy_version": "v1",
       "analysis_version": "fixture-1",
@@ -31,7 +31,7 @@
           ]
         }
       },
-      "capability_manifest_hash": "37c6c275065e9ae1404604a36007f88151c3bf23a4f93033368c463123916630",
+      "capability_manifest_hash": "3b19dbac96e2c90c6928a24fc10f35092adda572aedb3f950e82686647633d83",
       "compute_budget_s": 60,
       "frozen": true,
       "parameter_set_hash": "ffbc2dfc402782325da71132100e74ff511d1585dd80e4ea196ed4bcace3fef2",
@@ -707,7 +707,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "37c6c275065e9ae1404604a36007f88151c3bf23a4f93033368c463123916630",
+    "content_hash": "3b19dbac96e2c90c6928a24fc10f35092adda572aedb3f950e82686647633d83",
     "data": {
       "adapter_id": "fixture",
       "adapter_version": "1",
@@ -821,6 +821,28 @@
           "service": "ami",
           "target": "site-1",
           "unit": "id"
+        },
+        {
+          "capability_id": "truth.probe.lte",
+          "evidence_refs": [
+            "fixture:truth"
+          ],
+          "kind": "truth",
+          "name": "path_probe",
+          "service": "shared",
+          "target": "site-1/lte",
+          "unit": "s"
+        },
+        {
+          "capability_id": "truth.probe.alternative",
+          "evidence_refs": [
+            "fixture:truth"
+          ],
+          "kind": "truth",
+          "name": "path_probe",
+          "service": "shared",
+          "target": "site-1/alternative",
+          "unit": "s"
         }
       ],
       "limitations": [

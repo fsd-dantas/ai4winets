@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **150 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **154 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -34,6 +34,23 @@ SCADA, a disturbance that degrades service and then drains its backlog without l
 exported observations that satisfy the telemetry contract. It is a deterministic
 queueing model with no radio, protocol conformance or calibrated value, and no run of it
 is evidence about a wireless network.
+
+The **diagnosis Oracle** shares the rule inventory and the inference with the Proposed
+arm, so the only difference between them is what each was given. On a faithful run the two
+conclude exactly the same thing, and that is the first headroom measurement rather than a
+null result: for these predicates in this state, the observation contract loses nothing. A
+separate test lets the relayed evidence go stale and the gap opens, with the
+contract-limited arm concluding nothing while exact truth still concludes everything.
+
+Reporting that number carries a boundary with it. A small gap alone would not identify
+telemetry as the bottleneck; it could equally be an adequate diagnoser, a downstream limit
+or a saturated metric, and the showcase says so where it prints the figure.
+
+Wiring the Oracle found a privilege leak. Lineage was harvested from the payload, which
+works for telemetry and silently fails for a diagnosis, a plan or a receipt, because those
+carry no observations. A truth-holding provider now declares what it read and the boundary
+taints the invocation with it, so the label follows the access rather than the shape of
+the output, and a provider that succeeded while declaring no read is refused.
 
 The **truth interface** is exercised against each of its restrictions. It opens only what
 a truth capability grants, and an observe capability is not a key to it. It serves the

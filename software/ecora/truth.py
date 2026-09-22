@@ -40,7 +40,14 @@ PROJECTIONS = {
     "path_state": ("id", lambda model, site: model.truth()["selected_path"][site]),
     "pacing_profile": ("id", lambda model, site: model.truth()["pacing"][site]),
     "held_ami": ("count", lambda model, site: model.truth()["held_ami"][site]),
+    # A per-leg quantity: the target names the leg, as it does for an ordinary probe.
+    "path_probe": ("s", lambda model, target: model.probe(*target.split("/", 1))),
 }
+
+
+def _declared(port, since):
+    """The reads a provider made in this invocation, for it to declare to the boundary."""
+    return sorted({entry["reference"] for entry in port.log[since:]})
 
 
 class TruthPort:
@@ -68,13 +75,20 @@ class TruthPort:
         require(capability["unit"] == unit, f"{name} is declared in {unit}")
         value = extract(self.model, capability["target"])
         reference = f"truth:{name}:{capability['target']}:{at_s}"
+        # Some quantities do not exist in some states: a leg with no service has no round
+        # trip. Even an omniscient reader finds nothing there, and reports nothing rather
+        # than a number, because the value is undefined and not merely unobserved.
+        absent = None if value is not None else {
+            "code": "undefined_in_model",
+            "detail": f"{name} has no value for {capability['target']} in this state."}
         self.log.append({"capability_id": capability_id, "name": name,
                          "target": capability["target"], "at_s": at_s, "reference": reference})
         return {
             "observation_id": f"observation:truth:{capability['target']}:{name}:{at_s}",
             "subject": capability["target"], "service": capability["service"],
-            "metric": name, "unit": unit, "value": value, "quality": "observed",
-            "missing_reason": None, "event_time_s": at_s, "available_at_s": at_s,
+            "metric": name, "unit": unit, "value": value,
+            "quality": "missing" if absent else "observed",
+            "missing_reason": absent, "event_time_s": at_s, "available_at_s": at_s,
             "window": {"start_s": at_s, "end_s": at_s}, "source": "truth.port",
             "sampling_policy": "instantaneous", "valid_min": None, "valid_max": None,
             "assumptions": ["Privileged current-state read; not deployable evidence."],
@@ -114,7 +128,66 @@ class OracleTelemetryProvider:
         return ProviderResult((batch,), state,
                               {"organisation": "oracle_state",
                                "reads": len(self.port.log) - before,
+                               "privileged_source_refs": _declared(self.port, before),
                                "port": self.port.accounting()})
+
+
+class OracleDiagnosisProvider:
+    """Exact current truth, read through the same rules and into the same label ontology.
+
+    It shares the rule inventory and the inference with the Proposed arm, so the only
+    difference between them is what each was given. That is what makes the gap between
+    them readable as an information gap rather than as two implementations disagreeing.
+
+    It diagnoses only what the model establishes. An unmodelled physical cause has no
+    ground truth to read, so no Oracle here can supply one, and the gap it measures is
+    bounded by what the world represents.
+    """
+
+    def __init__(self, port):
+        self.port = port
+
+    def invoke(self, inputs, prior_state, context):
+        from .experts import _Inference, snapshot_from
+        watermark = context.data["decision_watermark_s"]
+        config = context.data["configuration"]
+        before = len(self.port.log)
+        truth = [self.port.read(capability_id, watermark) for capability_id in config["reads"]]
+        observed, unknown = snapshot_from(truth)
+        rules = config["rules"]
+        inference = _Inference(rules, config.get("activation_budget", 1000))
+        passes, changed = 0, True
+        while changed:
+            changed = False
+            passes += 1
+            for rule in rules:
+                changed |= inference.consider(rule, observed, unknown)
+        record = inference.record("oracle_state", passes)
+        state = {"evaluations": prior_state.data["state"].get("evaluations", 0) + 1}
+        return ProviderResult((record,), state,
+                              {"organisation": "oracle_state", "reads": len(self.port.log) - before,
+                               "activations": inference.activations, "passes": passes,
+                               "privileged_source_refs": _declared(self.port, before),
+                               "unknown_signals": sorted(unknown), "port": self.port.accounting()})
+
+
+def oracle_diagnosis_binding(registry, port, capability_ids, configuration):
+    """Register the diagnosis Oracle against a port and return its frozen binding."""
+    require(configuration.get("rules"), "an Oracle diagnosis needs the shared rule inventory")
+    for capability_id in configuration["reads"]:
+        require(capability_id in port.granted(),
+                f"the Oracle declares a read no truth capability grants: {capability_id}")
+    spec = Record("ProviderSpec", {
+        "stage_id": "diagnosis", "provider_id": "diagnosis.oracle_state",
+        "provider_version": VERSION, "arm": "oracle",
+        "input_types": list(INPUT_TYPES["diagnosis"]),
+        "output_types": list(OUTPUT_TYPES["diagnosis"]), "state_schema_version": "1",
+        "capability_ids": list(capability_ids), "direct_truth_access": True})
+    if not registry.registered("diagnosis", spec.data["provider_id"], VERSION):
+        registry.register(spec, partial(OracleDiagnosisProvider, port))
+    return {k: v for k, v in spec.data.items() if k != "direct_truth_access"} | {
+        "information_regime": "oracle_state", "allow_privileged_inputs": True,
+        "configuration": configuration, "configuration_hash": digest(configuration)}
 
 
 def truth_binding(registry, port, capability_ids, configuration):

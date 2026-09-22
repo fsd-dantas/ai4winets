@@ -175,6 +175,10 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assemb
               for service, name, unit in (("ami", "queue_occupancy", "byte"),
                                           ("shared", "path_state", "id"),
                                           ("ami", "pacing_profile", "id"))]
+    truths += [{"capability_id": f"truth.probe.{leg}", "kind": "truth",
+                "target": f"site-1/{leg}", "service": "shared", "name": "path_probe",
+                "unit": "s", "evidence_refs": ["fixture:truth"]}
+               for leg in ("lte", "alternative")]
     granted = [cap, path_cap, pacing_cap, actuator, path_actuator, *probes, *truths]
     ordinary = [c["capability_id"] for c in granted if c["kind"] != "truth"]
     caps = Record("CapabilityManifest", {"adapter_id": "fixture", "adapter_version": "1", "model_version": "fixture-1",

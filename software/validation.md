@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **83 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **92 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -34,6 +34,18 @@ SCADA, a disturbance that degrades service and then drains its backlog without l
 exported observations that satisfy the telemetry contract. It is a deterministic
 queueing model with no radio, protocol conformance or calibrated value, and no run of it
 is evidence about a wireless network.
+
+**Rule-based diagnosis** is exercised in both organisations over one shared rule
+inventory. The hypothesis under test (RQ-E) is that they agree and that their
+orchestration cost does not: a test asserts agreement across four snapshots, including one
+where an input is unknown, and it can fail because the two schedule their work
+differently. A second test reads the cost difference from the recorded trace rather than
+assuming it. Further tests pin that a chained rule waits for its premises, that unknown
+evidence is never read as a negative, that a snapshot with no evaluable rule yields an
+explicit `insufficient_evidence` hypothesis, that a contradiction is settled by priority
+and recorded as inhibited, that equal authority on a contradiction stays unresolved rather
+than being decided arbitrarily, that an exhausted activation budget is a typed refusal,
+and that a malformed rule inventory is refused when it is bound rather than when it runs.
 
 The **Proposed telemetry provider** is exercised against its declared projection: it
 relays the permitted local signals and reports full coverage when they all arrive; an
@@ -123,8 +135,9 @@ ns-3 cost is unmeasured, so **6.43 CPU days is a floor rather than an estimate**
 
 `python -m ecora showcase .ecora-runs/showcase` runs three treatments over one frozen
 study, each differing from the previous one in a single stage binding: the Null baseline,
-then the closed loop with the action stage bound to the world, then the observing arm with
-the Proposed telemetry projection. It prints the sensed and relayed signal counts, the
+the closed loop with the action stage bound to the world, the observing arm with the
+Proposed telemetry projection, then the two expert organisations. It closes with the RQ-E
+comparison, and prints the sensed and relayed signal counts, the
 applied actions, the resulting path, the assurance verdict, which binding changed between
 each pair, the provenance of the final claim and a re-read integrity check. It completes
 in a few seconds and is covered by a test, since it is demonstrated live.

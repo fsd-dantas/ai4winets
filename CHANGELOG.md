@@ -7,6 +7,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **Rule-based diagnosis in two organisations** in `software/ecora/experts.py`: a single
+  engine evaluating a versioned rule collection to a fixed point, and one expert per rule
+  scheduled by a blackboard controller over a revisioned board. They share the rule
+  inventory, the conflict policy and the evidence snapshot, and differ only in how the
+  work is organised, which is what makes them comparable. Support is categorical: a
+  conclusion is supported, contradicted or unknown, with no numeric confidence attached,
+  because a score without a calibration procedure would be a probability in costume. A
+  rule whose inputs are absent is unknown and never false. Contradictions are settled by
+  declared priority and recorded as inhibited; equal authority leaves the conflict
+  unresolved rather than decided arbitrarily. An exhausted activation budget is a typed
+  refusal, not a silent truncation.
 - **Proposed telemetry provider** in `software/ecora/telemetry.py`: contract-constrained
   normalisation, quality assessment and local projection onto one site's declared view. It
   never invents a value; an expected signal that is absent, or older than the declared
@@ -14,8 +25,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
   declared completeness. It cannot report the absence of a signal it holds no capability
   to observe, and a projection expecting one is refused at configuration. Nothing from
   another site reaches a local projection, whatever the adapter offered.
-- **`ecora showcase`**: runs three treatments over one frozen study, each differing from
-  the previous one in a single stage binding, and prints the sensed and relayed signal counts,
+- **`ecora showcase`**: runs five treatments over one frozen study, each differing from
+  the previous one in a single stage binding, and closes with the RQ-E comparison between
+  the two expert organisations. It prints the sensed and relayed signal counts,
   the applied actions, the resulting path, the assurance verdict, the provenance of the
   claim and a re-read integrity check. It completes in about three seconds and is covered
   by a test, because it is meant to be run in front of people.

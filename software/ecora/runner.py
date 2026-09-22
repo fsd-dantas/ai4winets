@@ -16,6 +16,7 @@ from .fixtures import ASSEMBLY, fixture_environment
 from .model import FiniteModel
 from .registry import ProviderResult
 from .schema import INPUT_TYPES, OUTPUT_TYPES
+from .experts import expert_binding
 from .telemetry import projection_binding
 
 STREAM_NAMES = ("arrivals", "errors", "disturbances", "controller")
@@ -31,6 +32,39 @@ PROJECTION = {
          "capability_id": "observe.shared.path"},
     ],
     "max_observation_age_s": 0.5,
+}
+
+# The shared rule inventory, over the operational predicates declared in v1-scope.md and
+# the signals the projection relays. The pressure threshold is the declared
+# queue_pressure_fraction (0.75) against queue_limit_bytes (65536); both are nominal.
+# `settled_on_alternative` requires two conclusions rather than an observation, so an
+# organisation has to reach a fixed point rather than firing every rule once.
+RULES = {
+    "rules": [
+        {"rule_id": "queue_pressure", "requires": ["queue_occupancy"],
+         "condition": {"metric": "queue_occupancy", "op": "ge", "value": 49152},
+         "concludes": "local_queue_pressure", "priority": 10,
+         "contradicts": ["local_queue_nominal"],
+         "explanation": "Occupied bytes reached the declared pressure fraction."},
+        {"rule_id": "queue_nominal", "requires": ["queue_occupancy"],
+         "condition": {"metric": "queue_occupancy", "op": "lt", "value": 49152},
+         "concludes": "local_queue_nominal", "priority": 10,
+         "contradicts": ["local_queue_pressure"],
+         "explanation": "Occupied bytes remained below the declared pressure fraction."},
+        {"rule_id": "on_alternative", "requires": ["path_state"],
+         "condition": {"metric": "path_state", "op": "eq", "value": "alternative"},
+         "concludes": "on_alternative_path", "priority": 5, "contradicts": ["on_primary_path"],
+         "explanation": "The site's selector reports the alternative leg."},
+        {"rule_id": "on_primary", "requires": ["path_state"],
+         "condition": {"metric": "path_state", "op": "eq", "value": "lte"},
+         "concludes": "on_primary_path", "priority": 5, "contradicts": ["on_alternative_path"],
+         "explanation": "The site's selector reports the primary leg."},
+        {"rule_id": "settled_on_alternative", "requires": [], "condition": None,
+         "requires_predicates": ["local_queue_nominal", "on_alternative_path"],
+         "concludes": "settled_on_alternative_path", "priority": 1,
+         "explanation": "The alternative leg is carrying the load without queue pressure."},
+    ],
+    "activation_budget": 200,
 }
 
 
@@ -246,7 +280,7 @@ class Continuation:
 
 
 def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilities=(),
-                            projection=None):
+                            projection=None, rules=None):
     """A study whose action stage is bound to the finite world, with a Null arm beside it.
 
     The Null treatment and the closed-loop treatment differ in one binding, so a paired
@@ -278,7 +312,14 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
     granted = [c["capability_id"] for c in caps.data["capabilities"]]
     projection = projection_binding(registry, granted, projection or PROJECTION)
     observing = [dict(projection) if b["stage_id"] == "telemetry" else dict(b) for b in bindings]
+
+    def diagnosing(organisation):
+        binding = expert_binding(registry, granted, rules or RULES, organisation)
+        return [dict(binding) if b["stage_id"] == "diagnosis" else dict(b) for b in observing]
+
     data = {**data, "treatments": [*data["treatments"],
                                    {"treatment_id": "closed_loop", "bindings": bindings},
-                                   {"treatment_id": "observing", "bindings": observing}]}
+                                   {"treatment_id": "observing", "bindings": observing},
+                                   {"treatment_id": "expert", "bindings": diagnosing("single_engine")},
+                                   {"treatment_id": "blackboard", "bindings": diagnosing("blackboard")}]}
     return registry, Record("StudyManifest", data), scenario_set, scenario, caps

@@ -123,7 +123,8 @@ class RunTests(unittest.TestCase):
         with redirect_stdout(captured):
             main(["showcase", str(Path(self.temp.name) / "showcase"), "--epochs", "2"])
         printed = captured.getvalue()
-        for expected in ("null_baseline", "closed_loop", "observing", "sensed", "relayed",
+        for expected in ("null_baseline", "closed_loop", "observing", "expert", "blackboard",
+                         "relayed", "concluded", "activations",
                          "differs from the one above it in exactly one binding", "Provenance",
                          "Nothing here is a network result"):
             with self.subTest(expected=expected):
@@ -131,6 +132,11 @@ class RunTests(unittest.TestCase):
         # Each step of the chain must name the single binding that changed.
         self.assertIn("null.action -> model.action", printed)
         self.assertIn("null.telemetry -> telemetry.projection", printed)
+        self.assertIn("null.diagnosis -> experts.single_engine", printed)
+        self.assertIn("experts.single_engine -> experts.blackboard", printed)
+        # The RQ-E comparison is the point of the last two rows.
+        self.assertIn("conclusions agree : True", printed)
+        self.assertIn("single_engine", printed)
         # The arms must actually diverge, or the demonstration shows nothing.
         self.assertIn("lte", printed)
         self.assertIn("alternative", printed)

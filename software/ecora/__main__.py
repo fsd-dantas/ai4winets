@@ -50,6 +50,16 @@ def _execute(root, treatment, epochs, period_s):
             for message in store.messages(f"dataset:action:{index}"):
                 payload = Record.from_dict(message.data["payload"])
                 applied += payload.kind == "ActionReceipt" and payload.data["disposition"] == "applied"
+        concluded, activations = set(), 0
+        for index in range(epochs):
+            for message in store.messages(f"dataset:diagnosis:{index}"):
+                payload = Record.from_dict(message.data["payload"])
+                if payload.kind != "DiagnosisRecord":
+                    continue
+                concluded.update(h["label"] for h in payload.data["hypotheses"]
+                                 if h["status"] == "supported")
+                for entry in payload.data["rule_trace"]:
+                    activations += entry.get("activations", 0)
         report = Record.from_dict(store.messages(dataset)[0].data["payload"])
         binding = run.binding("action")
         sensing = run.binding("telemetry")
@@ -57,7 +67,8 @@ def _execute(root, treatment, epochs, period_s):
                 "sensing_arm": sensing["arm"], "sensing_provider": sensing["provider_id"],
                 "bindings": {stage: run.binding(stage)["provider_id"]
                              for stage in ("telemetry", "diagnosis", "planning", "resolution", "action")},
-                "sensed": sensed, "relayed": relayed, "decided": epochs, "applied": applied,
+                "sensed": sensed, "relayed": relayed, "applied": applied,
+                "concluded": sorted(concluded), "activations": activations,
                 "path": model.truth()["selected_path"]["site-1"],
                 "verdict": report.data["claims"][0]["verdict"] if report.data["claims"] else "none",
                 "dataset": dataset, "scope": run.scope, "integrity": store.verify()}
@@ -71,23 +82,26 @@ def showcase(directory, epochs, period_s=0.5):
     """
     started = time.perf_counter()
     results = [_execute(directory, treatment, epochs, period_s)
-               for treatment in ("null_baseline", "closed_loop", "observing")]
+               for treatment in ("null_baseline", "closed_loop", "observing", "expert",
+                                 "blackboard")]
     scope = results[0]["scope"]
-    print("ECoRA -- one frozen study, three treatments, one binding apart\n")
+    print(f"ECoRA -- one frozen study, {len(results)} treatments, one binding apart\n")
     print(f"  study     {scope['study_id']}")
     print(f"  scenario  {scope['scenario_id']} revision {scope['scenario_revision']}")
     print(f"  set       v{scope['scenario_set_version']}  {scope['scenario_set_hash'][:12]}")
     print(f"  world     1 site, two legs, shared egress 256000 bit/s (synthetic)")
     print(f"  schedule  {epochs} decision epochs at {period_s} s\n")
-    header = (f"  {'treatment':<16}{'telemetry':<10}{'action':<10}{'sensed':>8}{'relayed':>9}"
-              f"{'decided':>9}{'applied':>9}   {'path':<13}{'verdict'}")
+    header = (f"  {'treatment':<16}{'relayed':>8}{'concluded':>11}{'activations':>13}"
+              f"{'applied':>9}   {'path':<13}{'verdict'}")
     print(header)
     print("  " + "-" * (len(header) - 2))
     for r in results:
-        print(f"  {r['treatment']:<16}{r['sensing_arm']:<10}{r['arm']:<10}{r['sensed']:>8}"
-              f"{r['relayed']:>9}{r['decided']:>9}{r['applied']:>9}   {r['path']:<13}{r['verdict']}")
-    print("\n  sensed  = signals the adapter read from the world")
-    print("  relayed = signals the telemetry stage passed on to the rest of the loop")
+        print(f"  {r['treatment']:<16}{r['relayed']:>8}{len(r['concluded']):>11}"
+              f"{r['activations']:>13}{r['applied']:>9}   {r['path']:<13}{r['verdict']}")
+    print(f"\n  relayed     = signals the telemetry stage passed on"
+          f" (the adapter sensed {results[0]['sensed']})")
+    print("  concluded   = distinct supported hypotheses the diagnosis stage reached")
+    print("  activations = rule activations, which is orchestration cost and not evidence")
     print("\n  Each treatment differs from the one above it in exactly one binding:")
     for earlier, later in zip(results, results[1:]):
         changed = [stage for stage in earlier["bindings"]
@@ -107,11 +121,19 @@ def showcase(directory, epochs, period_s=0.5):
         i = r["integrity"]
         print(f"    {r['treatment']:<16} {i['datasets']:>4} datasets  {i['messages']:>4} messages"
               f"  {i['events']:>4} journal events")
+    named = {r["treatment"]: r for r in results}
+    if {"expert", "blackboard"} <= named.keys():
+        single, board = named["expert"], named["blackboard"]
+        agree = single["concluded"] == board["concluded"]
+        print("\n  RQ-E: with identical rules, snapshots and conflict policy, do the two")
+        print("  organisations of the same rule inventory agree, and does their cost differ?")
+        print(f"    conclusions agree : {agree}  {single['concluded']}")
+        print(f"    activations       : single_engine {single['activations']},"
+              f" blackboard {board['activations']}")
+        print("  Agreement is a result here, not an assumption; a test asserts it and can fail.")
     print("\n  The closed loop acts without relaying evidence, because the Null planner proposes")
     print("  from its declared configuration. That is the baseline behaving correctly: it sets")
     print("  a floor, and each stage stays substitutable on its own.")
-    print("  The observing arm relays real evidence, and the Null diagnosis still ignores it.")
-    print("  Reasoning over that evidence is the next milestone, not a gap in this one.")
     print("\n  Nothing here is a network result. The world is a deterministic queueing model,")
     print("  and every verdict is inconclusive because no requirement was evaluated.")
     print(f"\n  Elapsed {time.perf_counter() - started:.1f} s")
@@ -147,7 +169,7 @@ def main(argv=None):
             record = Record.from_json(args.file.read_bytes())
             print(f"Valid {record.kind}/1 {record.content_hash}")
         elif args.command == "showcase":
-            for treatment in ("null_baseline", "closed_loop", "observing"):
+            for treatment in ("null_baseline", "closed_loop", "observing", "expert", "blackboard"):
                 if (args.directory / treatment).exists():
                     raise ContractError(f"showcase directory already exists: {args.directory / treatment}")
             showcase(args.directory, args.epochs)

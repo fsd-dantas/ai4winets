@@ -7,6 +7,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **The restricted, logged truth interface** in `software/ecora/truth.py`, and the
+  telemetry Oracle that uses it. Access is capability-scoped, so holding one truth grant
+  is not permission to read anything else; it serves the current instant only, refusing a
+  later or an earlier one, so neither the future nor a stale value is reachable; and every
+  read is logged and returns a reference that travels with what it produces, so an
+  Oracle-derived value keeps its lineage through every stage that touches it. The port
+  projects current state and holds no calendar, schedule or random stream, so there is
+  nothing in it to read a future from. Truth is granted separately from observation and
+  actuation, and an ordinary binding that holds a truth capability is refused at admission.
+  Every stage now has a Null and a Proposed arm, and telemetry has an Oracle.
 - **Coordination and reasoning measurement** in `software/ecora/metrics.py`: reversals,
   repeated applications, deadlocked epochs, coordination starvation, expert activations,
   search expansions, plan size, claim churn, mark reads, writes and bytes, and a stability

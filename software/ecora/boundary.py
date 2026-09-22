@@ -282,8 +282,12 @@ class Boundary:
             require(not refs or binding["allow_privileged_inputs"], "binding cannot consume privileged state or input")
             inputs, input_refs = self._inputs(dataset_ids, stage, watermark_s, binding)
             refs.update(input_refs)
-            require(binding["information_regime"] != "oracle_state" or refs,
-                    "direct TruthPort is not implemented; an Oracle binding needs explicit current-truth input")
+            # An Oracle may hold truth access of its own, in which case it introduces
+            # lineage rather than inheriting it. One that does not must be handed
+            # privileged input explicitly, so no binding reaches oracle_state by accident.
+            opens_truth = entry.spec.data["direct_truth_access"]
+            require(binding["information_regime"] != "oracle_state" or refs or opens_truth,
+                    "an Oracle binding needs either declared truth access or privileged input")
             context = Record("ProviderContext", {**base_context.data,
                              "information_regime": "oracle_state" if refs else "contract_only",
                              "privileged_source_refs": sorted(refs)})
@@ -299,6 +303,14 @@ class Boundary:
             require(type(result.outputs) is tuple, "provider outputs must be a tuple of Records")
             require(result.status in STATUSES, "unknown provider status")
             require(result.status == "ok" or result.reason is not None, "terminal provider status requires reason")
+            if opens_truth:
+                # Lineage a truth-holding provider introduces is admitted here, but every
+                # value still has to clear the capability check below. The reference is a
+                # label; the capability is what decides whether the read was permitted.
+                for output in result.outputs:
+                    if output.kind in ("TelemetryBatch", "AdapterObservationBatch"):
+                        for observation in output.data["observations"]:
+                            refs.update(observation["privileged_source_refs"])
             for output in result.outputs:
                 require(isinstance(output, Record) and output.kind in (*OUTPUT_TYPES[stage], "BoundaryOutcome"),
                         "output schema seam mismatch")

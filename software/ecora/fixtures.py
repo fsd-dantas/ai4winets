@@ -167,7 +167,16 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assemb
     pacing_cap = {"capability_id": "observe.ami.pacing", "kind": "observe", "target": "site-1",
                   "service": "ami", "name": "pacing_profile", "unit": "id",
                   "evidence_refs": ["fixture:observation"]}
-    granted = [cap, path_cap, pacing_cap, actuator, path_actuator, *probes]
+    # Truth capabilities are separate grants, so an Oracle's reach is declared and not
+    # inferred from what it happens to be able to observe.
+    truths = [{"capability_id": f"truth.{service}.{name}", "kind": "truth", "target": "site-1",
+               "service": service, "name": name, "unit": unit,
+               "evidence_refs": ["fixture:truth"]}
+              for service, name, unit in (("ami", "queue_occupancy", "byte"),
+                                          ("shared", "path_state", "id"),
+                                          ("ami", "pacing_profile", "id"))]
+    granted = [cap, path_cap, pacing_cap, actuator, path_actuator, *probes, *truths]
+    ordinary = [c["capability_id"] for c in granted if c["kind"] != "truth"]
     caps = Record("CapabilityManifest", {"adapter_id": "fixture", "adapter_version": "1", "model_version": "fixture-1",
                   "capabilities": [*granted, *extra_capabilities], "limitations": ["Fixture only; no enabled simulator."],
                   "timing_mode": "logical"})
@@ -175,7 +184,7 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assemb
     for stage in STAGES:
         spec = Record("ProviderSpec", {"stage_id": stage, "provider_id": f"fixture.{stage}", "provider_version": "1",
                       "arm": "proposed", "input_types": list(INPUT_TYPES[stage]), "output_types": list(OUTPUT_TYPES[stage]),
-                      "state_schema_version": "1", "capability_ids": [c["capability_id"] for c in granted],
+                      "state_schema_version": "1", "capability_ids": ordinary,
                       "direct_truth_access": False})
         registry.register(spec, partial(FixtureProvider, stage))
         config = {"label": "fixture_a"} if stage == "diagnosis" else {}
@@ -188,7 +197,7 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assemb
     alternate = [dict(b) for b in base]
     alternate[1] = {**alternate[1], "provider_id": "fixture.diagnosis_alternate",
                     "configuration": {"label": "fixture_b"}, "configuration_hash": digest({"label": "fixture_b"})}
-    nulls = null_bindings(registry, [c["capability_id"] for c in granted], NULL_CONFIGURATION)
+    nulls = null_bindings(registry, ordinary, NULL_CONFIGURATION)
     scenario = Record("ScenarioSpec", {"scenario_id": "scenario:fixture", "revision": "1", "synthetic": True,
                       "topology": {"site": "site-1", "purpose": "contract fixture"},
                       "flows": [{"flow_id": "flow:ami", "source": "site-1", "destination": "central-1",

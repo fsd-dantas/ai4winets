@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **140 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **150 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -34,6 +34,20 @@ SCADA, a disturbance that degrades service and then drains its backlog without l
 exported observations that satisfy the telemetry contract. It is a deterministic
 queueing model with no radio, protocol conformance or calibrated value, and no run of it
 is evidence about a wireless network.
+
+The **truth interface** is exercised against each of its restrictions. It opens only what
+a truth capability grants, and an observe capability is not a key to it. It serves the
+present and refuses both a later and an earlier instant, so a provider can neither look
+ahead nor quietly reuse a stale value. Every read is logged and returns a reference that
+travels with whatever it produces, and a run confirms that privilege reaches every stage
+downstream while the contract-limited arm beside it stays unprivileged throughout.
+
+Truth cannot be handed to an ordinary provider, and two independent guards refuse it:
+editing a binding's capabilities fails because they must match the registered provider
+spec, and a spec that legitimately holds truth bound at `contract_only` fails because the
+two cannot coexist. Wiring the Oracle arm hit that second guard for real, which is how the
+capability split between ordinary and privileged grants came to be explicit rather than
+assumed.
 
 **Coordination and reasoning measurement** reads a recorded run and reports how the
 controller behaved, never how well it served. Stability consults action churn, claim churn

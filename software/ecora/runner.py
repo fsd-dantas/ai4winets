@@ -20,6 +20,7 @@ from .eco import eco_binding
 from .experts import expert_binding
 from .planning import planner_binding
 from .telemetry import projection_binding
+from .truth import TruthPort, truth_binding
 
 STREAM_NAMES = ("arrivals", "errors", "disturbances", "controller")
 
@@ -97,6 +98,10 @@ RULES = {
 PLANNER = {"sites": ["site-1"], "costs": {"select_path": 2, "set_ami_pacing": 1},
            "agent_id": "agent:site-1:ami", "service": "ami", "validity_s": 1,
            "certify": True, "state_limit": 64, "expansion_budget": 10000}
+
+# What the telemetry Oracle is permitted to read. Declared, not inferred.
+ORACLE = {"reads": ["truth.ami.queue_occupancy", "truth.shared.path_state",
+                    "truth.ami.pacing_profile"]}
 
 ECO = {"mark_ttl_s": 0.3, "backoff_min_s": 0.1, "backoff_max_s": 0.3, "validity_s": 1,
        "mark_transport_model": "ideal_local",
@@ -370,12 +375,16 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
     """
     registry, study, scenario_set, scenario, caps = fixture_environment(
         assembly=assembly, extra_capabilities=extra_capabilities)
+    # Truth is granted separately from observation and actuation: the registry refuses an
+    # ordinary binding that holds a truth capability, so the split has to be explicit.
+    every = caps.data["capabilities"]
+    granted = [c["capability_id"] for c in every if c["kind"] != "truth"]
+    truths = [c["capability_id"] for c in every if c["kind"] == "truth"]
     spec = Record("ProviderSpec", {
         "stage_id": "action", "provider_id": "model.action", "provider_version": "finite-v1",
         "arm": "proposed", "input_types": list(INPUT_TYPES["action"]),
         "output_types": list(OUTPUT_TYPES["action"]), "state_schema_version": "1",
-        "capability_ids": [c["capability_id"] for c in caps.data["capabilities"]],
-        "direct_truth_access": False})
+        "capability_ids": granted, "direct_truth_access": False})
     registry.register(spec, partial(ModelActionProvider, model, period_s))
     data = study.data
     null_treatment = next(t for t in data["treatments"] if t["treatment_id"] == "null_baseline")
@@ -390,7 +399,6 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
                          "configuration": configuration, "configuration_hash": digest(configuration)})
     # A third treatment differing from closed_loop in the telemetry binding alone, so the
     # three form a chain where each step changes exactly one stage.
-    granted = [c["capability_id"] for c in caps.data["capabilities"]]
     projection = projection_binding(registry, granted, projection or PROJECTION)
     observing = [dict(projection) if b["stage_id"] == "telemetry" else dict(b) for b in bindings]
 
@@ -405,11 +413,22 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
     coordinated = [dict(coordinating) if b["stage_id"] == "resolution" else dict(b)
                    for b in planned]
 
+    # An Oracle telemetry arm taints the whole pipeline downstream of it, so every stage
+    # in that treatment must be permitted to consume privileged input. That is two changes
+    # rather than one, and it is not presented as a drop-in swap of a single binding.
+    port = TruthPort(model, caps.data["capabilities"])
+    # An Oracle sees everything an ordinary arm sees, and truth besides. It is a
+    # superset reference, not a different set of eyes.
+    oracle_telemetry = truth_binding(registry, port, granted + truths, ORACLE)
+    privileged = [dict(oracle_telemetry) if b["stage_id"] == "telemetry"
+                  else {**b, "allow_privileged_inputs": True} for b in coordinated]
+
     data = {**data, "treatments": [*data["treatments"],
                                    {"treatment_id": "closed_loop", "bindings": bindings},
                                    {"treatment_id": "observing", "bindings": observing},
                                    {"treatment_id": "expert", "bindings": diagnosing("single_engine")},
                                    {"treatment_id": "blackboard", "bindings": reasoning},
                                    {"treatment_id": "planner", "bindings": planned},
-                                   {"treatment_id": "eco", "bindings": coordinated}]}
+                                   {"treatment_id": "eco", "bindings": coordinated},
+                                   {"treatment_id": "oracle", "bindings": privileged}]}
     return registry, Record("StudyManifest", data), scenario_set, scenario, caps

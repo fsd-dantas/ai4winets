@@ -1,6 +1,6 @@
 [
   {
-    "content_hash": "6866775d7c3b40e4af202e93613a6189c4966d4b608c65e18dedb3adc7eb8805",
+    "content_hash": "2276b7532ca35afaa76485c47d7d0ee6394c253fd3a9a0b0ebd11a70c44e2850",
     "data": {
       "access_policy_version": "v1",
       "analysis_version": "fixture-1",
@@ -31,7 +31,7 @@
           ]
         }
       },
-      "capability_manifest_hash": "c284175b9464e3ed2310abe42a5e309417ac0ffd2b08e9e405262b7fa414c08a",
+      "capability_manifest_hash": "37c6c275065e9ae1404604a36007f88151c3bf23a4f93033368c463123916630",
       "compute_budget_s": 60,
       "frozen": true,
       "parameter_set_hash": "ffbc2dfc402782325da71132100e74ff511d1585dd80e4ea196ed4bcace3fef2",
@@ -707,7 +707,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "c284175b9464e3ed2310abe42a5e309417ac0ffd2b08e9e405262b7fa414c08a",
+    "content_hash": "37c6c275065e9ae1404604a36007f88151c3bf23a4f93033368c463123916630",
     "data": {
       "adapter_id": "fixture",
       "adapter_version": "1",
@@ -788,6 +788,39 @@
           "service": "shared",
           "target": "site-1/alternative",
           "unit": "s"
+        },
+        {
+          "capability_id": "truth.ami.queue_occupancy",
+          "evidence_refs": [
+            "fixture:truth"
+          ],
+          "kind": "truth",
+          "name": "queue_occupancy",
+          "service": "ami",
+          "target": "site-1",
+          "unit": "byte"
+        },
+        {
+          "capability_id": "truth.shared.path_state",
+          "evidence_refs": [
+            "fixture:truth"
+          ],
+          "kind": "truth",
+          "name": "path_state",
+          "service": "shared",
+          "target": "site-1",
+          "unit": "id"
+        },
+        {
+          "capability_id": "truth.ami.pacing_profile",
+          "evidence_refs": [
+            "fixture:truth"
+          ],
+          "kind": "truth",
+          "name": "pacing_profile",
+          "service": "ami",
+          "target": "site-1",
+          "unit": "id"
         }
       ],
       "limitations": [

@@ -1,0 +1,136 @@
+"""The restricted, logged truth interface, and the telemetry Oracle that uses it.
+
+An Oracle is a reference, not a cheat, and the difference is entirely in what it is allowed
+to see and whether anyone can tell that it saw it. docs/ECoRA/stage-arms.md fixes the
+initial regime as `oracle_state`: current simulator truth at the decision watermark, never
+future arrivals, never future random draws, never an undisclosed disturbance schedule.
+
+Three restrictions make that enforceable rather than promised.
+
+Access is capability-scoped. A truth capability declares exactly which subject, service,
+signal and unit it opens, and a read outside that scope is refused. Holding one truth
+capability is not permission to read anything else, any more than it would be for an
+ordinary observation.
+
+Access is to the present only. The port refuses a read at any time other than the model's
+current instant, so a provider cannot look ahead by asking for a later moment, and cannot
+quietly reuse a stale value by asking for an earlier one.
+
+Access is logged. Every read is recorded and returns a privileged source reference that
+travels with whatever it produces, so an Oracle-derived value keeps its lineage through
+every stage that touches it. A provider cannot shed the label by wrapping the value in an
+otherwise ordinary record.
+
+What the port exposes is current state. It holds no event calendar, no disturbance
+schedule and no random stream, so there is nothing in it to read the future from.
+"""
+
+from functools import partial
+
+from .contracts import Record, digest, require
+from .registry import ProviderResult
+from .schema import INPUT_TYPES, OUTPUT_TYPES
+
+VERSION = "oracle-v1"
+
+# The finite model's current-state projection, by the capability name that opens it.
+PROJECTIONS = {
+    "queue_occupancy": ("byte", lambda model, site: model.truth()["queue_bytes"][
+        f"{site}/{model.truth()['selected_path'][site]}"]),
+    "path_state": ("id", lambda model, site: model.truth()["selected_path"][site]),
+    "pacing_profile": ("id", lambda model, site: model.truth()["pacing"][site]),
+    "held_ami": ("count", lambda model, site: model.truth()["held_ami"][site]),
+}
+
+
+class TruthPort:
+    """Current model state, opened only through a declared truth capability and logged."""
+
+    def __init__(self, model, capabilities):
+        self.model = model
+        self._capabilities = {c["capability_id"]: c for c in capabilities
+                              if c["kind"] == "truth"}
+        self.log = []
+
+    def granted(self):
+        return sorted(self._capabilities)
+
+    def read(self, capability_id, at_s):
+        """One current-state value, or a refusal. Never a future or a stale one."""
+        capability = self._capabilities.get(capability_id)
+        require(capability is not None,
+                f"no truth capability grants {capability_id}")
+        require(at_s == self.model.now,
+                "truth is current state only; the port serves neither the future nor the past")
+        name = capability["name"]
+        require(name in PROJECTIONS, f"the truth projection does not carry {name}")
+        unit, extract = PROJECTIONS[name]
+        require(capability["unit"] == unit, f"{name} is declared in {unit}")
+        value = extract(self.model, capability["target"])
+        reference = f"truth:{name}:{capability['target']}:{at_s}"
+        self.log.append({"capability_id": capability_id, "name": name,
+                         "target": capability["target"], "at_s": at_s, "reference": reference})
+        return {
+            "observation_id": f"observation:truth:{capability['target']}:{name}:{at_s}",
+            "subject": capability["target"], "service": capability["service"],
+            "metric": name, "unit": unit, "value": value, "quality": "observed",
+            "missing_reason": None, "event_time_s": at_s, "available_at_s": at_s,
+            "window": {"start_s": at_s, "end_s": at_s}, "source": "truth.port",
+            "sampling_policy": "instantaneous", "valid_min": None, "valid_max": None,
+            "assumptions": ["Privileged current-state read; not deployable evidence."],
+            "evidence_kind": "simulator_truth", "capability_id": capability_id,
+            "source_observation_ids": [], "formula": None,
+            "privileged_source_refs": [reference]}
+
+    def accounting(self):
+        return {"regime": "oracle_state", "reads": len(self.log),
+                "capabilities": self.granted(),
+                "note": "privileged current state; not evidence any controller could obtain"}
+
+
+class OracleTelemetryProvider:
+    """Exact current values of the finite truth projection, with privileged lineage.
+
+    This is a reference for measuring how much a contract-limited telemetry arm gives up,
+    not a controller anyone could deploy. Every value it relays is marked as simulator
+    truth and carries the reference of the read that produced it.
+    """
+
+    def __init__(self, port):
+        self.port = port
+
+    def invoke(self, inputs, prior_state, context):
+        watermark = context.data["decision_watermark_s"]
+        config = context.data["configuration"]
+        before = len(self.port.log)
+        observations = [self.port.read(capability_id, watermark)
+                        for capability_id in config["reads"]]
+        batch = Record("TelemetryBatch", {
+            "observations": observations, "watermark_s": watermark,
+            "window": {"start_s": watermark, "end_s": watermark},
+            "sequence": config.get("sequence", 0),
+            "completeness": 1 if observations else 0, "omitted_metrics": []})
+        state = {"reads": prior_state.data["state"].get("reads", 0) + len(observations)}
+        return ProviderResult((batch,), state,
+                              {"organisation": "oracle_state",
+                               "reads": len(self.port.log) - before,
+                               "port": self.port.accounting()})
+
+
+def truth_binding(registry, port, capability_ids, configuration):
+    """Register the telemetry Oracle against a port and return its frozen binding."""
+    require(configuration.get("reads"), "an Oracle must declare what truth it reads")
+    for capability_id in configuration["reads"]:
+        require(capability_id in port.granted(),
+                f"the Oracle declares a read no truth capability grants: {capability_id}")
+    spec = Record("ProviderSpec", {
+        "stage_id": "telemetry", "provider_id": "telemetry.oracle_state",
+        "provider_version": VERSION, "arm": "oracle",
+        "input_types": list(INPUT_TYPES["telemetry"]),
+        "output_types": list(OUTPUT_TYPES["telemetry"]), "state_schema_version": "1",
+        "capability_ids": list(capability_ids), "direct_truth_access": True})
+    if not registry.registered("telemetry", spec.data["provider_id"], VERSION):
+        registry.register(spec, partial(OracleTelemetryProvider, port))
+    return {k: v for k, v in spec.data.items() if k != "direct_truth_access"} | {
+        "information_regime": "oracle_state", "allow_privileged_inputs": True,
+        "configuration": configuration, "configuration_hash": digest(configuration)}

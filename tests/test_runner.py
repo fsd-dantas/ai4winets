@@ -183,6 +183,7 @@ class RunTests(unittest.TestCase):
         for expected in ("null_baseline", "closed_loop", "observing", "expert", "blackboard",
                          "relayed", "concluded", "activations",
                          "differs from the one above it in exactly one binding", "Provenance",
+                         "Measured behaviour", "Stability consults no service outcome",
                          "Nothing here is a network result"):
             with self.subTest(expected=expected):
                 self.assertIn(expected, printed)

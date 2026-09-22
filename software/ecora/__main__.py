@@ -9,6 +9,7 @@ from .boundary import Boundary
 from .contracts import ContractError, Record
 from .fixtures import batch, fixture_environment, payload_fixtures
 from .model import FiniteModel, Link
+from .metrics import measurements, read_run
 from .runner import Run, Streams, closed_loop_environment
 from .schema import schema_document
 from .store import ArtifactStore
@@ -63,6 +64,11 @@ def _execute(root, treatment, epochs, period_s):
                                  if h["status"] == "supported")
                 for entry in payload.data["rule_trace"]:
                     activations += entry.get("activations", 0)
+        measured, _ = measurements(
+            read_run(store, epochs),
+            {"stability_window_s": period_s * 2, "action_churn_limit": 2,
+             "claim_churn_limit": 4, "stale_retry_limit": 2}, period_s)
+        behaviour = {m["metric"]: m["value"] for m in measured}
         report = Record.from_dict(store.messages(dataset)[0].data["payload"])
         binding = run.binding("action")
         sensing = run.binding("telemetry")
@@ -72,6 +78,7 @@ def _execute(root, treatment, epochs, period_s):
                              for stage in ("telemetry", "diagnosis", "planning", "resolution", "action")},
                 "sensed": sensed, "relayed": relayed, "applied": applied,
                 "concluded": sorted(concluded), "activations": activations,
+                "behaviour": behaviour,
                 "path": model.truth()["selected_path"]["site-1"],
                 "verdict": report.data["claims"][0]["verdict"] if report.data["claims"] else "none",
                 "dataset": dataset, "scope": run.scope, "integrity": store.verify()}
@@ -124,6 +131,23 @@ def showcase(directory, epochs, period_s=0.5):
         i = r["integrity"]
         print(f"    {r['treatment']:<16} {i['datasets']:>4} datasets  {i['messages']:>4} messages"
               f"  {i['events']:>4} journal events")
+    print("\n  Measured behaviour, read from each run's own evidence:")
+    behaviour = (f"    {'treatment':<16}{'reversals':>10}{'repeats':>9}{'deadlock':>10}"
+                 f"{'starved':>9}{'expansions':>12}{'mark bytes':>12}{'stable':>8}")
+    print(behaviour)
+    print("    " + "-" * (len(behaviour) - 4))
+    for r in results:
+        b = r["behaviour"]
+        settled = {1: "yes", 0: "no", None: "n/a"}[b["coordination_stable"]]
+        print(f"    {r['treatment']:<16}{b['action_reversals']:>10}"
+              f"{b['repeated_applications']:>9}{b['deadlocked_epochs']:>10}"
+              f"{b['coordination_starvation_epochs']:>9}{b['search_expansions']:>12}"
+              f"{b['mark_bytes']:>12}{settled:>8}")
+    print("  Stability consults no service outcome, by design: a controller that sat still")
+    print("  while failing its requirements is stable and failing, and the two are reported")
+    print("  beside each other rather than folded together. Service starvation needs")
+    print("  per-reading delivery evidence the v1 contract does not carry, so it stays unknown.")
+
     named = {r["treatment"]: r for r in results}
     if {"blackboard", "planner"} <= named.keys():
         repeating, settling = named["blackboard"], named["planner"]

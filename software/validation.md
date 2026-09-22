@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **128 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **140 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -34,6 +34,21 @@ SCADA, a disturbance that degrades service and then drains its backlog without l
 exported observations that satisfy the telemetry contract. It is a deterministic
 queueing model with no radio, protocol conformance or calibrated value, and no run of it
 is evidence about a wireless network.
+
+**Coordination and reasoning measurement** reads a recorded run and reports how the
+controller behaved, never how well it served. Stability consults action churn, claim churn
+and stale retries and no service outcome at all, because a controller that sat still while
+failing its requirements is stable and failing, and folding the two together would hide
+the distinction the measurement exists for. Service starvation needs per-reading delivery
+evidence the v1 observation contract does not carry, so it is reported as unknown rather
+than approximated by something else; what is reported instead is coordination starvation,
+an agent that kept proposing and kept being refused.
+
+Two false positives were found and fixed while measuring real runs. A settled controller
+proposes a no-op once its goal holds, and refusing a no-op was being counted as deadlock
+and as starvation, which reported a system that had finished as one that could not
+proceed. Starvation was also keyed by proposal identity, and a fresh proposal each epoch
+reset the count of an agent that had been refused throughout; it now follows the agent.
 
 **Pacing** gained an actuator readback and, in the course of adding it, a correction. The
 versioned telemetry catalog now carries `pacing_profile` alongside `path_state`: both are

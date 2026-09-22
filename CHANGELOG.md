@@ -7,6 +7,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **Coordination and reasoning measurement** in `software/ecora/metrics.py`: reversals,
+  repeated applications, deadlocked epochs, coordination starvation, expert activations,
+  search expansions, plan size, claim churn, mark reads, writes and bytes, and a stability
+  verdict over the declared window. Everything is read from recorded evidence, so a
+  measurement can be recomputed from stored artifacts and none can depend on something the
+  controller was never allowed to see. Stability consults no service outcome by design,
+  and what the evidence cannot support is reported as unknown rather than approximated.
+  The showcase now prints the measured behaviour beside each treatment.
 - **`pacing_profile` in the versioned telemetry catalog**, an actuator readback of the
   same kind as `path_state`, so an applied `set_ami_pacing` command can cite an
   observation of its application rather than assert one. A receipt now cites the readback

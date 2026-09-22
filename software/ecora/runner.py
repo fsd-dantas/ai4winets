@@ -16,7 +16,9 @@ from .fixtures import ASSEMBLY, fixture_environment
 from .model import FiniteModel
 from .registry import ProviderResult
 from .schema import INPUT_TYPES, OUTPUT_TYPES
+from .eco import eco_binding
 from .experts import expert_binding
+from .planning import planner_binding
 from .telemetry import projection_binding
 
 STREAM_NAMES = ("arrivals", "errors", "disturbances", "controller")
@@ -30,6 +32,10 @@ PROJECTION = {
          "capability_id": "observe.ami.queue"},
         {"subject": "site-1", "service": "shared", "metric": "path_state", "unit": "id",
          "capability_id": "observe.shared.path"},
+        {"subject": "site-1/lte", "service": "shared", "metric": "path_probe", "unit": "s",
+         "capability_id": "observe.probe.lte"},
+        {"subject": "site-1/alternative", "service": "shared", "metric": "path_probe",
+         "unit": "s", "capability_id": "observe.probe.alternative"},
     ],
     "max_observation_age_s": 0.5,
 }
@@ -59,6 +65,14 @@ RULES = {
          "condition": {"metric": "path_state", "op": "eq", "value": "lte"},
          "concludes": "on_primary_path", "priority": 5, "contradicts": ["on_alternative_path"],
          "explanation": "The site's selector reports the primary leg."},
+        {"rule_id": "lte_viable", "requires": ["site-1/lte/path_probe"],
+         "condition": {"metric": "site-1/lte/path_probe", "op": "le", "value": 1.0},
+         "concludes": "lte_viable", "priority": 5,
+         "explanation": "A probe on the primary leg came back within its timeout."},
+        {"rule_id": "alternative_viable", "requires": ["site-1/alternative/path_probe"],
+         "condition": {"metric": "site-1/alternative/path_probe", "op": "le", "value": 1.0},
+         "concludes": "alternative_viable", "priority": 5,
+         "explanation": "A probe on the alternative leg came back within its timeout."},
         {"rule_id": "settled_on_alternative", "requires": [], "condition": None,
          "requires_predicates": ["local_queue_nominal", "on_alternative_path"],
          "concludes": "settled_on_alternative_path", "priority": 1,
@@ -67,13 +81,27 @@ RULES = {
     "activation_budget": 200,
 }
 
+# What the symbolic planner configures, and what the eco resolver may issue. Both are
+# frozen with the study: the costs a planner optimises and the authority a resolver holds
+# must not vary with the arm whose contribution is being measured.
+PLANNER = {"sites": ["site-1"], "costs": {"select_path": 2, "set_ami_pacing": 1},
+           "agent_id": "agent:site-1:ami", "service": "ami", "validity_s": 1,
+           "certify": True, "state_limit": 64, "expansion_budget": 10000}
+
+ECO = {"mark_ttl_s": 0.3, "backoff_min_s": 0.1, "backoff_max_s": 0.3, "validity_s": 1,
+       "mark_transport_model": "ideal_local",
+       "authority": {"select_path": "actuate.shared.path",
+                     "set_ami_pacing": "actuate.ami.pacing"}}
+
 # How a concluded diagnosis becomes symbolic predicates. Harness-fixed across treatments,
 # so the projection cannot vary with the arm whose contribution is being measured. A leg
 # carrying traffic is evidently reachable; nothing here asserts the other leg is.
 PREDICATE_MAP = {
-    "on_primary_path": ["selected_path:site-1:lte", "reachable:site-1:lte"],
-    "on_alternative_path": ["selected_path:site-1:alternative",
-                            "reachable:site-1:alternative"],
+    "on_primary_path": ["selected_path:site-1:lte"],
+    "on_alternative_path": ["selected_path:site-1:alternative"],
+    # Reachability now comes from a probe that answered, not from the leg being in use.
+    "lte_viable": ["reachable:site-1:lte"],
+    "alternative_viable": ["reachable:site-1:alternative"],
     "local_queue_nominal": ["queue_nominal:site-1:ami"],
     "local_queue_pressure": ["queue_pressure:site-1:ami"],
 }
@@ -127,10 +155,16 @@ def observation_batch(model, capability_ids, at, period_s, sequence):
     diverged in the world rather than in how two code paths happened to describe it.
     """
     exported = model.observations(capability_ids=capability_ids, window_s=period_s)
+    # A signal that did not come back is carried as unknown, and the batch says so. An
+    # adapter that reported full coverage while holding a timed-out probe would be
+    # claiming to have seen something it did not.
+    answered = [o for o in exported if o["quality"] != "missing"]
     return Record("AdapterObservationBatch", {
         "observations": exported, "watermark_s": at,
         "window": {"start_s": max(0.0, at - period_s), "end_s": at},
-        "sequence": sequence, "completeness": 1 if exported else 0, "omitted_metrics": []})
+        "sequence": sequence,
+        "completeness": len(answered) / len(exported) if exported else 0,
+        "omitted_metrics": sorted({o["metric"] for o in exported if o["quality"] == "missing"})})
 
 
 class ModelActionProvider:
@@ -350,9 +384,18 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
         binding = expert_binding(registry, granted, rules or RULES, organisation)
         return [dict(binding) if b["stage_id"] == "diagnosis" else dict(b) for b in observing]
 
+    reasoning = diagnosing("blackboard")
+    planning = planner_binding(registry, granted, PLANNER, "uniform_cost")
+    planned = [dict(planning) if b["stage_id"] == "planning" else dict(b) for b in reasoning]
+    coordinating = eco_binding(registry, granted, ECO, "resolution", "expiring_marks")
+    coordinated = [dict(coordinating) if b["stage_id"] == "resolution" else dict(b)
+                   for b in planned]
+
     data = {**data, "treatments": [*data["treatments"],
                                    {"treatment_id": "closed_loop", "bindings": bindings},
                                    {"treatment_id": "observing", "bindings": observing},
                                    {"treatment_id": "expert", "bindings": diagnosing("single_engine")},
-                                   {"treatment_id": "blackboard", "bindings": diagnosing("blackboard")}]}
+                                   {"treatment_id": "blackboard", "bindings": reasoning},
+                                   {"treatment_id": "planner", "bindings": planned},
+                                   {"treatment_id": "eco", "bindings": coordinated}]}
     return registry, Record("StudyManifest", data), scenario_set, scenario, caps

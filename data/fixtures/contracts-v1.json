@@ -1,6 +1,6 @@
 [
   {
-    "content_hash": "3bc7415ddf9411c0540bcc86a21565d66212a175bed772e67f835de946a66294",
+    "content_hash": "33487aa68abf51f9fab68e9362fbab5a94929be399355a452575dfea939cf75b",
     "data": {
       "access_policy_version": "v1",
       "analysis_version": "fixture-1",
@@ -11,7 +11,7 @@
           },
           "expansion_budget": 100,
           "goals": [
-            "selected_alternative"
+            "selected_path:site-1:alternative"
           ],
           "horizon_steps": 8,
           "memory_budget_bytes": 1024,
@@ -31,7 +31,7 @@
           ]
         }
       },
-      "capability_manifest_hash": "9ce6d133c15935a88a05dc081bff35e81e33c38338a8b863d501799cdd7c5239",
+      "capability_manifest_hash": "8fedb075191f2b4d35734d645e6950b96e5bb4ac8f8f83521b6e077aa81c6a34",
       "compute_budget_s": 60,
       "frozen": true,
       "parameter_set_hash": "ffbc2dfc402782325da71132100e74ff511d1585dd80e4ea196ed4bcace3fef2",
@@ -53,7 +53,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -76,7 +78,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {
                 "label": "fixture_a"
@@ -101,7 +105,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -124,7 +130,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -148,7 +156,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -171,7 +181,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -194,7 +206,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -222,7 +236,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -245,7 +261,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {
                 "label": "fixture_b"
@@ -270,7 +288,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -293,7 +313,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -317,7 +339,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -340,7 +364,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -363,7 +389,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -391,7 +419,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -414,7 +444,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {
                 "candidate_order": [
@@ -442,7 +474,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {
                 "agent_id": "agent:site-1:ami",
@@ -473,7 +507,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {
                 "authority": {
@@ -502,7 +538,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -525,7 +563,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {},
               "configuration_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -548,7 +588,9 @@
                 "observe.ami.queue",
                 "observe.shared.path",
                 "actuate.ami.pacing",
-                "actuate.shared.path"
+                "actuate.shared.path",
+                "observe.probe.lte",
+                "observe.probe.alternative"
               ],
               "configuration": {
                 "requirement_ids": [
@@ -644,7 +686,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "9ce6d133c15935a88a05dc081bff35e81e33c38338a8b863d501799cdd7c5239",
+    "content_hash": "8fedb075191f2b4d35734d645e6950b96e5bb4ac8f8f83521b6e077aa81c6a34",
     "data": {
       "adapter_id": "fixture",
       "adapter_version": "1",
@@ -692,6 +734,28 @@
           "service": "shared",
           "target": "site-1",
           "unit": null
+        },
+        {
+          "capability_id": "observe.probe.lte",
+          "evidence_refs": [
+            "fixture:observation"
+          ],
+          "kind": "observe",
+          "name": "path_probe",
+          "service": "shared",
+          "target": "site-1/lte",
+          "unit": "s"
+        },
+        {
+          "capability_id": "observe.probe.alternative",
+          "evidence_refs": [
+            "fixture:observation"
+          ],
+          "kind": "observe",
+          "name": "path_probe",
+          "service": "shared",
+          "target": "site-1/alternative",
+          "unit": "s"
         }
       ],
       "limitations": [

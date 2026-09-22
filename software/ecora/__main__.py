@@ -14,7 +14,9 @@ from .schema import schema_document
 from .store import ArtifactStore
 
 CAPABILITIES = {("site-1", "queue_occupancy"): "observe.ami.queue",
-                ("site-1", "path_state"): "observe.shared.path"}
+                ("site-1", "path_state"): "observe.shared.path",
+                ("site-1/lte", "path_probe"): "observe.probe.lte",
+                ("site-1/alternative", "path_probe"): "observe.probe.alternative"}
 
 
 def _world():
@@ -83,7 +85,7 @@ def showcase(directory, epochs, period_s=0.5):
     started = time.perf_counter()
     results = [_execute(directory, treatment, epochs, period_s)
                for treatment in ("null_baseline", "closed_loop", "observing", "expert",
-                                 "blackboard")]
+                                 "blackboard", "planner", "eco")]
     scope = results[0]["scope"]
     print(f"ECoRA -- one frozen study, {len(results)} treatments, one binding apart\n")
     print(f"  study     {scope['study_id']}")
@@ -122,6 +124,15 @@ def showcase(directory, epochs, period_s=0.5):
         print(f"    {r['treatment']:<16} {i['datasets']:>4} datasets  {i['messages']:>4} messages"
               f"  {i['events']:>4} journal events")
     named = {r["treatment"]: r for r in results}
+    if {"blackboard", "planner"} <= named.keys():
+        repeating, settling = named["blackboard"], named["planner"]
+        if repeating["applied"] > settling["applied"]:
+            print(f"\n  The Null planner reapplies its configured switch every epoch"
+                  f" ({repeating['applied']} times).")
+            print(f"  The symbolic planner reaches the goal and stops ({settling['applied']}),"
+                  f" because an achieved")
+            print("  goal yields an empty plan. That difference is action churn, which is what")
+            print("  the coordination instrumentation is meant to measure.")
     if {"expert", "blackboard"} <= named.keys():
         single, board = named["expert"], named["blackboard"]
         agree = single["concluded"] == board["concluded"]
@@ -170,7 +181,8 @@ def main(argv=None):
             record = Record.from_json(args.file.read_bytes())
             print(f"Valid {record.kind}/1 {record.content_hash}")
         elif args.command == "showcase":
-            for treatment in ("null_baseline", "closed_loop", "observing", "expert", "blackboard"):
+            for treatment in ("null_baseline", "closed_loop", "observing", "expert",
+                              "blackboard", "planner", "eco"):
                 if (args.directory / treatment).exists():
                     raise ContractError(f"showcase directory already exists: {args.directory / treatment}")
             showcase(args.directory, args.epochs)

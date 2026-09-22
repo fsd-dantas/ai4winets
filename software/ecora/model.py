@@ -125,8 +125,14 @@ class FiniteModel:
 
     def _on_disturb(self, data):
         """Reduce or restore a declared link rate. In-flight service is unaffected."""
-        queue = self._queues[(data["site"], data["leg"])]
+        key = (data["site"], data["leg"])
+        queue = self._queues[key]
+        was_idle = queue.rate_bps <= 0
         queue.rate_bps = data["rate_bps"]
+        # A leg taken to zero stops serving and holds its queue. Restoring it has to wake
+        # that queue, or the backlog would sit there with nothing scheduled to drain it.
+        if was_idle and queue.rate_bps > 0 and queue.pending and not queue.busy:
+            self._start_service(key)
 
     def _arrive(self, packet, hop):
         key = (packet.site_id, self.path[packet.site_id]) if hop == 0 else ("egress", "egress")
@@ -147,6 +153,10 @@ class FiniteModel:
             return
         packet, hop = queue.pending[0]
         rate = self._effective_rate(packet, queue)
+        if rate <= 0:
+            # No service to give. The packet waits; it is not dropped and not delivered.
+            queue.busy = False
+            return
         queue.busy = True
         self._schedule(self.now + (packet.size_bytes * 8) / rate, "serviced",
                        {"key": key, "packet_id": packet.packet_id})
@@ -205,6 +215,18 @@ class FiniteModel:
 
     # -- observation ----------------------------------------------------------
 
+    def probe(self, site, leg, probe_bytes=32):
+        """The round trip a probe on this leg would see, or None when it cannot complete.
+
+        Viability is established by a probe that came back, never by the configured link
+        parameters. A leg whose service has been taken away does not answer, and the
+        absence is reported as unknown rather than as a slow reply.
+        """
+        queue = self._queues[(site, leg)]
+        if queue.rate_bps <= 0:
+            return None
+        return 2 * (queue.link.delay_s + (probe_bytes * 8) / queue.rate_bps)
+
     @staticmethod
     def observation_id(site, metric, at_s):
         """The canonical identity of an exported signal.
@@ -232,6 +254,21 @@ class FiniteModel:
                 exported.append(self._observation(
                     self.observation_id(site, "path_state", self.now), site, "shared",
                     "path_state", "id", self.path[site], capability, window))
+            # A probe per leg, each its own subject so each needs its own permission:
+            # being allowed to probe one leg is not permission to probe the other.
+            for leg in self.links:
+                capability = capability_ids.get((f"{site}/{leg}", "path_probe"))
+                if not capability:
+                    continue
+                round_trip = self.probe(site, leg)
+                observation = self._observation(
+                    self.observation_id(f"{site}/{leg}", "path_probe", self.now),
+                    f"{site}/{leg}", "shared", "path_probe", "s", round_trip, capability, window)
+                if round_trip is None:
+                    observation.update({"quality": "missing", "missing_reason": {
+                        "code": "probe_timeout",
+                        "detail": "The leg did not answer within its declared timeout."}})
+                exported.append(observation)
         return exported
 
     def _observation(self, observation_id, site, service, metric, unit, value, capability, window):

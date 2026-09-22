@@ -89,6 +89,37 @@ class ModelTests(unittest.TestCase):
         self.assertEqual(after_bad["delivered"], after_ok["delivered"])
         self.assertEqual(after_bad["dropped"], 0)
 
+    def test_a_probe_answers_on_a_serving_leg_and_not_on_a_silent_one(self):
+        world = model().advance_to(1.0)
+        self.assertIsNotNone(world.probe("site-1", "lte"))
+        self.assertGreater(world.probe("site-1", "lte"), 2 * 0.010)
+        silent = model(disturbances=[{"at_s": 0.5, "site": "site-1", "leg": "lte",
+                                      "rate_bps": 0}]).advance_to(1.0)
+        self.assertIsNone(silent.probe("site-1", "lte"),
+                          "a leg with no service must not answer a probe")
+
+    def test_a_silent_leg_holds_its_queue_and_drains_once_restored(self):
+        world = model(disturbances=[
+            {"at_s": 0.5, "site": "site-1", "leg": "lte", "rate_bps": 0},
+            {"at_s": 2.0, "site": "site-1", "leg": "lte", "rate_bps": 1000000}])
+        during = world.advance_to(1.5).truth()
+        self.assertGreater(sum(during["queue_bytes"].values()), 0)
+        after = world.advance_to(6.0).truth()
+        self.assertEqual(after["dropped"], 0, "held demand is not lost")
+        self.assertGreater(after["delivered"], during["delivered"])
+
+    def test_a_timed_out_probe_is_exported_as_unknown_not_as_a_slow_reply(self):
+        world = model(disturbances=[{"at_s": 0.5, "site": "site-1", "leg": "alternative",
+                                     "rate_bps": 0}]).advance_to(1.0)
+        capabilities = {("site-1/lte", "path_probe"): "observe.probe.lte",
+                        ("site-1/alternative", "path_probe"): "observe.probe.alternative"}
+        exported = {o["subject"]: o for o in world.observations(capability_ids=capabilities)}
+        self.assertEqual(exported["site-1/lte"]["quality"], "observed")
+        silent = exported["site-1/alternative"]
+        self.assertEqual(silent["quality"], "missing")
+        self.assertIsNone(silent["value"])
+        self.assertEqual(silent["missing_reason"]["code"], "probe_timeout")
+
     def test_exported_observations_satisfy_the_telemetry_contract(self):
         world = model().advance_to(2.0)
         capabilities = {("site-1", "queue_occupancy"): "observe.ami.queue",

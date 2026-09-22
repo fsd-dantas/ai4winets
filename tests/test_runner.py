@@ -9,7 +9,9 @@ from ecora.runner import Run, Streams, closed_loop_environment
 from ecora.store import ArtifactStore
 
 CAPABILITIES = {("site-1", "queue_occupancy"): "observe.ami.queue",
-                ("site-1", "path_state"): "observe.shared.path"}
+                ("site-1", "path_state"): "observe.shared.path",
+                ("site-1/lte", "path_probe"): "observe.probe.lte",
+                ("site-1/alternative", "path_probe"): "observe.probe.alternative"}
 PERIOD = 0.5
 EPOCHS = 4
 
@@ -119,6 +121,54 @@ class RunTests(unittest.TestCase):
         for receipt in receipts:
             for observation_id in receipt["application_observation_ids"]:
                 self.assertIn(observation_id, exported)
+
+    def probed(self, name, disturbances=(), treatment="eco", epochs=3):
+        model = FiniteModel(
+            sites=["site-1"],
+            links={"lte": Link("lte", 1000000, 0.010, 65536),
+                   "alternative": Link("alternative", 1000000, 0.010, 65536)},
+            egress=Link("egress", 256000, 0.001, 65536),
+            scada_period_s=0.1, ami_period_s=1.0, scada_bytes=512, ami_bytes=512,
+            scada_deadline_s=0.25, ami_deadline_s=10.0, disturbances=disturbances)
+        registry, study, scenario_set, scenario, caps = closed_loop_environment(
+            model, period_s=PERIOD)
+        store = ArtifactStore(Path(self.temp.name) / name)
+        self.addCleanup(store.close)
+        run = registry.admit(study, scenario_set, scenario, caps, treatment, f"run:{name}")
+        boundary = Boundary(store, registry, run)
+        Run(boundary, model, streams=Streams(study.data["seed_manifest"]),
+            capability_ids=CAPABILITIES, period_s=PERIOD, epochs=epochs,
+            assembly=study.data["assembly"]).execute()
+        return store, model
+
+    def test_a_probed_leg_can_be_switched_to_and_an_unprobed_one_cannot(self):
+        """The whole chain: probe, diagnosis, projection, plan, command, world.
+
+        With both legs answering, the planner reaches the goal and the switch is applied.
+        Take the alternative leg's service away and its probe stops answering, so its
+        reachability is unknown, the edge is prohibited and nothing is applied. Only that
+        leg is refused: the one still answering stays viable.
+        """
+        store, model = self.probed("probe-healthy")
+        problem = Record.from_dict(
+            store.messages("dataset:assemble-planning:0")[0].data["payload"]).data
+        plan = Record.from_dict(store.messages("dataset:planning:0")[0].data["payload"]).data
+        self.assertEqual(problem["unknown_predicates"], [])
+        self.assertEqual(plan["goal_status"], "achieved_in_model")
+        self.assertEqual(model.truth()["selected_path"]["site-1"], "alternative")
+
+        silent, unmoved = self.probed(
+            "probe-silent",
+            disturbances=({"at_s": 0.0, "site": "site-1", "leg": "alternative", "rate_bps": 0},))
+        problem = Record.from_dict(
+            silent.messages("dataset:assemble-planning:0")[0].data["payload"]).data
+        plan = Record.from_dict(silent.messages("dataset:planning:0")[0].data["payload"]).data
+        self.assertEqual(problem["unknown_predicates"], ["reachable:site-1:alternative"])
+        self.assertIn("reachable:site-1:lte", problem["known_predicates"])
+        self.assertEqual(plan["goal_status"], "unknown")
+        self.assertEqual([step["operator"] for step in plan["steps"]], ["no_op"])
+        self.assertEqual(unmoved.truth()["selected_path"]["site-1"], "lte")
+        self.assertEqual(unmoved.path_version["site-1"], 0)
 
     def test_the_showcase_runs_and_reports_every_arm(self):
         """It is demonstrated live, so a silent break is worse than a slow test."""

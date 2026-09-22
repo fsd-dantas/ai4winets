@@ -15,7 +15,8 @@ def reason(code="fixture", detail="Synthetic contract fixture."):
 # The assembled stage inputs a study freezes, so that goal and cohort selection cannot
 # vary with the arm under comparison. Synthetic; no calibrated budget or deadline.
 ASSEMBLY = {
-    "planning": {"goals": ["selected_alternative"], "operator_catalog_version": "v1",
+    "planning": {"goals": ["selected_path:site-1:alternative"],
+                 "operator_catalog_version": "v1",
                  "action_costs": {"select_path": 2}, "expansion_budget": 100,
                  "time_budget_s": 2, "memory_budget_bytes": 1024, "horizon_steps": 8},
     "result": {"cohorts": [{"cohort_id": "cohort:ami",
@@ -159,7 +160,11 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assemb
                 "service": "ami", "name": "set_ami_pacing", "unit": None, "evidence_refs": ["fixture:actuation"]}
     path_actuator = {"capability_id": "actuate.shared.path", "kind": "actuate", "target": "site-1",
                      "service": "shared", "name": "select_path", "unit": None, "evidence_refs": ["fixture:actuation"]}
-    granted = [cap, path_cap, actuator, path_actuator]
+    probes = [{"capability_id": f"observe.probe.{leg}", "kind": "observe",
+               "target": f"site-1/{leg}", "service": "shared", "name": "path_probe",
+               "unit": "s", "evidence_refs": ["fixture:observation"]}
+              for leg in ("lte", "alternative")]
+    granted = [cap, path_cap, actuator, path_actuator, *probes]
     caps = Record("CapabilityManifest", {"adapter_id": "fixture", "adapter_version": "1", "model_version": "fixture-1",
                   "capabilities": [*granted, *extra_capabilities], "limitations": ["Fixture only; no enabled simulator."],
                   "timing_mode": "logical"})

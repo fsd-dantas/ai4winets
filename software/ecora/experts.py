@@ -30,6 +30,17 @@ _TESTS = {"ge": lambda a, b: a >= b, "le": lambda a, b: a <= b,
 UNKNOWN = object()
 
 
+def signal(observation):
+    """The name a rule refers to a signal by.
+
+    A site-level signal is named by its metric. One belonging to something under the site,
+    such as a per-leg probe, is qualified by its subject, because two legs reporting the
+    same metric would otherwise collide and a rule could not say which leg it meant.
+    """
+    subject, metric = observation["subject"], observation["metric"]
+    return metric if "/" not in subject else f"{subject}/{metric}"
+
+
 def _snapshot(inputs):
     """The admissible evidence: a metric is present only if it was actually observed.
 
@@ -42,11 +53,11 @@ def _snapshot(inputs):
         if payload.kind != "TelemetryBatch":
             continue
         for observation in payload.data["observations"]:
+            name = signal(observation)
             if observation["quality"] == "missing":
-                unknown.add(observation["metric"])
+                unknown.add(name)
             else:
-                observed[observation["metric"]] = (observation["value"],
-                                                   observation["observation_id"])
+                observed[name] = (observation["value"], observation["observation_id"])
     return observed, unknown
 
 

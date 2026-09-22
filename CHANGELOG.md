@@ -7,6 +7,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **Path probes**, which make leg reachability observable instead of assumed. The model
+  answers a probe on a serving leg and stays silent on one whose service has been taken
+  away; each leg is its own subject, so probing one is not permission to probe the other.
+  A rule concludes viability only from a probe that came back, so an unknown precondition
+  prohibits the switch and a planner cannot move onto a leg it has no evidence it can
+  reach. The Proposed planner and the eco resolver are now bound into the chain, which
+  runs seven treatments each a single binding apart.
 - **Eco-problem solving** in `software/ecora/eco.py`: per-agent local satisfaction with
   differentiated interpretation, an environmental mark substrate, and four anti-collision
   mechanisms (expiring marks, randomised backoff, local reservation, yield with aging).

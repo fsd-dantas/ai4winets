@@ -48,7 +48,11 @@ class ProjectionProvider:
             if payload.kind == "AdapterObservationBatch":
                 offered.extend(payload.data["observations"])
 
-        local = [o for o in offered if o["subject"] == subject and o["service"] in services]
+        # A neighbourhood is the site and what belongs to it, such as its own legs. It is
+        # still one site: a subject under another site's prefix does not become local.
+        local = [o for o in offered
+                 if (o["subject"] == subject or o["subject"].startswith(f"{subject}/"))
+                 and o["service"] in services]
         remote = len(offered) - len(local)
         by_signal = {(o["subject"], o["service"], o["metric"], o["unit"]): o for o in local}
 
@@ -56,6 +60,12 @@ class ProjectionProvider:
         for signal in expected:
             key = (signal["subject"], signal["service"], signal["metric"], signal["unit"])
             found = by_signal.get(key)
+            if found is not None and found["quality"] == "missing":
+                # Offered but it did not come back, as with a probe that timed out. The
+                # adapter's own reason is kept rather than replaced by a generic one.
+                omitted.append(signal["metric"])
+                relayed.append(found)
+                continue
             reason = None
             if found is None:
                 reason = {"code": "absent", "detail": "The adapter offered no such signal."}

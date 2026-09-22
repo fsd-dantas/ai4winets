@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **123 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **127 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -34,6 +34,18 @@ SCADA, a disturbance that degrades service and then drains its backlog without l
 exported observations that satisfy the telemetry contract. It is a deterministic
 queueing model with no radio, protocol conformance or calibrated value, and no run of it
 is evidence about a wireless network.
+
+The **probe signal** closes the loop the planners needed. A leg that is serving answers a
+probe and is concluded viable; a leg whose service has been taken away does not answer,
+and the absence is exported as unknown rather than as a slow reply. One test drives the
+whole chain -- probe, diagnosis, symbolic projection, plan, command, world -- and asserts
+that a probed leg can be switched to while an unprobed one cannot, with only the silent
+leg refused and the one still answering left viable.
+
+Two defects surfaced while wiring it, both caught by the contract rather than by
+inspection. The adapter batch reported full coverage while carrying a timed-out probe, and
+the projection relayed an input observation that was itself missing without counting it as
+withheld. Each would have let a batch claim it had seen something it had not.
 
 **Eco-problem solving** is exercised in both halves. The local assessment shows the
 asymmetry the design asks for: two services reading the same occupancy reach different

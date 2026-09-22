@@ -11,7 +11,9 @@ from ecora.store import ArtifactStore
 from ecora.telemetry import projection_binding
 
 CAPABILITIES = {("site-1", "queue_occupancy"): "observe.ami.queue",
-                ("site-1", "path_state"): "observe.shared.path"}
+                ("site-1", "path_state"): "observe.shared.path",
+                ("site-1/lte", "path_probe"): "observe.probe.lte",
+                ("site-1/alternative", "path_probe"): "observe.probe.alternative"}
 PERIOD = 0.5
 
 
@@ -53,7 +55,11 @@ class ProjectionTests(unittest.TestCase):
         self.assertEqual(batch.data["completeness"], 1)
         self.assertEqual(batch.data["omitted_metrics"], [])
         self.assertEqual(sorted(o["metric"] for o in batch.data["observations"]),
-                         ["path_state", "queue_occupancy"])
+                         ["path_probe", "path_probe", "path_state", "queue_occupancy"])
+        # Each leg is probed under its own subject, so a rule can say which leg it means.
+        self.assertEqual(sorted(o["subject"] for o in batch.data["observations"]
+                                if o["metric"] == "path_probe"),
+                         ["site-1/alternative", "site-1/lte"])
         self.assertTrue(all(o["quality"] == "observed" for o in batch.data["observations"]))
         # The path switch the closed loop applies becomes visible in what it relays next.
         self.assertEqual(
@@ -95,7 +101,8 @@ class ProjectionTests(unittest.TestCase):
                                 watermark_s=2.0)
         batch = self.relayed(store, stale.data["dataset_id"])
         self.assertEqual(batch.data["completeness"], 0)
-        self.assertEqual(batch.data["omitted_metrics"], ["path_state", "queue_occupancy"])
+        self.assertEqual(batch.data["omitted_metrics"],
+                         ["path_probe", "path_state", "queue_occupancy"])
         for observation in batch.data["observations"]:
             self.assertEqual(observation["quality"], "missing")
             self.assertEqual(observation["missing_reason"]["code"], "stale")
@@ -118,7 +125,10 @@ class ProjectionTests(unittest.TestCase):
         result = boundary.invoke("telemetry", "telemetry:mixed", ["dataset:ingest:mixed"],
                                  watermark_s=0)
         batch = self.relayed(store, result.data["dataset_id"])
-        self.assertTrue(all(o["subject"] == "site-1" for o in batch.data["observations"]))
+        # The site and what belongs to it are local; another site is not.
+        self.assertTrue(all(o["subject"] == "site-1" or o["subject"].startswith("site-1/")
+                            for o in batch.data["observations"]))
+        self.assertFalse(any(o["subject"].startswith("site-2") for o in batch.data["observations"]))
         trace = store.get(store.invocation("telemetry:mixed").data["trace_hash"]).data["state"]
         self.assertEqual(trace["out_of_neighbourhood"], 1)
 

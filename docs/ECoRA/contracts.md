@@ -57,6 +57,7 @@ All entries below are planned ECoRA observations. Availability is checked per ad
 | goodput | Unique delivered application bits/s | Receiver trace, excluding duplicates |
 | packet_drop | Event and reason where available | Queue/device/application trace |
 | path_state | Applied route/path and version | Actuator state observation |
+| pacing_profile | Applied AMI release profile | Actuator state observation |
 | path_probe | Probe/leg identity, send/acknowledgement times or timeout | Gateway probe application, with availability gating |
 | claim_state | Claim ID, owner, resource and expiry | Local coordination substrate |
 | control_message | Event, size and endpoints | Coordination transport |

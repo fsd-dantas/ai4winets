@@ -1,6 +1,6 @@
 [
   {
-    "content_hash": "33487aa68abf51f9fab68e9362fbab5a94929be399355a452575dfea939cf75b",
+    "content_hash": "6866775d7c3b40e4af202e93613a6189c4966d4b608c65e18dedb3adc7eb8805",
     "data": {
       "access_policy_version": "v1",
       "analysis_version": "fixture-1",
@@ -31,7 +31,7 @@
           ]
         }
       },
-      "capability_manifest_hash": "8fedb075191f2b4d35734d645e6950b96e5bb4ac8f8f83521b6e077aa81c6a34",
+      "capability_manifest_hash": "c284175b9464e3ed2310abe42a5e309417ac0ffd2b08e9e405262b7fa414c08a",
       "compute_budget_s": 60,
       "frozen": true,
       "parameter_set_hash": "ffbc2dfc402782325da71132100e74ff511d1585dd80e4ea196ed4bcace3fef2",
@@ -52,6 +52,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -77,6 +78,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -104,6 +106,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -129,6 +132,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -155,6 +159,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -180,6 +185,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -205,6 +211,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -235,6 +242,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -260,6 +268,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -287,6 +296,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -312,6 +322,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -338,6 +349,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -363,6 +375,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -388,6 +401,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -418,6 +432,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -443,6 +458,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -473,6 +489,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -506,6 +523,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -537,6 +555,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -562,6 +581,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -587,6 +607,7 @@
               "capability_ids": [
                 "observe.ami.queue",
                 "observe.shared.path",
+                "observe.ami.pacing",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -686,7 +707,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "8fedb075191f2b4d35734d645e6950b96e5bb4ac8f8f83521b6e077aa81c6a34",
+    "content_hash": "c284175b9464e3ed2310abe42a5e309417ac0ffd2b08e9e405262b7fa414c08a",
     "data": {
       "adapter_id": "fixture",
       "adapter_version": "1",
@@ -710,6 +731,17 @@
           "kind": "observe",
           "name": "path_state",
           "service": "shared",
+          "target": "site-1",
+          "unit": "id"
+        },
+        {
+          "capability_id": "observe.ami.pacing",
+          "evidence_refs": [
+            "fixture:observation"
+          ],
+          "kind": "observe",
+          "name": "pacing_profile",
+          "service": "ami",
           "target": "site-1",
           "unit": "id"
         },

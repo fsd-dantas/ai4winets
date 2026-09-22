@@ -32,6 +32,8 @@ PROJECTION = {
          "capability_id": "observe.ami.queue"},
         {"subject": "site-1", "service": "shared", "metric": "path_state", "unit": "id",
          "capability_id": "observe.shared.path"},
+        {"subject": "site-1", "service": "ami", "metric": "pacing_profile", "unit": "id",
+         "capability_id": "observe.ami.pacing"},
         {"subject": "site-1/lte", "service": "shared", "metric": "path_probe", "unit": "s",
          "capability_id": "observe.probe.lte"},
         {"subject": "site-1/alternative", "service": "shared", "metric": "path_probe",
@@ -65,6 +67,14 @@ RULES = {
          "condition": {"metric": "path_state", "op": "eq", "value": "lte"},
          "concludes": "on_primary_path", "priority": 5, "contradicts": ["on_alternative_path"],
          "explanation": "The site's selector reports the primary leg."},
+        {"rule_id": "pacing_normal", "requires": ["pacing_profile"],
+         "condition": {"metric": "pacing_profile", "op": "eq", "value": "normal"},
+         "concludes": "pacing_is_normal", "priority": 5,
+         "explanation": "The AMI release profile reads back as normal."},
+        {"rule_id": "pacing_restricted", "requires": ["pacing_profile"],
+         "condition": {"metric": "pacing_profile", "op": "eq", "value": "restricted"},
+         "concludes": "pacing_is_restricted", "priority": 5,
+         "explanation": "The AMI release profile reads back as restricted."},
         {"rule_id": "lte_viable", "requires": ["site-1/lte/path_probe"],
          "condition": {"metric": "site-1/lte/path_probe", "op": "le", "value": 1.0},
          "concludes": "lte_viable", "priority": 5,
@@ -102,6 +112,8 @@ PREDICATE_MAP = {
     # Reachability now comes from a probe that answered, not from the leg being in use.
     "lte_viable": ["reachable:site-1:lte"],
     "alternative_viable": ["reachable:site-1:alternative"],
+    "pacing_is_normal": ["pacing:site-1:normal"],
+    "pacing_is_restricted": ["pacing:site-1:restricted"],
     "local_queue_nominal": ["queue_nominal:site-1:ami"],
     "local_queue_pressure": ["queue_pressure:site-1:ami"],
 }
@@ -187,8 +199,10 @@ class ModelActionProvider:
             if payload.kind != "ActionCommand":
                 continue
             applied, why = self.model.apply(payload)
-            evidence = [self.model.observation_id(payload.data["target"], "path_state",
-                                                  watermark + self.period_s)] if applied else []
+            readback = {"select_path": "path_state", "set_ami_pacing": "pacing_profile"}
+            metric = readback.get(payload.data["operator"])
+            evidence = [self.model.observation_id(payload.data["target"], metric,
+                                                  watermark + self.period_s)] if applied and metric else []
             receipts.append(Record("ActionReceipt", {
                 "command_id": payload.data["command_id"],
                 "idempotency_key": payload.data["idempotency_key"],

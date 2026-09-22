@@ -10,6 +10,7 @@ from ecora.store import ArtifactStore
 
 CAPABILITIES = {("site-1", "queue_occupancy"): "observe.ami.queue",
                 ("site-1", "path_state"): "observe.shared.path",
+                ("site-1", "pacing_profile"): "observe.ami.pacing",
                 ("site-1/lte", "path_probe"): "observe.probe.lte",
                 ("site-1/alternative", "path_probe"): "observe.probe.alternative"}
 PERIOD = 0.5
@@ -134,7 +135,7 @@ class ContinuationTests(unittest.TestCase):
         output = Record.from_dict(other.messages(substituted.data["dataset_id"])[0].data["payload"])
         self.assertEqual(output.data["observations"], [])
         self.assertEqual(output.data["omitted_metrics"],
-                         ["path_probe", "path_state", "queue_occupancy"])
+                         ["pacing_profile", "path_probe", "path_state", "queue_occupancy"])
 
 
 if __name__ == "__main__":

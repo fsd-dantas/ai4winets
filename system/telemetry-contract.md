@@ -36,8 +36,16 @@ excluded from the initial Proposed projection even if the LTE trace can export t
 | goodput | Unique received application bits/s, excluding duplicates | Receiver accounting |
 | packet_drop | Packet ID and reason where observable | Queue/device/application trace |
 | path_state | Applied path identifier and configuration version | Actuator observation |
+| pacing_profile | Applied AMI release profile identifier | Actuator observation |
 | path_probe | Probe/leg ID, send and acknowledgement times or timeout; seconds | Gateway probe application and delayed acknowledgement trace |
 | claim_state | Local claim owner, resource, version and expiry | Coordination substrate |
+
+`path_state` and `pacing_profile` are **actuator readbacks**: they report the setting an
+actuator currently holds, not a service outcome. They exist so that an applied command can
+cite an observation of its application rather than assert one. Reading back a setting is
+evidence that the setting took effect and nothing more; whether it improved service is a
+separate question for the result and assurance stages. A readback must come from observing
+the actuator, never from the command that was issued, or a receipt would be citing itself.
 | control_message | Message event, size, endpoints and visibility | Coordination transport |
 | link_measurement | Explicitly named metric and unit such as model-supported received power | Actual radio trace; absent on a surrogate without that model |
 

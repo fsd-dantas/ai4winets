@@ -164,7 +164,10 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assemb
                "target": f"site-1/{leg}", "service": "shared", "name": "path_probe",
                "unit": "s", "evidence_refs": ["fixture:observation"]}
               for leg in ("lte", "alternative")]
-    granted = [cap, path_cap, actuator, path_actuator, *probes]
+    pacing_cap = {"capability_id": "observe.ami.pacing", "kind": "observe", "target": "site-1",
+                  "service": "ami", "name": "pacing_profile", "unit": "id",
+                  "evidence_refs": ["fixture:observation"]}
+    granted = [cap, path_cap, pacing_cap, actuator, path_actuator, *probes]
     caps = Record("CapabilityManifest", {"adapter_id": "fixture", "adapter_version": "1", "model_version": "fixture-1",
                   "capabilities": [*granted, *extra_capabilities], "limitations": ["Fixture only; no enabled simulator."],
                   "timing_mode": "logical"})

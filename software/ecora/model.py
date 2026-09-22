@@ -9,7 +9,10 @@ behaviour, and no calibrated value.
 Declared simplifications, each of which bounds what a run of this model can support:
 
 - Service already in progress when a disturbance changes a link rate completes at its
-  scheduled time; the new rate applies to subsequent services only.
+  scheduled time; the new rate applies to subsequent services only. A release interval
+  already being counted behaves the same way when the pacing profile changes.
+- Pacing is a release gate at the gateway, not a service rate. A held reading waits
+  outside the queue, so it does not occupy the server ahead of SCADA traffic.
 - A packet is served whole. There is no fragmentation, no interleaving and no preemption.
 - Propagation is a fixed per-link delay. There is no jitter, loss model or reordering
   beyond what queueing produces.
@@ -86,6 +89,8 @@ class FiniteModel:
             for leg, link in self.links.items():
                 self._queues[(site, leg)] = _Queue(link, link.capacity_bps)
         self._queues[("egress", "egress")] = _Queue(egress, egress.capacity_bps)
+        self._ami_pending = {site: deque() for site in self.sites}
+        self._ami_releasing = {site: False for site in self.sites}
         self.generated, self.delivered, self.dropped = [], [], []
         self._counter = 0
         for service in SERVICES:
@@ -120,8 +125,33 @@ class FiniteModel:
                         self.sizes[service], self.now,
                         self.now + self.deadlines[service], (site, "egress"))
         self.generated.append(packet)
-        self._arrive(packet, 0)
+        if service == "ami":
+            # Pacing governs release from the gateway, not the rate a released packet is
+            # served at. Slowing the service instead would leave a paced reading at the
+            # head of a shared queue holding SCADA up behind it, which is the opposite of
+            # what the lever is for.
+            self._ami_pending[site].append(packet)
+            if not self._ami_releasing[site]:
+                self._start_release(site)
+        else:
+            self._arrive(packet, 0)
         self._schedule(self.now + self.periods[service], "generate", data)
+
+    def _start_release(self, site):
+        """Admit the next held reading after its profile's interval has elapsed."""
+        pending = self._ami_pending[site]
+        if not pending:
+            self._ami_releasing[site] = False
+            return
+        self._ami_releasing[site] = True
+        rate = PACING_BPS[self.pacing[site]]
+        self._schedule(self.now + (pending[0].size_bytes * 8) / rate, "release", {"site": site})
+
+    def _on_release(self, data):
+        site = data["site"]
+        self._arrive(self._ami_pending[site].popleft(), 0)
+        self._ami_releasing[site] = False
+        self._start_release(site)
 
     def _on_disturb(self, data):
         """Reduce or restore a declared link rate. In-flight service is unaffected."""
@@ -152,7 +182,7 @@ class FiniteModel:
             queue.busy = False
             return
         packet, hop = queue.pending[0]
-        rate = self._effective_rate(packet, queue)
+        rate = queue.rate_bps
         if rate <= 0:
             # No service to give. The packet waits; it is not dropped and not delivered.
             queue.busy = False
@@ -160,12 +190,6 @@ class FiniteModel:
         queue.busy = True
         self._schedule(self.now + (packet.size_bytes * 8) / rate, "serviced",
                        {"key": key, "packet_id": packet.packet_id})
-
-    def _effective_rate(self, packet, queue):
-        """AMI release is paced at the site's declared profile; SCADA is never paced."""
-        if packet.service == "ami":
-            return min(queue.rate_bps, PACING_BPS[self.pacing[packet.site_id]])
-        return queue.rate_bps
 
     def _on_serviced(self, data):
         queue = self._queues[data["key"]]
@@ -254,6 +278,11 @@ class FiniteModel:
                 exported.append(self._observation(
                     self.observation_id(site, "path_state", self.now), site, "shared",
                     "path_state", "id", self.path[site], capability, window))
+            capability = capability_ids.get((site, "pacing_profile"))
+            if capability:
+                exported.append(self._observation(
+                    self.observation_id(site, "pacing_profile", self.now), site, "ami",
+                    "pacing_profile", "id", self.pacing[site], capability, window))
             # A probe per leg, each its own subject so each needs its own permission:
             # being allowed to probe one leg is not permission to probe the other.
             for leg in self.links:
@@ -288,6 +317,7 @@ class FiniteModel:
                 "queue_bytes": {f"{site}/{leg}": q.occupied_bytes
                                 for (site, leg), q in self._queues.items() if site != "egress"},
                 "egress_bytes": self._queues[("egress", "egress")].occupied_bytes,
+                "held_ami": {site: len(pending) for site, pending in self._ami_pending.items()},
                 "generated": len(self.generated), "delivered": len(self.delivered),
                 "dropped": len(self.dropped)}
 

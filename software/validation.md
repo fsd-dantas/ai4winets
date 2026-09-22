@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **127 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **128 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -34,6 +34,27 @@ SCADA, a disturbance that degrades service and then drains its backlog without l
 exported observations that satisfy the telemetry contract. It is a deterministic
 queueing model with no radio, protocol conformance or calibrated value, and no run of it
 is evidence about a wireless network.
+
+**Pacing** gained an actuator readback and, in the course of adding it, a correction. The
+versioned telemetry catalog now carries `pacing_profile` alongside `path_state`: both are
+actuator readbacks, reporting the setting an actuator holds so that an applied command can
+cite an observation of its application instead of asserting one. The rationale is recorded
+in the telemetry contract, which is the normative owner.
+
+Testing it showed the model had implemented pacing as a reduction of the service rate
+rather than as a release gate. v1-scope.md says pacing governs gateway release, and the
+difference is not cosmetic: a slowly served reading sat at the head of a shared queue and
+held SCADA up behind it, so tightening the AMI profile made SCADA service worse and drove
+drops from 19 to 443. A researcher reading that would have concluded the AMI lever harms
+SCADA, which is the opposite of what it is for. Pacing now holds readings at the gateway.
+SCADA delivery is identical under every profile, AMI delivery scales with the profile,
+nothing is dropped, and the withheld demand is visible as held rather than disappearing.
+
+An earlier test asserted only that a restricted profile delivered no more than a normal
+one. That passed on equality, and it was equal: at the baseline period AMI offers
+4096 bit/s, at or below every declared profile, so pacing was inert and the test proved
+nothing. It now exercises the profiles where they bite and checks that held demand is not
+quietly lost.
 
 The **probe signal** closes the loop the planners needed. A leg that is serving answers a
 probe and is concluded viable; a leg whose service has been taken away does not answer,

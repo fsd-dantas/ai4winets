@@ -106,7 +106,7 @@ def _observation(o, watermark):
                 "derived evidence needs formula and sources")
     units = {"queue_occupancy": {"byte", "packet"}, "offered_load": {"bit/s"},
              "goodput": {"bit/s"}, "packet_generated": {"event"}, "packet_delivered": {"event"},
-             "scada_response": {"s"}, "packet_drop": {"event"}, "path_state": {"id"},
+             "scada_response": {"s"}, "packet_drop": {"event"}, "path_state": {"id"}, "pacing_profile": {"id"},
              "path_probe": {"s"}, "claim_state": {"event"}, "control_message": {"byte"},
              "link_measurement": {"dBm"}}
     require(o["metric"] in units, "signal not in versioned telemetry catalog")

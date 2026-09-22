@@ -12,6 +12,7 @@ from ecora.telemetry import projection_binding
 
 CAPABILITIES = {("site-1", "queue_occupancy"): "observe.ami.queue",
                 ("site-1", "path_state"): "observe.shared.path",
+                ("site-1", "pacing_profile"): "observe.ami.pacing",
                 ("site-1/lte", "path_probe"): "observe.probe.lte",
                 ("site-1/alternative", "path_probe"): "observe.probe.alternative"}
 PERIOD = 0.5
@@ -55,7 +56,8 @@ class ProjectionTests(unittest.TestCase):
         self.assertEqual(batch.data["completeness"], 1)
         self.assertEqual(batch.data["omitted_metrics"], [])
         self.assertEqual(sorted(o["metric"] for o in batch.data["observations"]),
-                         ["path_probe", "path_probe", "path_state", "queue_occupancy"])
+                         ["pacing_profile", "path_probe", "path_probe", "path_state",
+                          "queue_occupancy"])
         # Each leg is probed under its own subject, so a rule can say which leg it means.
         self.assertEqual(sorted(o["subject"] for o in batch.data["observations"]
                                 if o["metric"] == "path_probe"),
@@ -102,7 +104,7 @@ class ProjectionTests(unittest.TestCase):
         batch = self.relayed(store, stale.data["dataset_id"])
         self.assertEqual(batch.data["completeness"], 0)
         self.assertEqual(batch.data["omitted_metrics"],
-                         ["path_probe", "path_state", "queue_occupancy"])
+                         ["pacing_profile", "path_probe", "path_state", "queue_occupancy"])
         for observation in batch.data["observations"]:
             self.assertEqual(observation["quality"], "missing")
             self.assertEqual(observation["missing_reason"]["code"], "stale")

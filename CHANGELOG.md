@@ -7,6 +7,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **`pacing_profile` in the versioned telemetry catalog**, an actuator readback of the
+  same kind as `path_state`, so an applied `set_ami_pacing` command can cite an
+  observation of its application rather than assert one. A receipt now cites the readback
+  of the actuator it moved. The rationale is recorded in the telemetry contract, its
+  normative owner; the change widens the catalog and invalidates no existing record.
+- **Pacing corrected to a release gate.** It had been implemented as a reduction of the
+  service rate, which left a paced reading at the head of a shared queue holding SCADA up
+  behind it; tightening the AMI profile therefore made SCADA service worse and drove drops
+  from 19 to 443. v1-scope.md specifies that pacing governs gateway release. It now holds
+  readings at the gateway: SCADA delivery is unaffected by the AMI profile, AMI delivery
+  scales with it, nothing is dropped, and withheld demand is reported as held.
 - **Path probes**, which make leg reachability observable instead of assumed. The model
   answers a probe on a serving leg and stays silent on one whose service has been taken
   away; each leg is its own subject, so probing one is not permission to probe the other.

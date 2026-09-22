@@ -65,11 +65,41 @@ class ModelTests(unittest.TestCase):
                 self.assertIsNotNone(reason)
         self.assertEqual(world.truth(), before)
 
-    def test_restricted_pacing_delays_ami_without_touching_scada(self):
-        paced = model(initial_pacing="restricted").advance_to(20.0).truth()
-        normal = model(initial_pacing="normal").advance_to(20.0).truth()
-        self.assertLess(PACING_BPS["restricted"], PACING_BPS["normal"])
-        self.assertLessEqual(paced["delivered"], normal["delivered"])
+    def test_pacing_throttles_ami_only_where_demand_exceeds_the_profile(self):
+        """A profile only bites when AMI offers more than it allows.
+
+        At the baseline period AMI offers 4096 bit/s, at or below every declared profile,
+        so pacing changes nothing there and an assertion that it did would be asserting
+        nothing. Raise the offered load and the profiles separate.
+        """
+        def delivered_by_service(profile, period):
+            world = model(initial_pacing=profile, ami_period_s=period).advance_to(20.0)
+            counts = {}
+            for packet, _, _ in world.delivered:
+                counts[packet.service] = counts.get(packet.service, 0) + 1
+            return counts
+
+        quiet = {profile: delivered_by_service(profile, 1.0) for profile in PACING_BPS}
+        self.assertEqual(quiet["normal"]["ami"], quiet["restricted"]["ami"],
+                         "below every profile, pacing cannot be what makes a difference")
+
+        busy = {profile: delivered_by_service(profile, 0.05) for profile in PACING_BPS}
+        self.assertGreater(busy["normal"]["ami"], busy["restricted"]["ami"])
+        self.assertGreater(busy["restricted"]["ami"], busy["minimum"]["ami"])
+        # SCADA is untouched by the AMI profile. Pacing holds readings at the gateway, so
+        # a held reading never sits in the shared queue ahead of a SCADA transaction.
+        self.assertEqual(len({counts["scada"] for counts in busy.values()}), 1)
+
+    def test_paced_demand_is_held_rather_than_made_to_disappear(self):
+        held, dropped = {}, {}
+        for profile in PACING_BPS:
+            truth = model(initial_pacing=profile, ami_period_s=0.05).advance_to(20.0).truth()
+            held[profile] = truth["held_ami"]["site-1"]
+            dropped[profile] = truth["dropped"]
+        # A tighter profile withholds more, and none of it is quietly lost.
+        self.assertGreater(held["minimum"], held["restricted"])
+        self.assertGreater(held["restricted"], held["normal"])
+        self.assertEqual(set(dropped.values()), {0})
 
     def test_a_disturbance_degrades_service_and_the_backlog_then_recovers(self):
         def run(disturbed):

@@ -249,3 +249,21 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
   the statement that every method in it is a baseline. In its place `README.md` carries an **experiment
   index**: the studies this repository intends to run, the framework each is designed under, its status, and a
   link to its design. Every entry is declared planned; `experiments/` is empty.
+- Scenarios are data. `scenarios/` holds six declared worlds as JSON, and
+  [`software/ecora/scenario.py`](software/ecora/scenario.py) builds the finite model from one:
+  topology declares the sites, legs and shared egress, flows declare the workloads, and
+  disturbances declare the schedule. `python -m ecora showcase --scenario <id>` runs any of
+  them, and changing a condition needs no change to code. `topology` and `disturbances` carry
+  real shape in the schema, where they had been opaque objects.
+
+  This closed a provenance defect. The frozen scenario had declared a topology nothing read
+  while the world that ran was built from constants in the harness, so the scenario hash bound
+  into every claim described conditions the claim did not come from. A run given a scenario is
+  now refused unless the model matches it, and a run given only a model derives its scenario
+  from that model, so neither direction can drift.
+- A cohort names the service it counts. `cohort:ami` had been every packet generated in its
+  window whatever its service, so an AMI delivery ratio was drawn from a mostly SCADA
+  population. Scoring a second, per-service requirement still needs measurements keyed by
+  service as well as metric, which is carried as B36; a scenario declares only what the
+  assembled result stage can evaluate today.
+

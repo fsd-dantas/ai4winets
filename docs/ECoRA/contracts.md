@@ -14,7 +14,7 @@ The provenance chain is **study → scenario → run → stage → dataset**. A 
 | --- | --- |
 | StudyManifest | Frozen scenario-set version/hash, stage/arm provider bindings, information permissions, factorial/confirmation matrix, compute/storage budget, analysis/scoring versions, seed policies, capability and parameter references |
 | ScenarioSetManifest | Immutable version, member scenario revisions/hashes, selection/aggregation weights, benchmark definitions and optional parent-set reference |
-| ScenarioSpec | Topology, flow definitions, service requirements, initial state, disturbance schedule, parameter-set reference, needed capabilities |
+| ScenarioSpec | Topology, flow definitions, service requirements, initial state, disturbance schedule, parameter-set reference, needed capabilities. Topology and disturbances are structured, not opaque: the reference world is built from them, and a run whose world does not match its scenario is refused |
 | CapabilityManifest | Adapter/model versions, supported observations and actions, abstraction boundaries, timing mode, exercised evidence references |
 | StageInvocation | Stage/provider/arm, input and output datasets, state/random-stream snapshots, timing, information regime and terminal status |
 | DatasetArtifact | Immutable schema/format, record count, coverage, content hashes, producing invocation and source datasets |

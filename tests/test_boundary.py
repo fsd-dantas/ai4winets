@@ -185,7 +185,8 @@ class BoundaryTests(unittest.TestCase):
             ("planning", planning_problem(expansion_budget=999), "expansion_budget"),
             ("planning", planning_problem(action_costs={"select_path": 99}), "action_costs"),
             ("result", result_input(cohorts=[{
-                "cohort_id": "cohort:ami", "generation_window": {"start_s": 0, "end_s": 5},
+                "cohort_id": "cohort:ami", "service": "ami",
+                "generation_window": {"start_s": 0, "end_s": 5},
                 "generated": 1, "delivered_on_time": 0, "delivered_late": 0, "lost": 0,
                 "pending": 1, "duplicate_deliveries": 0, "censored": True, "deadline_s": 10}]),
              "window"),

@@ -98,7 +98,10 @@ class FiniteModel:
                            if len(self.sites) == 1 else {"service": service, "site": self.sites[0]})
             for site in self.sites[1:]:
                 self._schedule(0.0, "generate", {"service": service, "site": site})
-        for disturbance in disturbances:
+        # Kept, not only scheduled: a model asked to describe itself has to be able to
+        # report the disturbances it will apply, or the description understates the world.
+        self.disturbances = tuple(dict(d) for d in disturbances)
+        for disturbance in self.disturbances:
             self._schedule(disturbance["at_s"], "disturb", disturbance)
 
     # -- event calendar -------------------------------------------------------
@@ -326,7 +329,8 @@ class FiniteModel:
         result = []
         for spec in cohort_specs:
             start, end = spec["generation_window"]["start_s"], spec["generation_window"]["end_s"]
-            cohort = [p for p in self.generated if start <= p.generated_s <= end]
+            cohort = [p for p in self.generated
+                      if p.service == spec["service"] and start <= p.generated_s <= end]
             identities = {p.packet_id for p in cohort}
             on_time = sum(1 for p, _, ok in self.delivered if p.packet_id in identities and ok)
             late = sum(1 for p, _, ok in self.delivered if p.packet_id in identities and not ok)

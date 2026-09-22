@@ -43,8 +43,11 @@ The exported [JSON Schema](../data/schemas/ecora-v1.schema.json) defines structu
 The Python validator additionally enforces hashes, cross-field inequalities, units,
 capability relationships and population accounting; JSON Schema validation alone is not
 full ECoRA admission. Both checks are needed. Unknown versions and undeclared record
-fields fail validation. Explicit configuration, state, trace, topology and scenario
-generator objects are JSON extension points, not executable callbacks.
+fields fail validation. Explicit configuration, state, trace and initial-state
+objects are JSON extension points, not executable callbacks. Topology and disturbances are
+not among them: they carry declared shape, and
+[`ecora.scenario`](ecora/scenario.py) builds the finite world from them, so a scenario is the
+source of the world a run observes rather than a description beside it.
 
 Generate the schema and fixtures without shell-dependent output encoding:
 

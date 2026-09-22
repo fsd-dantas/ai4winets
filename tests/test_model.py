@@ -164,15 +164,29 @@ class ModelTests(unittest.TestCase):
 
     def test_cohort_counts_balance_against_generated_demand(self):
         world = model().advance_to(5.0)
-        spec = [{"cohort_id": "cohort:all", "generation_window": {"start_s": 0, "end_s": 5},
-                 "deadline_s": 10}]
+        spec = [{"cohort_id": f"cohort:{service}", "service": service,
+                 "generation_window": {"start_s": 0, "end_s": 5}, "deadline_s": 10}
+                for service in ("scada", "ami")]
         cohorts = world.cohorts(spec)
         validate("ResultInput", {"receipt_ids": [], "observation_ids": [], "cohorts": cohorts})
-        cohort = cohorts[0]
-        self.assertEqual(cohort["generated"],
-                         cohort["delivered_on_time"] + cohort["delivered_late"]
-                         + cohort["lost"] + cohort["pending"])
-        self.assertGreater(cohort["generated"], 0)
+        for cohort in cohorts:
+            self.assertEqual(cohort["generated"],
+                             cohort["delivered_on_time"] + cohort["delivered_late"]
+                             + cohort["lost"] + cohort["pending"])
+            self.assertGreater(cohort["generated"], 0)
+
+    def test_a_cohort_counts_only_the_service_it_names(self):
+        """A cohort drawn from a mixed population cannot score a single-service claim."""
+        world = model().advance_to(5.0)
+        window = {"start_s": 0, "end_s": 5}
+        counted = {c["service"]: c["generated"] for c in world.cohorts(
+            [{"cohort_id": f"cohort:{s}", "service": s, "generation_window": window,
+              "deadline_s": 10} for s in ("scada", "ami")])}
+        for service, generated in counted.items():
+            self.assertEqual(generated, sum(1 for p in world.generated
+                                            if p.service == service))
+        self.assertNotEqual(counted["scada"], counted["ami"],
+                            "the two services must generate at different rates here")
 
 
 if __name__ == "__main__":

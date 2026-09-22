@@ -222,6 +222,41 @@ only from its branch point onward, and reports under its own run identity. A clo
 branch is refused at the replay seam, because a branch is a run over a verified prefix
 rather than a payload spliced into another run's lineage.
 
+**Scenarios are read, not written in code.** Every file in `scenarios/` builds a world and
+that world matches what the file declares, checked scenario by scenario. A world built from
+one scenario, described again, hashes to the scenario it came from, so the description and
+the thing described cannot drift apart. A model that does not hold what its scenario
+declares is refused, field by field, with the field named: a different period, payload,
+deadline, site set, egress or leg rate each refuses on its own. A scenario naming a site,
+leg or path it does not declare is refused when it is read, and one the finite model cannot
+build — the contract fixture among them — is refused before a run starts. Changing a
+scenario changes behaviour with no change to code: a silent serving leg delivers less than
+the nominal baseline, and a degraded one puts traffic past its deadline.
+
+Running the scenarios exposed how narrow the frozen cohort is. The fixture study's cohort
+window is the single instant `end_s: 0`, so an assurance verdict is reached over the one
+reading generated at time zero, whatever else the run did: a silent serving leg still
+returns `met`. The showcase now prints the population each verdict was scored on beside it,
+so a verdict cannot be read as a finding about the run. Widening the window is a study
+design decision rather than a fix — a cohort is frozen before measurement — and it is
+carried as B36 along with per-service keying.
+
+This closed a defect rather than only adding a feature. The frozen scenario previously
+declared a topology and a disturbance list that nothing read, while the world that ran was
+built from constants in the harness, so the scenario hash bound into every claim described
+conditions that were not the ones the claim came from. Both directions are now closed: a
+run from a file is verified against it, and a run from a hand-built model derives its
+scenario from that model.
+
+Giving a cohort the service it counts closed a second one. `cohort:ami` had been every
+packet generated in its window whatever its service, so an AMI delivery ratio was drawn
+from a population that was mostly SCADA. A cohort now counts only the service it names,
+and a test checks each cohort's count against the generated packets of that service. A
+second requirement is still not evaluable: measurements are keyed by metric alone and the
+study freezes one cohort, so a SCADA requirement naming `within_age_delivery` would be
+scored against the AMI population. The scenarios therefore declare the one requirement this
+pipeline can evaluate, and per-service keying is carried as B36.
+
 The **declared failure cases** each have a test: missing observations retained as unknown
 rather than dropped, a batch refused for claiming full coverage while withholding a signal,
 competing proposals resolved to one with the rest deferred and exactly one command issued,

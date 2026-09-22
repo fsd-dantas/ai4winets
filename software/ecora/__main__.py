@@ -6,11 +6,11 @@ import time
 from pathlib import Path
 
 from .boundary import Boundary
-from .contracts import ContractError, Record
+from .contracts import ContractError, Record, require
 from .fixtures import batch, fixture_environment, payload_fixtures
-from .model import FiniteModel, Link
 from .metrics import measurements, read_run
 from .runner import Run, Streams, closed_loop_environment
+from .scenario import SCENARIOS, build_world, load
 from .schema import schema_document
 from .store import ArtifactStore
 
@@ -21,20 +21,22 @@ CAPABILITIES = {("site-1", "queue_occupancy"): "observe.ami.queue",
                 ("site-1/alternative", "path_probe"): "observe.probe.alternative"}
 
 
-def _world():
-    """The finite reference world. Synthetic throughout; no radio and no calibration."""
-    return FiniteModel(
-        sites=["site-1"],
-        links={"lte": Link("lte", 1000000, 0.010, 65536),
-               "alternative": Link("alternative", 1000000, 0.010, 65536)},
-        egress=Link("egress", 256000, 0.001, 65536),
-        scada_period_s=0.1, ami_period_s=1.0, scada_bytes=512, ami_bytes=512,
-        scada_deadline_s=0.25, ami_deadline_s=10.0)
+DEFAULT_SCENARIO = "s0-nominal"
 
 
-def _execute(root, treatment, epochs, period_s):
-    model = _world()
-    registry, study, scenario_set, scenario, caps = closed_loop_environment(model, period_s=period_s)
+def _scenario(name):
+    """The scenario to run, read from a file. Synthetic throughout; no calibrated value."""
+    path = Path(name)
+    if not path.exists():
+        path = SCENARIOS / f"{name}.json"
+    require(path.exists(), f"no scenario file at {name}")
+    return load(path)
+
+
+def _execute(root, treatment, epochs, period_s, scenario):
+    model = build_world(scenario)
+    registry, study, scenario_set, scenario, caps = closed_loop_environment(
+        model, period_s=period_s, scenario=scenario)
     with ArtifactStore(root / treatment) as store:
         run = registry.admit(study, scenario_set, scenario, caps, treatment, f"run:{treatment}")
         boundary = Boundary(store, registry, run)
@@ -70,6 +72,14 @@ def _execute(root, treatment, epochs, period_s):
              "claim_churn_limit": 4, "stale_retry_limit": 2}, period_s)
         behaviour = {m["metric"]: m["value"] for m in measured}
         report = Record.from_dict(store.messages(dataset)[0].data["payload"])
+        # The population the verdict rests on. A verdict without it reads as a finding
+        # about the run, when the frozen cohort may have counted a handful of readings.
+        population = 0
+        for message in store.messages("dataset:result"):
+            payload = Record.from_dict(message.data["payload"])
+            if payload.kind == "ResultRecord":
+                population = next((m["value"] for m in payload.data["measurements"]
+                                   if m["metric"] == "generated"), 0)
         binding = run.binding("action")
         sensing = run.binding("telemetry")
         return {"treatment": treatment, "arm": binding["arm"], "provider": binding["provider_id"],
@@ -82,17 +92,19 @@ def _execute(root, treatment, epochs, period_s):
                 "behaviour": behaviour,
                 "path": model.truth()["selected_path"]["site-1"],
                 "verdict": report.data["claims"][0]["verdict"] if report.data["claims"] else "none",
+                "population": population,
                 "dataset": dataset, "scope": run.scope, "integrity": store.verify()}
 
 
-def showcase(directory, epochs, period_s=0.5):
+def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO):
     """Run the declared treatments over one frozen study and compare them.
 
     Each differs from the previous one in a single stage binding, so the difference
     between any two rows is attributable to the stage that changed.
     """
     started = time.perf_counter()
-    results = [_execute(directory, treatment, epochs, period_s)
+    spec = _scenario(scenario)
+    results = [_execute(directory, treatment, epochs, period_s, spec)
                for treatment in ("null_baseline", "closed_loop", "observing", "expert",
                                  "blackboard", "planner", "eco", "assured",
                                  "oracle_diagnosis")]
@@ -101,15 +113,19 @@ def showcase(directory, epochs, period_s=0.5):
     print(f"  study     {scope['study_id']}")
     print(f"  scenario  {scope['scenario_id']} revision {scope['scenario_revision']}")
     print(f"  set       v{scope['scenario_set_version']}  {scope['scenario_set_hash'][:12]}")
-    print(f"  world     1 site, two legs, shared egress 256000 bit/s (synthetic)")
+    topology = spec.data["topology"]
+    print(f"  world     {len(topology['sites'])} site, {len(topology['legs'])} legs, "
+          f"shared egress {topology['egress']['capacity_bps']:.0f} bit/s (synthetic)")
+    print(f"  condition {spec.data['initial_state'].get('note', 'undeclared')}")
     print(f"  schedule  {epochs} decision epochs at {period_s} s\n")
     header = (f"  {'treatment':<16}{'relayed':>8}{'concluded':>11}{'activations':>13}"
-              f"{'applied':>9}   {'path':<13}{'verdict'}")
+              f"{'applied':>9}   {'path':<13}{'verdict':<14}{'scored on'}")
     print(header)
     print("  " + "-" * (len(header) - 2))
     for r in results:
         print(f"  {r['treatment']:<16}{r['relayed']:>8}{len(r['concluded']):>11}"
-              f"{r['activations']:>13}{r['applied']:>9}   {r['path']:<13}{r['verdict']}")
+              f"{r['activations']:>13}{r['applied']:>9}   {r['path']:<13}{r['verdict']:<14}"
+              f"{r['population']} reading" + ("" if r['population'] == 1 else "s"))
     print(f"\n  relayed     = signals the telemetry stage passed on"
           f" (the adapter sensed {results[0]['sensed']})")
     print("  concluded   = distinct supported hypotheses the diagnosis stage reached")
@@ -208,6 +224,8 @@ def main(argv=None):
     show = commands.add_parser("showcase", help="run the declared treatments and compare them")
     show.add_argument("directory", type=Path)
     show.add_argument("--epochs", type=int, default=4)
+    show.add_argument("--scenario", default=DEFAULT_SCENARIO,
+                      help="a scenario identifier under scenarios/, or a path to a scenario file")
     args = parser.parse_args(argv)
     try:
         if args.command in {"schema", "fixtures"}:
@@ -227,7 +245,7 @@ def main(argv=None):
                               "oracle_diagnosis"):
                 if (args.directory / treatment).exists():
                     raise ContractError(f"showcase directory already exists: {args.directory / treatment}")
-            showcase(args.directory, args.epochs)
+            showcase(args.directory, args.epochs, scenario=args.scenario)
         elif args.command == "verify":
             if not (args.directory / "journal.jsonl").is_file():
                 raise ContractError("no existing artifact journal at this path")

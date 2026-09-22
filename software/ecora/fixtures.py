@@ -19,7 +19,7 @@ ASSEMBLY = {
                  "operator_catalog_version": "v1",
                  "action_costs": {"select_path": 2}, "expansion_budget": 100,
                  "time_budget_s": 2, "memory_budget_bytes": 1024, "horizon_steps": 8},
-    "result": {"cohorts": [{"cohort_id": "cohort:ami",
+    "result": {"cohorts": [{"cohort_id": "cohort:ami", "service": "ami",
                             "generation_window": {"start_s": 0, "end_s": 0}, "deadline_s": 10}]},
 }
 
@@ -149,7 +149,8 @@ class FixtureProvider:
         return ProviderResult((), {}, {"fixture": True}, "no_op", reason())
 
 
-def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assembly=None):
+def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assembly=None,
+                        scenario=None):
     """All identities, values and capabilities in this fixture are synthetic."""
     registry = Registry()
     cap = {"capability_id": "observe.ami.queue", "kind": "observe", "target": "site-1",
@@ -202,8 +203,17 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assemb
     alternate[1] = {**alternate[1], "provider_id": "fixture.diagnosis_alternate",
                     "configuration": {"label": "fixture_b"}, "configuration_hash": digest({"label": "fixture_b"})}
     nulls = null_bindings(registry, ordinary, NULL_CONFIGURATION)
-    scenario = Record("ScenarioSpec", {"scenario_id": "scenario:fixture", "revision": "1", "synthetic": True,
-                      "topology": {"site": "site-1", "purpose": "contract fixture"},
+    # The contract fixture is a scenario, not a runnable world: it declares one flow, so
+    # ecora.scenario.build_world refuses it. A study over the finite model supplies its own.
+    scenario = scenario or Record("ScenarioSpec", {
+                      "scenario_id": "scenario:fixture", "revision": "1", "synthetic": True,
+                      "topology": {"sites": ["site-1"], "initial_path": "lte", "initial_pacing": "normal",
+                                   "legs": [{"leg_id": "alternative", "capacity_bps": 1000000,
+                                             "delay_s": 0.01, "queue_limit_bytes": 65536},
+                                            {"leg_id": "lte", "capacity_bps": 1000000,
+                                             "delay_s": 0.01, "queue_limit_bytes": 65536}],
+                                   "egress": {"leg_id": "egress", "capacity_bps": 256000,
+                                              "delay_s": 0.001, "queue_limit_bytes": 65536}},
                       "flows": [{"flow_id": "flow:ami", "source": "site-1", "destination": "central-1",
                                  "service": "ami", "generation": {"period_s": 1}, "payload_bytes": 512,
                                  "deadline_s": 10, "max_deferral_s": 2}],
@@ -232,7 +242,7 @@ def payload_fixtures():
     """Valid payload examples with explicit unknown/non-pass outcomes where appropriate."""
     _, study, scenario_set, scenario, caps = fixture_environment()
     window = {"start_s": 0, "end_s": 1}
-    cohort = {"cohort_id": "cohort:ami", "generation_window": window, "generated": 2,
+    cohort = {"cohort_id": "cohort:ami", "service": "ami", "generation_window": window, "generated": 2,
               "delivered_on_time": 1, "delivered_late": 0, "lost": 0, "pending": 1,
               "duplicate_deliveries": 1, "censored": True, "deadline_s": 10}
     examples = [study, scenario_set, scenario, caps, batch(), batch("TelemetryBatch"), command()]

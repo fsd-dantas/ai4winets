@@ -1,6 +1,6 @@
 [
   {
-    "content_hash": "028bb5bcbcc38d413515e6861c9f6bd81c60561ffccdcde610a5294ad24c754d",
+    "content_hash": "4578cc127f7903383600777df69b2ea2e3aef5c3dfd74c02f498a7632a54627c",
     "data": {
       "access_policy_version": "v1",
       "analysis_version": "fixture-1",
@@ -26,7 +26,8 @@
               "generation_window": {
                 "end_s": 0,
                 "start_s": 0
-              }
+              },
+              "service": "ami"
             }
           ]
         }
@@ -35,7 +36,7 @@
       "compute_budget_s": 60,
       "frozen": true,
       "parameter_set_hash": "ffbc2dfc402782325da71132100e74ff511d1585dd80e4ea196ed4bcace3fef2",
-      "scenario_set_hash": "5e2b968ef3fe12d6b43db24bf7f588911c096570cdf4c60010ace760e7cc4f40",
+      "scenario_set_hash": "0659568ba24299adb819e4165570666d3fa8dc14f065d215bf8fb302e052d4b1",
       "scenario_set_version": "1",
       "scoring_version": "fixture-1",
       "seed_manifest": {
@@ -640,12 +641,12 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "5e2b968ef3fe12d6b43db24bf7f588911c096570cdf4c60010ace760e7cc4f40",
+    "content_hash": "0659568ba24299adb819e4165570666d3fa8dc14f065d215bf8fb302e052d4b1",
     "data": {
       "benchmark_definition": "Synthetic contract fixture, not a research benchmark.",
       "members": [
         {
-          "content_hash": "aae0c276165bf79e7826fbf1b8fbebc0fab1cb2c122da3b41de62ad6030a807e",
+          "content_hash": "1fdcff0013398c4a2b55fee4a73a12d544b5014549ebbe9003acd3730e082a70",
           "revision": "1",
           "scenario_id": "scenario:fixture",
           "weight": 1
@@ -659,7 +660,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "aae0c276165bf79e7826fbf1b8fbebc0fab1cb2c122da3b41de62ad6030a807e",
+    "content_hash": "1fdcff0013398c4a2b55fee4a73a12d544b5014549ebbe9003acd3730e082a70",
     "data": {
       "disturbances": [],
       "flows": [
@@ -699,8 +700,31 @@
       "scenario_id": "scenario:fixture",
       "synthetic": true,
       "topology": {
-        "purpose": "contract fixture",
-        "site": "site-1"
+        "egress": {
+          "capacity_bps": 256000,
+          "delay_s": 0.001,
+          "leg_id": "egress",
+          "queue_limit_bytes": 65536
+        },
+        "initial_pacing": "normal",
+        "initial_path": "lte",
+        "legs": [
+          {
+            "capacity_bps": 1000000,
+            "delay_s": 0.01,
+            "leg_id": "alternative",
+            "queue_limit_bytes": 65536
+          },
+          {
+            "capacity_bps": 1000000,
+            "delay_s": 0.01,
+            "leg_id": "lte",
+            "queue_limit_bytes": 65536
+          }
+        ],
+        "sites": [
+          "site-1"
+        ]
       }
     },
     "record_type": "ScenarioSpec",
@@ -1072,7 +1096,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "8e46d9922d44bb2882f9118a73c4244c56f05af99be5bbd3ec7ce0f5674e457c",
+    "content_hash": "aadcb60df7a49b413e9ff9fc7a67b764378a49bac048ccbbf30817b880bf99cf",
     "data": {
       "cohorts": [
         {
@@ -1088,7 +1112,8 @@
             "start_s": 0
           },
           "lost": 0,
-          "pending": 1
+          "pending": 1,
+          "service": "ami"
         }
       ],
       "observation_ids": [],
@@ -1098,7 +1123,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "fb9c67797b234fc74a89be478dc03d71eea7de4294dbd360fe40ab3c40248361",
+    "content_hash": "771b8dde2029f3eb38e0172e44ac917174907e59a39cc2b4fc76dc86244e0b40",
     "data": {
       "action_ids": [],
       "after_window": {
@@ -1123,7 +1148,8 @@
             "start_s": 0
           },
           "lost": 0,
-          "pending": 1
+          "pending": 1,
+          "service": "ami"
         }
       ],
       "measurements": [
@@ -1142,7 +1168,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "ebf9edccd16e06d9203e562772b069e986aca43e977a1691f4661513b3cd3c26",
+    "content_hash": "73fc36a41f9c840a794642f1cbf9d0f89a32a423ce4ff0d07e720d9780dad40e",
     "data": {
       "claims": [
         {
@@ -1165,7 +1191,7 @@
       "limitations": [
         "No simulated evidence."
       ],
-      "scenario_set_hash": "5e2b968ef3fe12d6b43db24bf7f588911c096570cdf4c60010ace760e7cc4f40",
+      "scenario_set_hash": "0659568ba24299adb819e4165570666d3fa8dc14f065d215bf8fb302e052d4b1",
       "scenario_set_version": "1",
       "study_id": "study:fixture"
     },

@@ -180,10 +180,18 @@ def validate(kind, data):
     elif kind == "ScenarioSpec":
         _unique(data["flows"], "flow_id")
         _unique(data["requirements"], "requirement_id")
+        _unique(data["topology"]["legs"], "leg_id")
+        legs = {leg["leg_id"] for leg in data["topology"]["legs"]}
+        sites = set(data["topology"]["sites"])
+        require(data["topology"]["initial_path"] in legs, "the initial path must name a declared leg")
         for flow in data["flows"]:
             require(flow["max_deferral_s"] < flow["deadline_s"], "deferral must precede deadline")
+            require(flow["source"] in sites, f"flow {flow['flow_id']} leaves an undeclared site")
             if flow["service"] == "scada":
                 require(flow["max_deferral_s"] == 0, "SCADA cannot be deferred")
+        for disturbance in data["disturbances"]:
+            require(disturbance["site"] in sites, "a disturbance names an undeclared site")
+            require(disturbance["leg"] in legs, "a disturbance names an undeclared leg")
     elif kind == "CapabilityManifest":
         _unique(data["capabilities"], "capability_id")
         for cap in data["capabilities"]:

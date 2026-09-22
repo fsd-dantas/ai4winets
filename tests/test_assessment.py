@@ -16,7 +16,8 @@ REQUIREMENT = {"requirement_id": "req:delivery", "target": "site-1", "service": 
 
 
 def cohort(**changes):
-    data = {"cohort_id": "cohort:ami", "generation_window": {"start_s": 0, "end_s": 1},
+    data = {"cohort_id": "cohort:ami", "service": "ami",
+            "generation_window": {"start_s": 0, "end_s": 1},
             "generated": 10, "delivered_on_time": 10, "delivered_late": 0, "lost": 0,
             "pending": 0, "duplicate_deliveries": 0, "censored": False, "deadline_s": 10}
     return {**data, **changes}

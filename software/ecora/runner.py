@@ -21,6 +21,7 @@ from .eco import eco_binding
 from .exact import exact_binding
 from .experts import expert_binding
 from .planning import planner_binding
+from .scenario import describe_world, verify_world
 from .telemetry import projection_binding
 from .truth import TruthPort, oracle_diagnosis_binding, truth_binding
 
@@ -373,15 +374,27 @@ class Continuation:
 
 
 def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilities=(),
-                            projection=None, rules=None):
+                            projection=None, rules=None, scenario=None):
     """A study whose action stage is bound to the finite world, with a Null arm beside it.
 
     The Null treatment and the closed-loop treatment differ in one binding, so a paired
     comparison between them attributes any difference to that stage rather than to the
     orchestration around it.
+
+    The scenario and the model are held to each other. A supplied scenario is the source
+    the world was built from and the run is refused if the model does not match it; where
+    none is supplied the scenario is derived from the model instead. Either way the
+    scenario hash frozen into every claim describes the world that actually ran.
     """
+    if scenario is not None:
+        verify_world(model, scenario)
+    else:
+        # A derived scenario states what the world is, not what a study needs of it: the
+        # capabilities it would name are the ones this function is about to grant, so
+        # requiring them here would only check the grant against itself.
+        scenario = describe_world(model, scenario_id="scenario:derived")
     registry, study, scenario_set, scenario, caps = fixture_environment(
-        assembly=assembly, extra_capabilities=extra_capabilities)
+        assembly=assembly, extra_capabilities=extra_capabilities, scenario=scenario)
     # Truth is granted separately from observation and actuation: the registry refuses an
     # ordinary binding that holds a truth capability, so the split has to be explicit.
     every = caps.data["capabilities"]

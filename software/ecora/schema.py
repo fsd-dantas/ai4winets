@@ -66,13 +66,21 @@ def definitions():
                            metric=ID, unit=UNIT, comparator=enum("le", "ge"),
                            threshold=TIME, window_s=POSITIVE, denominator=TEXT,
                            missingness_limit=PROBABILITY)
+    d["Generation"] = obj(period_s=POSITIVE)
     d["Flow"] = obj(flow_id=ID, source=ID, destination=ID, service=enum("scada", "ami"),
-                    generation=JSON_OBJECT, payload_bytes=COUNT, deadline_s=POSITIVE,
+                    generation=ref("Generation"), payload_bytes=COUNT, deadline_s=POSITIVE,
                     max_deferral_s=TIME)
+    # Topology and disturbances carry shape so a scenario can build the world it declares.
+    # While they were opaque objects nothing could read them, and the frozen scenario hash
+    # bound a description rather than the world that actually ran.
+    d["Leg"] = obj(leg_id=ID, capacity_bps=POSITIVE, delay_s=TIME, queue_limit_bytes=COUNT)
+    d["Topology"] = obj(sites=array(ID, 1, True), legs=array(ref("Leg"), 2),
+                        egress=ref("Leg"), initial_path=ID, initial_pacing=ID)
+    d["Disturbance"] = obj(at_s=TIME, site=ID, leg=ID, rate_bps=TIME)
     d["ScenarioSpec"] = obj(scenario_id=ID, revision=ID, synthetic={"const": True},
-                            topology=JSON_OBJECT, flows=array(ref("Flow"), 1),
+                            topology=ref("Topology"), flows=array(ref("Flow"), 1),
                             requirements=array(ref("Requirement"), 1), initial_state=JSON_OBJECT,
-                            disturbances=array(JSON_OBJECT), parameter_set_hash=HASH,
+                            disturbances=array(ref("Disturbance")), parameter_set_hash=HASH,
                             required_capability_ids=IDS)
     d["CapabilityManifest"] = obj(adapter_id=ID, adapter_version=ID, model_version=ID,
                                   capabilities=array(ref("Capability")), limitations=array(TEXT),
@@ -84,7 +92,11 @@ def definitions():
                                 action_costs=JSON_OBJECT, expansion_budget=COUNT,
                                 time_budget_s=POSITIVE, memory_budget_bytes=COUNT,
                                 horizon_steps=COUNT)
-    d["CohortSpec"] = obj(cohort_id=ID, generation_window=ref("Window"), deadline_s=POSITIVE)
+    # A cohort names the service class it counts. Without it a cohort is every packet in
+    # its window whatever its service, and a ratio drawn from it is a mixed population
+    # scored against a single-service requirement.
+    d["CohortSpec"] = obj(cohort_id=ID, service=enum("scada", "ami"),
+                          generation_window=ref("Window"), deadline_s=POSITIVE)
     d["ResultAssembly"] = obj(cohorts=array(ref("CohortSpec"), 1))
     d["AssemblySpec"] = obj(planning=ref("PlanningAssembly"), result=ref("ResultAssembly"))
     d["StudyManifest"] = obj(study_id=ID, frozen={"const": True},
@@ -140,7 +152,8 @@ def definitions():
                              disposition=enum("applied", "no_op", "suppressed", "rejected", "failed", "unknown"),
                              applied_at_s=nullable(TIME), resulting_state=JSON_OBJECT,
                              application_observation_ids=IDS, reason=nullable(ref("Reason")))
-    d["Cohort"] = obj(cohort_id=ID, generation_window=ref("Window"), generated=COUNT,
+    d["Cohort"] = obj(cohort_id=ID, service=enum("scada", "ami"),
+                      generation_window=ref("Window"), generated=COUNT,
                       delivered_on_time=COUNT, delivered_late=COUNT, lost=COUNT, pending=COUNT,
                       duplicate_deliveries=COUNT, censored=BOOL, deadline_s=POSITIVE)
     d["Measurement"] = obj(metric=ID, unit=UNIT, value=nullable({"type": "number"}),

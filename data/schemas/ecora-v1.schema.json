@@ -655,10 +655,17 @@
         "pending": {
           "minimum": 0,
           "type": "integer"
+        },
+        "service": {
+          "enum": [
+            "scada",
+            "ami"
+          ]
         }
       },
       "required": [
         "cohort_id",
+        "service",
         "generation_window",
         "generated",
         "delivered_on_time",
@@ -684,10 +691,17 @@
         },
         "generation_window": {
           "$ref": "#/$defs/Window"
+        },
+        "service": {
+          "enum": [
+            "scada",
+            "ami"
+          ]
         }
       },
       "required": [
         "cohort_id",
+        "service",
         "generation_window",
         "deadline_s"
       ],
@@ -892,6 +906,34 @@
       ],
       "type": "object"
     },
+    "Disturbance": {
+      "additionalProperties": false,
+      "properties": {
+        "at_s": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "leg": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        },
+        "rate_bps": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "site": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "at_s",
+        "site",
+        "leg",
+        "rate_bps"
+      ],
+      "type": "object"
+    },
     "Flow": {
       "additionalProperties": false,
       "properties": {
@@ -908,7 +950,7 @@
           "type": "string"
         },
         "generation": {
-          "type": "object"
+          "$ref": "#/$defs/Generation"
         },
         "max_deferral_s": {
           "minimum": 0,
@@ -938,6 +980,19 @@
         "payload_bytes",
         "deadline_s",
         "max_deferral_s"
+      ],
+      "type": "object"
+    },
+    "Generation": {
+      "additionalProperties": false,
+      "properties": {
+        "period_s": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "period_s"
       ],
       "type": "object"
     },
@@ -979,6 +1034,34 @@
         "support_ids",
         "counterevidence_ids",
         "status"
+      ],
+      "type": "object"
+    },
+    "Leg": {
+      "additionalProperties": false,
+      "properties": {
+        "capacity_bps": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "delay_s": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "leg_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        },
+        "queue_limit_bytes": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "leg_id",
+        "capacity_bps",
+        "delay_s",
+        "queue_limit_bytes"
       ],
       "type": "object"
     },
@@ -2703,7 +2786,7 @@
       "properties": {
         "disturbances": {
           "items": {
-            "type": "object"
+            "$ref": "#/$defs/Disturbance"
           },
           "minItems": 0,
           "type": "array",
@@ -2753,7 +2836,7 @@
           "const": true
         },
         "topology": {
-          "type": "object"
+          "$ref": "#/$defs/Topology"
         }
       },
       "required": [
@@ -3104,6 +3187,47 @@
         "sequence",
         "completeness",
         "omitted_metrics"
+      ],
+      "type": "object"
+    },
+    "Topology": {
+      "additionalProperties": false,
+      "properties": {
+        "egress": {
+          "$ref": "#/$defs/Leg"
+        },
+        "initial_pacing": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        },
+        "initial_path": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        },
+        "legs": {
+          "items": {
+            "$ref": "#/$defs/Leg"
+          },
+          "minItems": 2,
+          "type": "array",
+          "uniqueItems": false
+        },
+        "sites": {
+          "items": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "sites",
+        "legs",
+        "egress",
+        "initial_path",
+        "initial_pacing"
       ],
       "type": "object"
     },

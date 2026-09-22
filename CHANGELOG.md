@@ -275,4 +275,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 - The showcase no longer claims every verdict is inconclusive. That stopped being true when
   the assurance stage gained an arm that can reach one; the line is now derived from the
   results and names the population each verdict rests on.
+- [`system/simulator-adapter.md`](system/simulator-adapter.md) settles how a simulator becomes a
+  world the pipeline can drive. The decision that blocked simulator integration was
+  architectural, not procedural: a build produces a library, not a world. The document states
+  the seven calls any world must answer, selects a separate simulator process with a per-epoch
+  request/response protocol over in-process bindings, and says why — the privilege boundary
+  becomes a property of the wire rather than a naming convention, and branching by forking the
+  simulator is impossible without a process to fork. It also records what it does not decide,
+  including the per-epoch cost, which no budget may be frozen before measuring.
 

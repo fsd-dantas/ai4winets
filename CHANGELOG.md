@@ -7,6 +7,18 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **Cohort extraction and requirement evaluation** in `software/ecora/assessment.py`, the
+  Proposed arms for the last two stages. Every run previously ended inconclusive by
+  construction, because nothing in the pipeline could reach a verdict; a run now returns
+  `met` for the declared delivery requirement with the ratio and population it rests on.
+  Neither provider will be more confident than its evidence: a ratio without a population
+  is unknown rather than perfect, and a requirement is inconclusive when its measurement
+  is missing, unmeasured, computed over an empty population, or when outstanding demand
+  exceeds the declared missingness limit. Requirements and comparators are frozen in the
+  binding, so substituting the evaluator cannot change what passing means.
+- **The action Oracle as a declared equivalence** with the model adapter rather than a
+  separate implementation, which is what stage-arms.md asks for where the integration is
+  direct: a fabricated difference between two arms would be measured as though it were real.
 - **Exact references for planning and resolution** in `software/ecora/exact.py`, kept
   apart from the privileged ones because the distinction matters: an exact reference reads
   no more than the arm it references, so Proposed-minus-exact is an algorithmic gap while

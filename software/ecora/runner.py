@@ -16,6 +16,7 @@ from .fixtures import ASSEMBLY, fixture_environment
 from .model import FiniteModel
 from .registry import ProviderResult
 from .schema import INPUT_TYPES, OUTPUT_TYPES
+from .assessment import assessment_binding
 from .eco import eco_binding
 from .exact import exact_binding
 from .experts import expert_binding
@@ -429,6 +430,30 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
     privileged = [dict(oracle_telemetry) if b["stage_id"] == "telemetry"
                   else {**b, "allow_privileged_inputs": True} for b in coordinated]
 
+    # The action Oracle is the same adapter as the Proposed arm. stage-arms.md says to
+    # declare that equivalence where the integration is direct enough, rather than invent
+    # a gap: a fabricated difference between them would be measured as one.
+    oracle_action = Record("ProviderSpec", {
+        "stage_id": "action", "provider_id": "action.verified_application",
+        "provider_version": "finite-v1", "arm": "oracle",
+        "input_types": list(INPUT_TYPES["action"]), "output_types": list(OUTPUT_TYPES["action"]),
+        "state_schema_version": "1", "capability_ids": granted, "direct_truth_access": False})
+    if not registry.registered("action", "action.verified_application", "finite-v1"):
+        registry.register(oracle_action, partial(ModelActionProvider, model, period_s))
+    verified = [{k: v for k, v in oracle_action.data.items() if k != "direct_truth_access"} |
+                {"information_regime": "contract_only", "allow_privileged_inputs": False,
+                 "configuration": {}, "configuration_hash": digest({})}
+                if b["stage_id"] == "action" else dict(b) for b in coordinated]
+
+    # The last two stages had only a Null arm, so every run ended inconclusive by
+    # construction. These reach a verdict where the evidence supports one.
+    extraction = assessment_binding(registry, granted, {}, "result")
+    extracted = [dict(extraction) if b["stage_id"] == "result" else dict(b) for b in verified]
+    evaluation = assessment_binding(
+        registry, granted, {"requirements": scenario.data["requirements"],
+                            "evaluator_version": "assessment-v1"}, "assurance")
+    assured = [dict(evaluation) if b["stage_id"] == "assurance" else dict(b) for b in extracted]
+
     # Exact references at contract-limited information. Each is one binding from the arm
     # it references, so the gap between them is algorithmic and not informational.
     exact_plan = exact_binding(registry, granted, PLANNER, "planning")
@@ -455,6 +480,9 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
                                    {"treatment_id": "planner", "bindings": planned},
                                    {"treatment_id": "eco", "bindings": coordinated},
                                    {"treatment_id": "oracle", "bindings": privileged},
+                                   {"treatment_id": "verified_action", "bindings": verified},
+                                   {"treatment_id": "measured", "bindings": extracted},
+                                   {"treatment_id": "assured", "bindings": assured},
                                    {"treatment_id": "exact_planning", "bindings": planned_exactly},
                                    {"treatment_id": "exact_resolution", "bindings": resolved_exactly},
                                    {"treatment_id": "oracle_diagnosis", "bindings": informed}]}

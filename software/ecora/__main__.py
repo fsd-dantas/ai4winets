@@ -75,7 +75,8 @@ def _execute(root, treatment, epochs, period_s):
         return {"treatment": treatment, "arm": binding["arm"], "provider": binding["provider_id"],
                 "sensing_arm": sensing["arm"], "sensing_provider": sensing["provider_id"],
                 "bindings": {stage: run.binding(stage)["provider_id"]
-                             for stage in ("telemetry", "diagnosis", "planning", "resolution", "action")},
+                             for stage in ("telemetry", "diagnosis", "planning", "resolution",
+                                           "action", "result", "assurance")},
                 "sensed": sensed, "relayed": relayed, "applied": applied,
                 "concluded": sorted(concluded), "activations": activations,
                 "behaviour": behaviour,
@@ -93,7 +94,8 @@ def showcase(directory, epochs, period_s=0.5):
     started = time.perf_counter()
     results = [_execute(directory, treatment, epochs, period_s)
                for treatment in ("null_baseline", "closed_loop", "observing", "expert",
-                                 "blackboard", "planner", "eco", "oracle_diagnosis")]
+                                 "blackboard", "planner", "eco", "assured",
+                                 "oracle_diagnosis")]
     scope = results[0]["scope"]
     print(f"ECoRA -- one frozen study, {len(results)} treatments, one binding apart\n")
     print(f"  study     {scope['study_id']}")
@@ -112,7 +114,7 @@ def showcase(directory, epochs, period_s=0.5):
           f" (the adapter sensed {results[0]['sensed']})")
     print("  concluded   = distinct supported hypotheses the diagnosis stage reached")
     print("  activations = rule activations, which is orchestration cost and not evidence")
-    print("\n  Each treatment differs from the one above it in exactly one binding:")
+    print("\n  What changed between each pair, binding by binding:")
     for earlier, later in zip(results, results[1:]):
         changed = [stage for stage in earlier["bindings"]
                    if earlier["bindings"][stage] != later["bindings"][stage]]
@@ -221,7 +223,8 @@ def main(argv=None):
             print(f"Valid {record.kind}/1 {record.content_hash}")
         elif args.command == "showcase":
             for treatment in ("null_baseline", "closed_loop", "observing", "expert",
-                              "blackboard", "planner", "eco", "oracle_diagnosis"):
+                              "blackboard", "planner", "eco", "assured",
+                              "oracle_diagnosis"):
                 if (args.directory / treatment).exists():
                     raise ContractError(f"showcase directory already exists: {args.directory / treatment}")
             showcase(args.directory, args.epochs)

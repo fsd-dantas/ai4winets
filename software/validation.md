@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **166 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **178 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -34,6 +34,24 @@ SCADA, a disturbance that degrades service and then drains its backlog without l
 exported observations that satisfy the telemetry contract. It is a deterministic
 queueing model with no radio, protocol conformance or calibrated value, and no run of it
 is evidence about a wireless network.
+
+**Cohort extraction and requirement evaluation** give the last two stages a Proposed arm.
+Until they existed every run ended inconclusive by construction rather than by finding,
+because nothing in the pipeline could reach a verdict. A run now returns `met` for the
+declared delivery requirement, citing the ratio and the population it was computed over.
+
+Both refuse to be more confident than their evidence. A ratio with no population is
+unknown rather than perfect, since zero delivered out of zero generated is not full
+delivery. A requirement is inconclusive, and says which, when its measurement is absent,
+present but unmeasured, computed over an empty population, or when outstanding demand
+exceeds the declared missingness limit, because delivery can look perfect while most of
+the demand is still withheld. The report states how many requirements it could evaluate
+and that an inconclusive one is not a passing one.
+
+The **action Oracle is a declared equivalence** rather than a second implementation. The
+integration is direct enough that a privileged application and the Proposed one are the
+same operation, and stage-arms.md says to declare that instead of inventing a gap, since a
+fabricated difference between two arms would be measured as though it were real.
 
 **Exact references at contract-limited information** cover planning and resolution. The
 exact planner enumerates the bounded configuration graph and will only call a plan optimal

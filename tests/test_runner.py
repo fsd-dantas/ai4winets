@@ -182,7 +182,7 @@ class RunTests(unittest.TestCase):
         printed = captured.getvalue()
         for expected in ("null_baseline", "closed_loop", "observing", "expert", "blackboard",
                          "relayed", "concluded", "activations",
-                         "differs from the one above it in exactly one binding", "Provenance",
+                         "What changed between each pair", "Provenance",
                          "Measured behaviour", "Stability consults no service outcome",
                          "Nothing here is a network result"):
             with self.subTest(expected=expected):
@@ -195,6 +195,11 @@ class RunTests(unittest.TestCase):
         # The RQ-E comparison is the point of the last two rows.
         self.assertIn("conclusions agree : True", printed)
         self.assertIn("single_engine", printed)
+        # A step that changed three bindings must say so rather than claim one.
+        self.assertIn("null.result -> result.cohort", printed)
+        self.assertIn("null.assurance -> assurance.requirements", printed)
+        # And the assured arm reaches a verdict rather than staying inconclusive.
+        self.assertIn("met", printed)
         # The arms must actually diverge, or the demonstration shows nothing.
         self.assertIn("lte", printed)
         self.assertIn("alternative", printed)

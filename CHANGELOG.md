@@ -266,4 +266,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
   population. Scoring a second, per-service requirement still needs measurements keyed by
   service as well as metric, which is carried as B36; a scenario declares only what the
   assembled result stage can evaluate today.
+- A means-ends treatment joins the showcase beside uniform-cost search, so GPS is
+  demonstrated and not only tested. It differs from the uniform-cost arm in the planning
+  binding alone. Both reach the same plan, and the showcase states why rather than leaving
+  a duplicate row unexplained: over the v1 domain every goal is reachable within a few
+  actions and no operator interacts with another, so every admissible procedure returns the
+  optimal cost. Planning headroom here is zero by construction.
+- The showcase no longer claims every verdict is inconclusive. That stopped being true when
+  the assurance stage gained an arm that can reach one; the line is now derived from the
+  results and names the population each verdict rests on.
 

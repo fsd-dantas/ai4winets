@@ -429,6 +429,14 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
     reasoning = diagnosing("blackboard")
     planning = planner_binding(registry, granted, PLANNER, "uniform_cost")
     planned = [dict(planning) if b["stage_id"] == "planning" else dict(b) for b in reasoning]
+    # Means-ends analysis over the same STRIPS representation and the same operator
+    # catalog, one binding from the uniform-cost arm and sharing its Null resolution.
+    # GPS is a different search, not a different problem, so what separates the two rows
+    # is the procedure and nothing else.
+    means_ends = planner_binding(registry, granted, PLANNER, "gps")
+    gps_planned = [dict(means_ends) if b["stage_id"] == "planning" else dict(b)
+                   for b in planned]
+
     coordinating = eco_binding(registry, granted, ECO, "resolution", "expiring_marks")
     coordinated = [dict(coordinating) if b["stage_id"] == "resolution" else dict(b)
                    for b in planned]
@@ -491,6 +499,7 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
                                    {"treatment_id": "expert", "bindings": diagnosing("single_engine")},
                                    {"treatment_id": "blackboard", "bindings": reasoning},
                                    {"treatment_id": "planner", "bindings": planned},
+                                   {"treatment_id": "gps", "bindings": gps_planned},
                                    {"treatment_id": "eco", "bindings": coordinated},
                                    {"treatment_id": "oracle", "bindings": privileged},
                                    {"treatment_id": "verified_action", "bindings": verified},

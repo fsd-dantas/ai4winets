@@ -106,7 +106,7 @@ def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO):
     spec = _scenario(scenario)
     results = [_execute(directory, treatment, epochs, period_s, spec)
                for treatment in ("null_baseline", "closed_loop", "observing", "expert",
-                                 "blackboard", "planner", "eco", "assured",
+                                 "blackboard", "planner", "gps", "eco", "assured",
                                  "oracle_diagnosis")]
     scope = results[0]["scope"]
     print(f"ECoRA -- one frozen study, {len(results)} treatments, one binding apart\n")
@@ -176,6 +176,20 @@ def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO):
                   f" because an achieved")
             print("  goal yields an empty plan. That difference is action churn, which is what")
             print("  the coordination instrumentation is meant to measure.")
+        # The GPS row is expected to match, and saying why keeps a reader from reading
+        # the repetition as a defect or the agreement as a result about search in general.
+        if "gps" in named and "planner" in named:
+            search, means_ends = named["planner"], named["gps"]
+            same = (search["applied"] == means_ends["applied"]
+                    and search["path"] == means_ends["path"])
+            print(f"\n  Means-ends analysis and uniform-cost search over the same operator")
+            print(f"  catalog {'reach the same plan' if same else 'diverge'} here. That is a"
+                  f" property of this domain, not of the")
+            print("  searches: every goal is reachable within a few actions and no operator")
+            print("  interacts with another, so all admissible procedures return the optimal")
+            print("  cost. A domain where they separate is what the interacting-goal")
+            print("  microbenchmark exists to supply; until then planning headroom is zero")
+            print("  by construction and no procedure is claimed better than another.")
     if {"expert", "blackboard"} <= named.keys():
         single, board = named["expert"], named["blackboard"]
         agree = single["concluded"] == board["concluded"]
@@ -204,7 +218,18 @@ def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO):
     print("  carrying no support, so the first three arms reach no command at all. Capability")
     print("  accrues as bindings are swapped; the loop does not assume it.")
     print("\n  Nothing here is a network result. The world is a deterministic queueing model,")
-    print("  and every verdict is inconclusive because no requirement was evaluated.")
+    # Derived, not asserted: this line claimed every verdict was inconclusive, which
+    # stopped being true once the assurance stage gained an arm that can reach one.
+    reached = [r for r in results if r["verdict"] in ("met", "violated")]
+    if not reached:
+        print("  and no requirement was evaluated, so every verdict is inconclusive.")
+    else:
+        counts = ", ".join(str(c) for c in sorted({r["population"] for r in reached}))
+        subject = "the one verdict reached rests" if len(reached) == 1 else \
+            f"the {len(reached)} verdicts reached rest"
+        print(f"  and {subject} on {counts} generated reading"
+              f"{'' if counts == '1' else 's'}. The study's frozen")
+        print("  cohort window is the single instant it declares, not the length of the run.")
     print(f"\n  Elapsed {time.perf_counter() - started:.1f} s")
 
 
@@ -241,7 +266,7 @@ def main(argv=None):
             print(f"Valid {record.kind}/1 {record.content_hash}")
         elif args.command == "showcase":
             for treatment in ("null_baseline", "closed_loop", "observing", "expert",
-                              "blackboard", "planner", "eco", "assured",
+                              "blackboard", "planner", "gps", "eco", "assured",
                               "oracle_diagnosis"):
                 if (args.directory / treatment).exists():
                     raise ContractError(f"showcase directory already exists: {args.directory / treatment}")

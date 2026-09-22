@@ -316,14 +316,31 @@ research cost, and `fsync` is now about a quarter of the per-epoch figure.
 Every number here was measured against the finite reference model, which is a toy. The
 ns-3 cost is unmeasured, so **6.43 CPU days is a floor rather than an estimate**.
 
-`python -m ecora showcase .ecora-runs/showcase` runs three treatments over one frozen
-study, each differing from the previous one in a single stage binding: the Null baseline,
-the closed loop with the action stage bound to the world, the observing arm with the
-Proposed telemetry projection, then the two expert organisations. It closes with the RQ-E
-comparison, and prints the sensed and relayed signal counts, the
-applied actions, the resulting path, the assurance verdict, which binding changed between
-each pair, the provenance of the final claim and a re-read integrity check. It completes
-in a few seconds and is covered by a test, since it is demonstrated live.
+`python -m ecora showcase .ecora-runs/showcase` runs ten treatments over one frozen study:
+the Null baseline, the closed loop with the action stage bound to the world, the observing
+arm with the Proposed telemetry projection, the two expert organisations, uniform-cost
+search, means-ends analysis, eco-resolution, the assured arm that reaches a verdict, and
+the diagnosis Oracle. `--scenario` selects any world in `scenarios/`, so the demonstration
+is not fixed to one set of conditions.
+
+It prints the sensed and relayed signal counts, the applied actions, the resulting path,
+the assurance verdict with the population that verdict was scored on, which binding changed
+between each pair, the RQ-E and RQ0-headroom comparisons, the provenance of the final claim
+and a re-read integrity check. It completes in about twenty seconds and is covered by a
+test, since it is demonstrated live.
+
+Two of its statements are derived rather than asserted, because both had drifted from what
+the pipeline does. The closing line had claimed every verdict was inconclusive, which
+stopped being true once the assurance stage gained an arm that can reach one; it now
+reports the verdicts actually reached and the population behind them. The chain summary
+reports the bindings that differ between each pair rather than claiming exactly one.
+
+Means-ends analysis and uniform-cost search reach the same plan over this domain, and the
+showcase says so and says why: every goal is reachable within a few actions and no operator
+interacts with another, so every admissible procedure returns the optimal cost. That is a
+property of the v1 domain rather than a result about search, planning headroom here is zero
+by construction, and no procedure is claimed better than another. A domain where they
+separate is what the interacting-goal microbenchmark is for.
 
 `python -m ecora demo .ecora-runs/example` runs the same invocation sequence for two
 frozen treatment bindings. Both produce valid DiagnosisRecord payloads with different

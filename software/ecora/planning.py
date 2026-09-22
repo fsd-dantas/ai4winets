@@ -168,8 +168,32 @@ class PlannerProvider:
         data = problem.data
         known = frozenset(data["known_predicates"])
         unknown = frozenset(data["unknown_predicates"])
-        goals = list(data["goals"])
         operators = catalog(config["sites"], config["costs"])
+        # One agent per declared service, each planning for its own objective. Where no
+        # agents are declared the provider plans once for the whole frozen goal set, which
+        # is the single-agent case and the default.
+        agents = config.get("agents") or [{"agent_id": config.get("agent_id", "agent:planner"),
+                                           "service": config.get("service", "ami"),
+                                           "goals": list(data["goals"])}]
+        frozen = set(data["goals"])
+        for agent in agents:
+            require(set(agent["goals"]) <= frozen,
+                    f"{agent['agent_id']} pursues a goal the study did not freeze")
+            require(agent["goals"], f"{agent['agent_id']} declares no goal")
+        outputs, traces = [], []
+        for agent in agents:
+            outputs.append(self._plan_for(agent, config, data, known, unknown, operators,
+                                          watermark, traces))
+        state = {"plans": prior_state.data["state"].get("plans", 0) + len(outputs)}
+        if len(outputs) == 1:
+            return ProviderResult((outputs[0],), state, traces[0])
+        return ProviderResult(tuple(outputs), state,
+                              {"search": self.search, "agents": len(outputs),
+                               "per_agent": traces})
+
+    def _plan_for(self, agent, config, data, known, unknown, operators, watermark, traces):
+        """One agent's proposal over its own goals, and the trace that produced it."""
+        goals = list(agent["goals"])
         budget = min(data["expansion_budget"], config.get("expansion_budget", data["expansion_budget"]))
         search = SEARCHES[self.search]
         extra = {"depth_bound": data.get("horizon_steps", 8)} if self.search == "gps" else {}
@@ -177,9 +201,9 @@ class PlannerProvider:
 
         if plan is None:
             # Nothing found within this method's policy and budget. Not infeasibility.
-            proposal = self._proposal(config, watermark, (), 0.0, "unknown", None)
-            trace = {"search": self.search, **effort, "outcome": "no_plan_within_budget"}
-            return ProviderResult((proposal,), {}, trace)
+            traces.append({"search": self.search, "agent_id": agent["agent_id"], **effort,
+                           "outcome": "no_plan_within_budget"})
+            return self._proposal(agent, config, watermark, (), 0.0, "unknown", None)
         achieved, final, why = validate_plan(known, unknown, operators, goals, plan)
         reference = None
         if config.get("certify"):
@@ -190,15 +214,13 @@ class PlannerProvider:
                         or self.search == "gps",
                         "a plan claimed optimal does not match the enumerated cost table")
         by_id = {operator.operator_id: operator for operator in operators}
-        proposal = self._proposal(config, watermark, tuple(by_id[step] for step in plan),
-                                  cost, "achieved_in_model" if achieved else "unmet", reference)
-        state = {"plans": prior_state.data["state"].get("plans", 0) + 1}
-        return ProviderResult((proposal,), state,
-                              {"search": self.search, **effort, "validated": achieved,
-                               "validator": why})
+        traces.append({"search": self.search, "agent_id": agent["agent_id"], **effort,
+                       "validated": achieved, "validator": why})
+        return self._proposal(agent, config, watermark, tuple(by_id[step] for step in plan),
+                              cost, "achieved_in_model" if achieved else "unmet", reference)
 
     @staticmethod
-    def _proposal(config, watermark, operators, cost, status, reference):
+    def _proposal(agent, config, watermark, operators, cost, status, reference):
         steps = [{"operator": operator.action, "target": operator.target,
                   "arguments": dict(operator.arguments),
                   "preconditions": sorted(operator.preconditions),
@@ -208,9 +230,11 @@ class PlannerProvider:
             steps = [{"operator": "no_op", "target": config["sites"][0], "arguments": {},
                       "preconditions": [], "add_effects": [], "delete_effects": [], "cost": 0}]
         return Record("PlanProposal", {
-            "proposal_id": f"proposal:{VERSION}:{config['sites'][0]}:{watermark}",
-            "agent_id": config.get("agent_id", "agent:planner"), "site_id": config["sites"][0],
-            "service": config.get("service", "ami"), "steps": steps, "assumptions": [],
+            # The agent is part of the identity: two agents planning at one watermark must
+            # not collide on a proposal id, or the resolver would see one contender.
+            "proposal_id": f"proposal:{VERSION}:{agent['service']}:{config['sites'][0]}:{watermark}",
+            "agent_id": agent["agent_id"], "site_id": config["sites"][0],
+            "service": agent["service"], "steps": steps, "assumptions": [],
             "estimated_cost": sum(step["cost"] for step in steps),
             "valid_until_s": watermark + config.get("validity_s", 1),
             "goal_status": status, "certificate_ref": reference})

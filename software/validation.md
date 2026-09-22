@@ -257,6 +257,52 @@ study freezes one cohort, so a SCADA requirement naming `within_age_delivery` wo
 scored against the AMI population. The scenarios therefore declare the one requirement this
 pipeline can evaluate, and per-service keying is carried as B36.
 
+**The decision knowledge is data, and three mechanisms now fire that never had.** A study
+file supplies the rule inventory, the projection, the planner and coordination
+configuration, the predicate map and the frozen assembly. `studies/baseline.json` was
+extracted from the constants it replaced and the suite passed unchanged against it, so the
+baseline is the same study it was. A file missing a section, or carrying an unknown one, is
+refused when it is read: a misspelled section that was skipped would leave the default in
+place while appearing to have changed it. So is an inventory whose rule identifiers repeat,
+that contradicts a conclusion no rule reaches, whose goals are malformed, or whose predicate
+map names a label no rule concludes.
+
+Making the knowledge data was not presentation. Each of three implemented and tested
+mechanisms was unreachable, and each was reachable only by changing what the system knows.
+
+**Rule arbitration** could never run. Every contradicting pair in the baseline inventory has
+mutually exclusive conditions, so no two contradicting rules can hold at once and the
+priority and equal-authority machinery was dead code in practice. `Study.arbitrable()`
+reports which pairs can both hold; for the baseline it reports none, and a test asserts
+that. Under an inventory that has them, two competing explanations for one growing queue at
+equal authority are recorded as unresolved rather than decided, and the weaker of two
+unequal authorities is inhibited with the inhibition on the record.
+
+Exercising it exposed a defect in the trace. An inhibited rule is reconsidered on every
+later pass and was inhibited again each time, so one inhibition was reported as nine. The
+trace is evidence, and a reader counting entries would have been counting passes. It is
+recorded once now, and a test checks the entries are distinct.
+
+**Multi-step planning** could never run. The baseline freezes one goal over one fluent, so
+every plan was a single action. Two goals over two fluents produce a two-step plan at cost
+three under all three searches.
+
+**Coordination had no conflict to resolve.** One site means one agent, so the resolution
+stage saw one proposal per epoch for the whole life of the demonstration and its admit,
+defer, yield and backoff behaviour was exercised only in its own tests. A planner now emits
+one proposal per declared agent, each planning over its own goals, and every agent goal must
+be one the study froze. Two service agents at one site with incompatible objectives over the
+same resource produce a real contention: one admitted, one deferred, each decision naming
+what it conflicted with.
+
+That exposed a second defect, and a more serious one. The pacing operators carried no
+preconditions, while the resolver refuses to issue any mutation with no precondition to
+cite. Both are defensible alone, and together they made the pacing lever unreachable: a plan
+that changed pacing was admitted and then never became a command. It never showed because
+the baseline's only goal is path selection. Pacing operators now declare the profile they
+move from, which is also what makes their delete effect well founded, and a test asserts
+that no pacing operator has empty preconditions.
+
 The **declared failure cases** each have a test: missing observations retained as unknown
 rather than dropped, a batch refused for claiming full coverage while withholding a signal,
 competing proposals resolved to one with the rest deferred and exactly one command issued,

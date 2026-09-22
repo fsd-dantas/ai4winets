@@ -283,4 +283,31 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
   becomes a property of the wire rather than a naming convention, and branching by forking the
   simulator is impossible without a process to fork. It also records what it does not decide,
   including the per-epoch cost, which no budget may be frozen before measuring.
+- The decision knowledge is data. [`studies/`](studies/README.md) holds the rule inventory,
+  projection, planner and coordination configuration, predicate map and frozen assembly that
+  were Python constants, and [`software/ecora/study.py`](software/ecora/study.py) reads one.
+  `python -m ecora showcase --study <id>` selects it. The freeze is not loosened: a run binds
+  one study, the assembly still governs what may be assembled, and editing a study produces a
+  different content hash, so switching studies is explicit rather than a quiet edit to the one
+  being measured. `studies/baseline.json` was extracted from the constants it replaces and the
+  suite passed unchanged against it.
+- Three implemented and tested mechanisms had never run outside their own tests, and each was
+  reachable only by changing what the system knows rather than what the world does.
+  `arbitration.json` gives the rule inventory contradicting pairs whose conditions can both
+  hold; every baseline pair is mutually exclusive, so conflict was structurally unreachable and
+  `Study.arbitrable()` now reports that. `multi-goal.json` declares two goals over two fluents,
+  so the planner sequences rather than picks. `contention.json` declares two service agents at
+  one site with incompatible objectives over one resource, so the coordination stage has a
+  conflict to resolve instead of a single proposal to wave through.
+- A planner emits one proposal per declared agent, each planning over its own goals, and an
+  agent may not pursue a goal the study did not freeze. Per-agent goals are binding
+  configuration; the assembly's goal list is the inventory of what any agent may pursue, not a
+  conjunctive goal for one planner to achieve.
+- Pacing operators declare the profile they move from. They carried no preconditions at all,
+  while the resolver refuses to issue a mutation with no precondition to cite, and together
+  those made the pacing lever unreachable: a plan that changed pacing was admitted and then
+  never became a command. It also makes the delete effect well founded, since an operator that
+  asserted a new profile without knowing the old one removed a predicate nobody established.
+- An inhibited rule is recorded once rather than once per inference pass. The trace is
+  evidence, and a reader counting entries would have been counting passes.
 

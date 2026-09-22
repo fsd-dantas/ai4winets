@@ -11,6 +11,7 @@ from .fixtures import batch, fixture_environment, payload_fixtures
 from .metrics import measurements, read_run
 from .runner import Run, Streams, closed_loop_environment
 from .scenario import SCENARIOS, build_world, load
+from .study import resolve as resolve_study
 from .schema import schema_document
 from .store import ArtifactStore
 
@@ -22,6 +23,7 @@ CAPABILITIES = {("site-1", "queue_occupancy"): "observe.ami.queue",
 
 
 DEFAULT_SCENARIO = "s0-nominal"
+DEFAULT_STUDY = "baseline"
 
 
 def _scenario(name):
@@ -33,16 +35,17 @@ def _scenario(name):
     return load(path)
 
 
-def _execute(root, treatment, epochs, period_s, scenario):
+def _execute(root, treatment, epochs, period_s, scenario, knowledge):
     model = build_world(scenario)
     registry, study, scenario_set, scenario, caps = closed_loop_environment(
-        model, period_s=period_s, scenario=scenario)
+        model, period_s=period_s, scenario=scenario, study=knowledge)
     with ArtifactStore(root / treatment) as store:
         run = registry.admit(study, scenario_set, scenario, caps, treatment, f"run:{treatment}")
         boundary = Boundary(store, registry, run)
         dataset = Run(boundary, model, streams=Streams(study.data["seed_manifest"]),
                       capability_ids=CAPABILITIES, period_s=period_s, epochs=epochs,
-                      assembly=study.data["assembly"]).execute()
+                      assembly=study.data["assembly"],
+                      predicate_map=knowledge.predicate_map).execute()
         sensed = relayed = applied = 0
         for index in (*range(epochs), "closing"):
             for message in store.messages(f"dataset:ingest:{index}"):
@@ -96,7 +99,8 @@ def _execute(root, treatment, epochs, period_s, scenario):
                 "dataset": dataset, "scope": run.scope, "integrity": store.verify()}
 
 
-def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO):
+def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO,
+             study=DEFAULT_STUDY):
     """Run the declared treatments over one frozen study and compare them.
 
     Each differs from the previous one in a single stage binding, so the difference
@@ -104,7 +108,8 @@ def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO):
     """
     started = time.perf_counter()
     spec = _scenario(scenario)
-    results = [_execute(directory, treatment, epochs, period_s, spec)
+    knowledge = resolve_study(study)
+    results = [_execute(directory, treatment, epochs, period_s, spec, knowledge)
                for treatment in ("null_baseline", "closed_loop", "observing", "expert",
                                  "blackboard", "planner", "gps", "eco", "assured",
                                  "oracle_diagnosis")]
@@ -117,6 +122,9 @@ def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO):
     print(f"  world     {len(topology['sites'])} site, {len(topology['legs'])} legs, "
           f"shared egress {topology['egress']['capacity_bps']:.0f} bit/s (synthetic)")
     print(f"  condition {spec.data['initial_state'].get('note', 'undeclared')}")
+    print(f"  knowledge {knowledge.study_id}@{knowledge.revision}  "
+          f"{knowledge.content_hash[:12]}  {len(knowledge.rules['rules'])} rules, "
+          f"{len(knowledge.assembly['planning']['goals'])} goal(s)")
     print(f"  schedule  {epochs} decision epochs at {period_s} s\n")
     header = (f"  {'treatment':<16}{'relayed':>8}{'concluded':>11}{'activations':>13}"
               f"{'applied':>9}   {'path':<13}{'verdict':<14}{'scored on'}")
@@ -251,6 +259,8 @@ def main(argv=None):
     show.add_argument("--epochs", type=int, default=4)
     show.add_argument("--scenario", default=DEFAULT_SCENARIO,
                       help="a scenario identifier under scenarios/, or a path to a scenario file")
+    show.add_argument("--study", default=DEFAULT_STUDY,
+                      help="a study identifier under studies/, or a path to a study file")
     args = parser.parse_args(argv)
     try:
         if args.command in {"schema", "fixtures"}:
@@ -270,7 +280,7 @@ def main(argv=None):
                               "oracle_diagnosis"):
                 if (args.directory / treatment).exists():
                     raise ContractError(f"showcase directory already exists: {args.directory / treatment}")
-            showcase(args.directory, args.epochs, scenario=args.scenario)
+            showcase(args.directory, args.epochs, scenario=args.scenario, study=args.study)
         elif args.command == "verify":
             if not (args.directory / "journal.jsonl").is_file():
                 raise ContractError("no existing artifact journal at this path")

@@ -49,10 +49,13 @@ class SymbolicTests(unittest.TestCase):
     def test_a_state_preserving_edge_is_not_expanded(self):
         reached = {operator.operator_id for operator, _ in successors(INFORMED, frozenset(), OPERATORS)}
         self.assertNotIn("select_path:site-1:lte", reached)
-        self.assertNotIn("set_ami_pacing:site-1:normal", reached)
+        # No edge sets the profile already in force: every pacing operator now names the
+        # profile it moves from, so a self-transition is not in the catalog at all.
+        self.assertFalse([name for name in reached
+                          if name.startswith("set_ami_pacing:site-1:normal:normal")])
 
     def test_the_validator_separates_executability_from_goal_achievement(self):
-        plan = ("set_ami_pacing:site-1:restricted",)
+        plan = ("set_ami_pacing:site-1:normal:restricted",)
         met, final, why = validate_plan(INFORMED, frozenset(), OPERATORS, [PACE_RESTRICTED], plan)
         self.assertTrue(met)
         self.assertIsNone(why)

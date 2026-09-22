@@ -22,114 +22,25 @@ from .exact import exact_binding
 from .experts import expert_binding
 from .planning import planner_binding
 from .scenario import describe_world, verify_world
+from .study import resolve
 from .telemetry import projection_binding
 from .truth import TruthPort, oracle_diagnosis_binding, truth_binding
 
 STREAM_NAMES = ("arrivals", "errors", "disturbances", "controller")
 
-# The local view one site's agents are permitted: its own AMI queue and its path selector.
-# Declared here rather than inferred, so what a projection expects is frozen with a study.
-PROJECTION = {
-    "neighbourhood": {"subject": "site-1", "services": ["ami", "shared"]},
-    "expected": [
-        {"subject": "site-1", "service": "ami", "metric": "queue_occupancy", "unit": "byte",
-         "capability_id": "observe.ami.queue"},
-        {"subject": "site-1", "service": "shared", "metric": "path_state", "unit": "id",
-         "capability_id": "observe.shared.path"},
-        {"subject": "site-1", "service": "ami", "metric": "pacing_profile", "unit": "id",
-         "capability_id": "observe.ami.pacing"},
-        {"subject": "site-1/lte", "service": "shared", "metric": "path_probe", "unit": "s",
-         "capability_id": "observe.probe.lte"},
-        {"subject": "site-1/alternative", "service": "shared", "metric": "path_probe",
-         "unit": "s", "capability_id": "observe.probe.alternative"},
-    ],
-    "max_observation_age_s": 0.5,
-}
-
-# The shared rule inventory, over the operational predicates declared in v1-scope.md and
-# the signals the projection relays. The pressure threshold is the declared
-# queue_pressure_fraction (0.75) against queue_limit_bytes (65536); both are nominal.
-# `settled_on_alternative` requires two conclusions rather than an observation, so an
-# organisation has to reach a fixed point rather than firing every rule once.
-RULES = {
-    "rules": [
-        {"rule_id": "queue_pressure", "requires": ["queue_occupancy"],
-         "condition": {"metric": "queue_occupancy", "op": "ge", "value": 49152},
-         "concludes": "local_queue_pressure", "priority": 10,
-         "contradicts": ["local_queue_nominal"],
-         "explanation": "Occupied bytes reached the declared pressure fraction."},
-        {"rule_id": "queue_nominal", "requires": ["queue_occupancy"],
-         "condition": {"metric": "queue_occupancy", "op": "lt", "value": 49152},
-         "concludes": "local_queue_nominal", "priority": 10,
-         "contradicts": ["local_queue_pressure"],
-         "explanation": "Occupied bytes remained below the declared pressure fraction."},
-        {"rule_id": "on_alternative", "requires": ["path_state"],
-         "condition": {"metric": "path_state", "op": "eq", "value": "alternative"},
-         "concludes": "on_alternative_path", "priority": 5, "contradicts": ["on_primary_path"],
-         "explanation": "The site's selector reports the alternative leg."},
-        {"rule_id": "on_primary", "requires": ["path_state"],
-         "condition": {"metric": "path_state", "op": "eq", "value": "lte"},
-         "concludes": "on_primary_path", "priority": 5, "contradicts": ["on_alternative_path"],
-         "explanation": "The site's selector reports the primary leg."},
-        {"rule_id": "pacing_normal", "requires": ["pacing_profile"],
-         "condition": {"metric": "pacing_profile", "op": "eq", "value": "normal"},
-         "concludes": "pacing_is_normal", "priority": 5,
-         "explanation": "The AMI release profile reads back as normal."},
-        {"rule_id": "pacing_restricted", "requires": ["pacing_profile"],
-         "condition": {"metric": "pacing_profile", "op": "eq", "value": "restricted"},
-         "concludes": "pacing_is_restricted", "priority": 5,
-         "explanation": "The AMI release profile reads back as restricted."},
-        {"rule_id": "lte_viable", "requires": ["site-1/lte/path_probe"],
-         "condition": {"metric": "site-1/lte/path_probe", "op": "le", "value": 1.0},
-         "concludes": "lte_viable", "priority": 5,
-         "explanation": "A probe on the primary leg came back within its timeout."},
-        {"rule_id": "alternative_viable", "requires": ["site-1/alternative/path_probe"],
-         "condition": {"metric": "site-1/alternative/path_probe", "op": "le", "value": 1.0},
-         "concludes": "alternative_viable", "priority": 5,
-         "explanation": "A probe on the alternative leg came back within its timeout."},
-        {"rule_id": "settled_on_alternative", "requires": [], "condition": None,
-         "requires_predicates": ["local_queue_nominal", "on_alternative_path"],
-         "concludes": "settled_on_alternative_path", "priority": 1,
-         "explanation": "The alternative leg is carrying the load without queue pressure."},
-    ],
-    "activation_budget": 200,
-}
-
-# What the symbolic planner configures, and what the eco resolver may issue. Both are
-# frozen with the study: the costs a planner optimises and the authority a resolver holds
-# must not vary with the arm whose contribution is being measured.
-PLANNER = {"sites": ["site-1"], "costs": {"select_path": 2, "set_ami_pacing": 1},
-           "agent_id": "agent:site-1:ami", "service": "ami", "validity_s": 1,
-           "certify": True, "state_limit": 64, "expansion_budget": 10000}
-
-# What the telemetry Oracle is permitted to read. Declared, not inferred.
-ORACLE = {"reads": ["truth.ami.queue_occupancy", "truth.shared.path_state",
-                    "truth.ami.pacing_profile"]}
-
-# The diagnosis Oracle reads truth for exactly the signals the shared rules require, so
-# the only difference from the Proposed arm is what each was given, not what it asks.
-ORACLE_READS = ["truth.ami.queue_occupancy", "truth.shared.path_state",
-                "truth.ami.pacing_profile", "truth.probe.lte", "truth.probe.alternative"]
-
-ECO = {"mark_ttl_s": 0.3, "backoff_min_s": 0.1, "backoff_max_s": 0.3, "validity_s": 1,
-       "mark_transport_model": "ideal_local",
-       "authority": {"select_path": "actuate.shared.path",
-                     "set_ami_pacing": "actuate.ami.pacing"}}
-
-# How a concluded diagnosis becomes symbolic predicates. Harness-fixed across treatments,
-# so the projection cannot vary with the arm whose contribution is being measured. A leg
-# carrying traffic is evidently reachable; nothing here asserts the other leg is.
-PREDICATE_MAP = {
-    "on_primary_path": ["selected_path:site-1:lte"],
-    "on_alternative_path": ["selected_path:site-1:alternative"],
-    # Reachability now comes from a probe that answered, not from the leg being in use.
-    "lte_viable": ["reachable:site-1:lte"],
-    "alternative_viable": ["reachable:site-1:alternative"],
-    "pacing_is_normal": ["pacing:site-1:normal"],
-    "pacing_is_restricted": ["pacing:site-1:restricted"],
-    "local_queue_nominal": ["queue_nominal:site-1:ami"],
-    "local_queue_pressure": ["queue_pressure:site-1:ami"],
-}
+# The decision knowledge is data. These names are kept because the package and its tests
+# refer to them, but what they hold is read from `studies/baseline.json` rather than
+# written here: the rule inventory, the local view a projection relays, the planner and
+# coordination configuration, and how a concluded diagnosis becomes symbolic predicates.
+# A different study file is a different study, not a tuned version of this one.
+BASELINE = resolve("baseline")
+PROJECTION = BASELINE.projection
+RULES = BASELINE.rules
+PLANNER = BASELINE.planner
+ECO = BASELINE.eco
+PREDICATE_MAP = BASELINE.predicate_map
+ORACLE = BASELINE.oracle["telemetry"]
+ORACLE_READS = BASELINE.oracle["diagnosis_reads"]
 
 
 class Stream:
@@ -234,7 +145,7 @@ class Run:
     """One run of one treatment against one frozen scenario."""
 
     def __init__(self, boundary, model, *, streams, capability_ids, period_s, epochs, assembly,
-                 start_epoch=0):
+                 start_epoch=0, predicate_map=None):
         self.boundary = boundary
         self.model = model
         self.streams = streams
@@ -242,6 +153,10 @@ class Run:
         self.period_s = period_s
         self.epochs = epochs
         self.assembly = assembly
+        # How a concluded diagnosis becomes symbolic predicates. Harness-fixed across the
+        # treatments of one study, so the projection cannot vary with the arm under
+        # comparison, and declared by the study rather than by this module.
+        self.predicate_map = BASELINE.predicate_map if predicate_map is None else predicate_map
         # A branch starts partway through, on a world regenerated and verified against the
         # recorded prefix. Everything it produces from here is its own.
         self.start_epoch = start_epoch
@@ -290,11 +205,12 @@ class Run:
                 continue
             concluded.update(h["label"] for h in payload.data["hypotheses"]
                              if h["status"] == "supported")
+        mapping = self.predicate_map
         known = set()
-        for label, predicates in PREDICATE_MAP.items():
+        for label, predicates in mapping.items():
             if label in concluded:
                 known.update(predicates)
-        unknown = {predicate for predicates in PREDICATE_MAP.values()
+        unknown = {predicate for predicates in mapping.values()
                    for predicate in predicates if predicate.startswith("reachable:")} - known
         return sorted(known), sorted(unknown)
 
@@ -374,7 +290,7 @@ class Continuation:
 
 
 def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilities=(),
-                            projection=None, rules=None, scenario=None):
+                            projection=None, rules=None, scenario=None, study=None):
     """A study whose action stage is bound to the finite world, with a Null arm beside it.
 
     The Null treatment and the closed-loop treatment differ in one binding, so a paired
@@ -386,6 +302,12 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
     none is supplied the scenario is derived from the model instead. Either way the
     scenario hash frozen into every claim describes the world that actually ran.
     """
+    study = study or BASELINE
+    projection = projection or study.projection
+    rules = rules or study.rules
+    planner, coordination = study.planner, study.eco
+    oracle, oracle_reads = study.oracle["telemetry"], study.oracle["diagnosis_reads"]
+    assembly = assembly or study.assembly
     if scenario is not None:
         verify_world(model, scenario)
     else:
@@ -419,25 +341,25 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
                          "configuration": configuration, "configuration_hash": digest(configuration)})
     # A third treatment differing from closed_loop in the telemetry binding alone, so the
     # three form a chain where each step changes exactly one stage.
-    projection = projection_binding(registry, granted, projection or PROJECTION)
+    projection = projection_binding(registry, granted, projection)
     observing = [dict(projection) if b["stage_id"] == "telemetry" else dict(b) for b in bindings]
 
     def diagnosing(organisation):
-        binding = expert_binding(registry, granted, rules or RULES, organisation)
+        binding = expert_binding(registry, granted, rules, organisation)
         return [dict(binding) if b["stage_id"] == "diagnosis" else dict(b) for b in observing]
 
     reasoning = diagnosing("blackboard")
-    planning = planner_binding(registry, granted, PLANNER, "uniform_cost")
+    planning = planner_binding(registry, granted, planner, "uniform_cost")
     planned = [dict(planning) if b["stage_id"] == "planning" else dict(b) for b in reasoning]
     # Means-ends analysis over the same STRIPS representation and the same operator
     # catalog, one binding from the uniform-cost arm and sharing its Null resolution.
     # GPS is a different search, not a different problem, so what separates the two rows
     # is the procedure and nothing else.
-    means_ends = planner_binding(registry, granted, PLANNER, "gps")
+    means_ends = planner_binding(registry, granted, planner, "gps")
     gps_planned = [dict(means_ends) if b["stage_id"] == "planning" else dict(b)
                    for b in planned]
 
-    coordinating = eco_binding(registry, granted, ECO, "resolution", "expiring_marks")
+    coordinating = eco_binding(registry, granted, coordination, "resolution", "expiring_marks")
     coordinated = [dict(coordinating) if b["stage_id"] == "resolution" else dict(b)
                    for b in planned]
 
@@ -447,7 +369,7 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
     port = TruthPort(model, caps.data["capabilities"])
     # An Oracle sees everything an ordinary arm sees, and truth besides. It is a
     # superset reference, not a different set of eyes.
-    oracle_telemetry = truth_binding(registry, port, granted + truths, ORACLE)
+    oracle_telemetry = truth_binding(registry, port, granted + truths, oracle)
     privileged = [dict(oracle_telemetry) if b["stage_id"] == "telemetry"
                   else {**b, "allow_privileged_inputs": True} for b in coordinated]
 
@@ -477,10 +399,10 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
 
     # Exact references at contract-limited information. Each is one binding from the arm
     # it references, so the gap between them is algorithmic and not informational.
-    exact_plan = exact_binding(registry, granted, PLANNER, "planning")
+    exact_plan = exact_binding(registry, granted, planner, "planning")
     planned_exactly = [dict(exact_plan) if b["stage_id"] == "planning" else dict(b)
                        for b in coordinated]
-    exact_resolve = exact_binding(registry, granted, ECO, "resolution")
+    exact_resolve = exact_binding(registry, granted, coordination, "resolution")
     resolved_exactly = [dict(exact_resolve) if b["stage_id"] == "resolution" else dict(b)
                         for b in planned_exactly]
 
@@ -489,7 +411,7 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
     # gap between them a difference in information rather than in anything else.
     oracle_diagnosis = oracle_diagnosis_binding(
         registry, port, granted + truths,
-        {**(rules or RULES), "reads": ORACLE_READS})
+        {**rules, "reads": oracle_reads})
     informed = [dict(oracle_diagnosis) if b["stage_id"] == "diagnosis"
                 else {**b, "allow_privileged_inputs": True} for b in coordinated]
 

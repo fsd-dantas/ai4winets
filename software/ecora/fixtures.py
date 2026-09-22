@@ -6,33 +6,21 @@ from .contracts import Record, digest
 from .nulls import null_bindings
 from .registry import ProviderResult, Registry
 from .schema import INPUT_TYPES, OUTPUT_TYPES, STAGES
+from .study import resolve
 
 
 def reason(code="fixture", detail="Synthetic contract fixture."):
     return {"code": code, "detail": detail}
 
 
-# The assembled stage inputs a study freezes, so that goal and cohort selection cannot
-# vary with the arm under comparison. Synthetic; no calibrated budget or deadline.
-ASSEMBLY = {
-    "planning": {"goals": ["selected_path:site-1:alternative"],
-                 "operator_catalog_version": "v1",
-                 "action_costs": {"select_path": 2}, "expansion_budget": 100,
-                 "time_budget_s": 2, "memory_budget_bytes": 1024, "horizon_steps": 8},
-    "result": {"cohorts": [{"cohort_id": "cohort:ami", "service": "ami",
-                            "generation_window": {"start_s": 0, "end_s": 0}, "deadline_s": 10}]},
-}
-
-
-# Declared policy settings for the Null arm. Fixed before measurement: a Null policy
-# changed after seeing results invalidates the comparison it anchors.
-NULL_CONFIGURATION = {
-    "diagnosis": {"candidate_order": ["queue_pressure", "ami_age_risk"]},
-    "planning": {"target": "site-1", "service": "ami", "agent_id": "agent:site-1:ami",
-                 "arguments": {"path": "alternative"}, "validity_s": 1},
-    "resolution": {"authority": {"select_path": "actuate.shared.path"}, "validity_s": 1},
-    "assurance": {"requirement_ids": ["req:delivery"]},
-}
+# The assembled stage inputs a study freezes, and the declared Null policy settings, both
+# read from `studies/baseline.json`. A study freezes them so goal and cohort selection
+# cannot vary with the arm under comparison, and so a Null policy cannot be changed after
+# seeing the results it anchors. Reading them from a file moves where they are written,
+# not when they may change.
+_BASELINE = resolve("baseline")
+ASSEMBLY = _BASELINE.assembly
+NULL_CONFIGURATION = _BASELINE.nulls
 
 
 def planning_problem(**changes):

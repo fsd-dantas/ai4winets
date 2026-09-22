@@ -1,0 +1,317 @@
+{
+  "assembly": {
+    "planning": {
+      "action_costs": {
+        "select_path": 2
+      },
+      "expansion_budget": 100,
+      "goals": [
+        "selected_path:site-1:alternative"
+      ],
+      "horizon_steps": 8,
+      "memory_budget_bytes": 1024,
+      "operator_catalog_version": "v1",
+      "time_budget_s": 2
+    },
+    "result": {
+      "cohorts": [
+        {
+          "cohort_id": "cohort:ami",
+          "deadline_s": 10,
+          "generation_window": {
+            "end_s": 0,
+            "start_s": 0
+          },
+          "service": "ami"
+        }
+      ]
+    }
+  },
+  "eco": {
+    "authority": {
+      "select_path": "actuate.shared.path",
+      "set_ami_pacing": "actuate.ami.pacing"
+    },
+    "backoff_max_s": 0.3,
+    "backoff_min_s": 0.1,
+    "mark_transport_model": "ideal_local",
+    "mark_ttl_s": 0.3,
+    "validity_s": 1
+  },
+  "note": "The declared baseline: the rule inventory, planner configuration, coordination policy and frozen assembly that every other study varies from.",
+  "nulls": {
+    "assurance": {
+      "requirement_ids": [
+        "req:delivery"
+      ]
+    },
+    "diagnosis": {
+      "candidate_order": [
+        "queue_pressure",
+        "ami_age_risk"
+      ]
+    },
+    "planning": {
+      "agent_id": "agent:site-1:ami",
+      "arguments": {
+        "path": "alternative"
+      },
+      "service": "ami",
+      "target": "site-1",
+      "validity_s": 1
+    },
+    "resolution": {
+      "authority": {
+        "select_path": "actuate.shared.path"
+      },
+      "validity_s": 1
+    }
+  },
+  "oracle": {
+    "diagnosis_reads": [
+      "truth.ami.queue_occupancy",
+      "truth.shared.path_state",
+      "truth.ami.pacing_profile",
+      "truth.probe.lte",
+      "truth.probe.alternative"
+    ],
+    "telemetry": {
+      "reads": [
+        "truth.ami.queue_occupancy",
+        "truth.shared.path_state",
+        "truth.ami.pacing_profile"
+      ]
+    }
+  },
+  "planner": {
+    "agent_id": "agent:site-1:ami",
+    "certify": true,
+    "costs": {
+      "select_path": 2,
+      "set_ami_pacing": 1
+    },
+    "expansion_budget": 10000,
+    "service": "ami",
+    "sites": [
+      "site-1"
+    ],
+    "state_limit": 64,
+    "validity_s": 1
+  },
+  "predicate_map": {
+    "alternative_viable": [
+      "reachable:site-1:alternative"
+    ],
+    "local_queue_nominal": [
+      "queue_nominal:site-1:ami"
+    ],
+    "local_queue_pressure": [
+      "queue_pressure:site-1:ami"
+    ],
+    "lte_viable": [
+      "reachable:site-1:lte"
+    ],
+    "on_alternative_path": [
+      "selected_path:site-1:alternative"
+    ],
+    "on_primary_path": [
+      "selected_path:site-1:lte"
+    ],
+    "pacing_is_normal": [
+      "pacing:site-1:normal"
+    ],
+    "pacing_is_restricted": [
+      "pacing:site-1:restricted"
+    ]
+  },
+  "projection": {
+    "expected": [
+      {
+        "capability_id": "observe.ami.queue",
+        "metric": "queue_occupancy",
+        "service": "ami",
+        "subject": "site-1",
+        "unit": "byte"
+      },
+      {
+        "capability_id": "observe.shared.path",
+        "metric": "path_state",
+        "service": "shared",
+        "subject": "site-1",
+        "unit": "id"
+      },
+      {
+        "capability_id": "observe.ami.pacing",
+        "metric": "pacing_profile",
+        "service": "ami",
+        "subject": "site-1",
+        "unit": "id"
+      },
+      {
+        "capability_id": "observe.probe.lte",
+        "metric": "path_probe",
+        "service": "shared",
+        "subject": "site-1/lte",
+        "unit": "s"
+      },
+      {
+        "capability_id": "observe.probe.alternative",
+        "metric": "path_probe",
+        "service": "shared",
+        "subject": "site-1/alternative",
+        "unit": "s"
+      }
+    ],
+    "max_observation_age_s": 0.5,
+    "neighbourhood": {
+      "services": [
+        "ami",
+        "shared"
+      ],
+      "subject": "site-1"
+    }
+  },
+  "revision": "1",
+  "rules": {
+    "activation_budget": 200,
+    "rules": [
+      {
+        "concludes": "local_queue_pressure",
+        "condition": {
+          "metric": "queue_occupancy",
+          "op": "ge",
+          "value": 49152
+        },
+        "contradicts": [
+          "local_queue_nominal"
+        ],
+        "explanation": "Occupied bytes reached the declared pressure fraction.",
+        "priority": 10,
+        "requires": [
+          "queue_occupancy"
+        ],
+        "rule_id": "queue_pressure"
+      },
+      {
+        "concludes": "local_queue_nominal",
+        "condition": {
+          "metric": "queue_occupancy",
+          "op": "lt",
+          "value": 49152
+        },
+        "contradicts": [
+          "local_queue_pressure"
+        ],
+        "explanation": "Occupied bytes remained below the declared pressure fraction.",
+        "priority": 10,
+        "requires": [
+          "queue_occupancy"
+        ],
+        "rule_id": "queue_nominal"
+      },
+      {
+        "concludes": "on_alternative_path",
+        "condition": {
+          "metric": "path_state",
+          "op": "eq",
+          "value": "alternative"
+        },
+        "contradicts": [
+          "on_primary_path"
+        ],
+        "explanation": "The site's selector reports the alternative leg.",
+        "priority": 5,
+        "requires": [
+          "path_state"
+        ],
+        "rule_id": "on_alternative"
+      },
+      {
+        "concludes": "on_primary_path",
+        "condition": {
+          "metric": "path_state",
+          "op": "eq",
+          "value": "lte"
+        },
+        "contradicts": [
+          "on_alternative_path"
+        ],
+        "explanation": "The site's selector reports the primary leg.",
+        "priority": 5,
+        "requires": [
+          "path_state"
+        ],
+        "rule_id": "on_primary"
+      },
+      {
+        "concludes": "pacing_is_normal",
+        "condition": {
+          "metric": "pacing_profile",
+          "op": "eq",
+          "value": "normal"
+        },
+        "explanation": "The AMI release profile reads back as normal.",
+        "priority": 5,
+        "requires": [
+          "pacing_profile"
+        ],
+        "rule_id": "pacing_normal"
+      },
+      {
+        "concludes": "pacing_is_restricted",
+        "condition": {
+          "metric": "pacing_profile",
+          "op": "eq",
+          "value": "restricted"
+        },
+        "explanation": "The AMI release profile reads back as restricted.",
+        "priority": 5,
+        "requires": [
+          "pacing_profile"
+        ],
+        "rule_id": "pacing_restricted"
+      },
+      {
+        "concludes": "lte_viable",
+        "condition": {
+          "metric": "site-1/lte/path_probe",
+          "op": "le",
+          "value": 1.0
+        },
+        "explanation": "A probe on the primary leg came back within its timeout.",
+        "priority": 5,
+        "requires": [
+          "site-1/lte/path_probe"
+        ],
+        "rule_id": "lte_viable"
+      },
+      {
+        "concludes": "alternative_viable",
+        "condition": {
+          "metric": "site-1/alternative/path_probe",
+          "op": "le",
+          "value": 1.0
+        },
+        "explanation": "A probe on the alternative leg came back within its timeout.",
+        "priority": 5,
+        "requires": [
+          "site-1/alternative/path_probe"
+        ],
+        "rule_id": "alternative_viable"
+      },
+      {
+        "concludes": "settled_on_alternative_path",
+        "condition": null,
+        "explanation": "The alternative leg is carrying the load without queue pressure.",
+        "priority": 1,
+        "requires": [],
+        "requires_predicates": [
+          "local_queue_nominal",
+          "on_alternative_path"
+        ],
+        "rule_id": "settled_on_alternative"
+      }
+    ]
+  },
+  "study_id": "study:baseline"
+}

@@ -72,14 +72,23 @@ def catalog(sites, costs):
                 delete=frozenset(predicate("selected_path", site, other)
                                  for other in PATHS if other != chosen),
                 cost=costs["select_path"]))
+        # One edge per ordered pair of profiles, each requiring the profile it moves from.
+        # A pacing operator carrying no precondition at all could be planned without
+        # knowing the current profile, and its delete effect would then remove a predicate
+        # nobody had established. It also made the lever unreachable in practice: the
+        # resolver refuses to issue a mutation with no precondition to cite, so a plan
+        # that changed pacing was admitted and then never became a command.
         for profile in PACING:
-            operators.append(Operator(
-                operator_id=f"set_ami_pacing:{site}:{profile}", action="set_ami_pacing",
-                target=site, arguments=(("profile", profile),), preconditions=frozenset(),
-                add=frozenset({predicate("pacing", site, profile)}),
-                delete=frozenset(predicate("pacing", site, other)
-                                 for other in PACING if other != profile),
-                cost=costs["set_ami_pacing"]))
+            for current in PACING:
+                if current == profile:
+                    continue
+                operators.append(Operator(
+                    operator_id=f"set_ami_pacing:{site}:{current}:{profile}",
+                    action="set_ami_pacing", target=site, arguments=(("profile", profile),),
+                    preconditions=frozenset({predicate("pacing", site, current)}),
+                    add=frozenset({predicate("pacing", site, profile)}),
+                    delete=frozenset({predicate("pacing", site, current)}),
+                    cost=costs["set_ami_pacing"]))
     return tuple(operators)
 
 

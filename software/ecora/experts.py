@@ -123,23 +123,33 @@ class _Inference:
             if winner is None:
                 continue
             if winner["priority"] > rule["priority"]:
-                self.inhibited.append({"rule_id": rule["rule_id"], "reason": "lower_priority",
-                                       "against": other})
+                self._inhibit(rule["rule_id"], "lower_priority", other)
                 return False
             if winner["priority"] == rule["priority"]:
                 # Equal authority on contradictory conclusions is not resolvable by policy.
                 self.unresolved.append(rule["rule_id"])
                 self.unresolved.append(winner["rule_id"])
                 self.concluded.pop(other, None)
-                self.inhibited.append({"rule_id": rule["rule_id"], "reason": "unresolved_conflict",
-                                       "against": other})
+                self._inhibit(rule["rule_id"], "unresolved_conflict", other)
                 return True
             self.concluded.pop(other, None)
-            self.inhibited.append({"rule_id": winner["rule_id"], "reason": "lower_priority",
-                                   "against": label})
+            self._inhibit(winner["rule_id"], "lower_priority", label)
         self.concluded[label] = detail
         self.fired[rule["rule_id"]] = rule
         return True
+
+    def _inhibit(self, rule_id, reason, against):
+        """Record an inhibition once.
+
+        A rule inhibited by a stronger conclusion is reconsidered on every later pass and
+        inhibited again each time, so appending unconditionally reported one inhibition as
+        many. The trace is evidence: a reader counting entries would have been counting
+        passes. The baseline rule inventory never reached this code, because no two of its
+        contradicting rules can both hold.
+        """
+        entry = {"rule_id": rule_id, "reason": reason, "against": against}
+        if entry not in self.inhibited:
+            self.inhibited.append(entry)
 
     def _author(self, label):
         return next((r["rule_id"] for r in self.rules if r["concludes"] == label), None)

@@ -77,7 +77,8 @@ class ExactPlannerProvider(PlannerProvider):
         require(abs(exact - cost) < 1e-9,
                 "the enumerated table and the search disagree on the optimal cost")
         by_id = {operator.operator_id: operator for operator in operators}
-        proposal = self._proposal(config, watermark, tuple(by_id[step] for step in plan), cost,
+        proposal = self._proposal(self._agent(config), config, watermark,
+                                  tuple(by_id[step] for step in plan), cost,
                                   "achieved_in_model" if achieved else "unmet",
                                   f"certificate:{table['graph_digest'][:16]}")
         state = {"plans": prior_state.data["state"].get("plans", 0) + 1}
@@ -86,9 +87,16 @@ class ExactPlannerProvider(PlannerProvider):
                                "states_enumerated": table["states"], "optimal_cost": cost,
                                "graph_digest": table["graph_digest"], **effort})
 
+    @staticmethod
+    def _agent(config):
+        """The exact reference plans as one agent over the whole frozen goal set."""
+        return {"agent_id": config.get("agent_id", "agent:planner"),
+                "service": config.get("service", "ami"), "goals": None}
+
     def _uncertified(self, config, watermark, why, bound=None):
         """No certificate, no optimality claim, and the reason on the record."""
-        proposal = self._proposal(config, watermark, (), 0.0, "unknown", None)
+        proposal = self._proposal(self._agent(config), config, watermark, (), 0.0,
+                                  "unknown", None)
         return ProviderResult((proposal,), {},
                               {"reference": "exact_planning", "certified": False,
                                "reason": why, "partial_bound": bound})

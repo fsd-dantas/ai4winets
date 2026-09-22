@@ -54,7 +54,7 @@ class ContinuationTests(unittest.TestCase):
         original leg and the recorded path_state observations would not match, so this
         test fails rather than passing on a prefix that merely looks plausible.
         """
-        store, original, _ = self.run_one("closed_loop", "recorded", "run:recorded")
+        store, original, _ = self.run_one("expert", "recorded", "run:recorded")
         rebuilt = self.continuation(store).regenerate(BRANCH)
         self.assertEqual(rebuilt.truth()["selected_path"], {"site-1": "alternative"})
         # Regeneration leaves the clock where the last replayed epoch left it; the branch
@@ -63,7 +63,7 @@ class ContinuationTests(unittest.TestCase):
         self.assertGreater(len(self.continuation(store).applied_commands(0)), 0)
 
     def test_a_prefix_that_does_not_reproduce_refuses_to_branch(self):
-        store, _, _ = self.run_one("closed_loop", "diverge", "run:diverge")
+        store, _, _ = self.run_one("expert", "diverge", "run:diverge")
         # Rebuild with a slower alternative leg. The recorded run switches onto it in its
         # first epoch, so from the second epoch the observed queue backs up and cannot
         # reproduce. Verification therefore has to catch a prefix whose first epoch matched.
@@ -73,7 +73,7 @@ class ContinuationTests(unittest.TestCase):
 
     def test_an_action_changing_branch_generates_its_own_outcomes(self):
         recorded_store, recorded_model, recorded_dataset = self.run_one(
-            "closed_loop", "origin", "run:origin")
+            "expert", "origin", "run:origin")
         branched = self.continuation(recorded_store).regenerate(BRANCH)
         branch_store, branch_model, branch_dataset = self.run_one(
             "null_baseline", "branch", "run:branch", model=branched, start_epoch=BRANCH)
@@ -89,7 +89,7 @@ class ContinuationTests(unittest.TestCase):
         self.assertNotEqual(branch_store.head(), recorded_store.head())
 
     def test_a_branch_produces_no_evidence_before_its_branch_point(self):
-        store, _, _ = self.run_one("closed_loop", "prior", "run:prior")
+        store, _, _ = self.run_one("expert", "prior", "run:prior")
         branched = self.continuation(store).regenerate(BRANCH)
         branch_store, _, _ = self.run_one("null_baseline", "after", "run:after",
                                           model=branched, start_epoch=BRANCH)
@@ -101,10 +101,10 @@ class ContinuationTests(unittest.TestCase):
                              .data["terminal_status"], "ok")
 
     def test_a_closed_loop_branch_is_not_offered_as_a_replayed_payload(self):
-        store, _, _ = self.run_one("closed_loop", "refuse", "run:refuse")
+        store, _, _ = self.run_one("expert", "refuse", "run:refuse")
         registry, study, scenario_set, scenario, caps = closed_loop_environment(
             world(), period_s=PERIOD)
-        run = registry.admit(study, scenario_set, scenario, caps, "closed_loop", "run:refuse2")
+        run = registry.admit(study, scenario_set, scenario, caps, "expert", "run:refuse2")
         refused = ArtifactStore(Path(self.temp.name) / "refuse2")
         self.addCleanup(refused.close)
         boundary = Boundary(refused, registry, run)
@@ -114,7 +114,7 @@ class ContinuationTests(unittest.TestCase):
         self.assertIn("verified prefix", str(caught.exception))
 
     def test_component_substitution_reruns_a_stage_on_its_recorded_inputs(self):
-        store, _, _ = self.run_one("closed_loop", "substitute", "run:substitute")
+        store, _, _ = self.run_one("expert", "substitute", "run:substitute")
         registry, study, scenario_set, scenario, caps = closed_loop_environment(
             world(), period_s=PERIOD)
         run = registry.admit(study, scenario_set, scenario, caps, "null_baseline", "run:sub")

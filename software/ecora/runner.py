@@ -67,6 +67,17 @@ RULES = {
     "activation_budget": 200,
 }
 
+# How a concluded diagnosis becomes symbolic predicates. Harness-fixed across treatments,
+# so the projection cannot vary with the arm whose contribution is being measured. A leg
+# carrying traffic is evidently reachable; nothing here asserts the other leg is.
+PREDICATE_MAP = {
+    "on_primary_path": ["selected_path:site-1:lte", "reachable:site-1:lte"],
+    "on_alternative_path": ["selected_path:site-1:alternative",
+                            "reachable:site-1:alternative"],
+    "local_queue_nominal": ["queue_nominal:site-1:ami"],
+    "local_queue_pressure": ["queue_pressure:site-1:ami"],
+}
+
 
 class Stream:
     """One named draw sequence. Its position depends only on its own draws."""
@@ -190,19 +201,41 @@ class Run:
         source = self._export(str(index), at, index)
         telemetry = self._advance("telemetry", f"telemetry:{index}", [source.data["dataset_id"]], at)
         diagnosis = self._advance("diagnosis", f"diagnosis:{index}", [telemetry], at)
+        known, unknown = self._projection(diagnosis)
         problem = self.boundary.assemble(
             f"assemble-planning:{index}", "planning", [diagnosis],
             Record("PlanningProblem", {**self.assembly["planning"],
-                                       "known_predicates": sorted(self._predicates()),
-                                       "unknown_predicates": []}),
+                                       "known_predicates": known, "unknown_predicates": unknown}),
             watermark_s=at).data["dataset_id"]
         planning = self._advance("planning", f"planning:{index}", [problem], at)
         resolution = self._advance("resolution", f"resolution:{index}", [planning], at)
         return self._advance("action", f"action:{index}", [resolution], at)
 
-    def _predicates(self):
-        """Predicates the harness derives from observable state, never from truth."""
-        return {f"selected_{self.model.path[site]}" for site in self.model.sites}
+    def _projection(self, diagnosis_dataset):
+        """Project the diagnosis onto symbolic predicates, and say what stays unknown.
+
+        This reads the diagnosis the controller reached, not the world. Deriving the
+        planner's initial state from model truth would hand it state no arm was permitted
+        to observe, and the difference between arms would stop meaning anything.
+
+        A leg currently carrying traffic is evidently reachable. Any other leg's
+        reachability is unknown until a probe says otherwise, and an unknown precondition
+        prohibits the edge, so a planner cannot switch onto a leg on no evidence.
+        """
+        concluded = set()
+        for message in self.boundary.store.messages(diagnosis_dataset):
+            payload = Record.from_dict(message.data["payload"])
+            if payload.kind != "DiagnosisRecord":
+                continue
+            concluded.update(h["label"] for h in payload.data["hypotheses"]
+                             if h["status"] == "supported")
+        known = set()
+        for label, predicates in PREDICATE_MAP.items():
+            if label in concluded:
+                known.update(predicates)
+        unknown = {predicate for predicates in PREDICATE_MAP.values()
+                   for predicate in predicates if predicate.startswith("reachable:")} - known
+        return sorted(known), sorted(unknown)
 
     def _export(self, label, at, sequence):
         batch = observation_batch(self.model, self.capability_ids, at, self.period_s, sequence)

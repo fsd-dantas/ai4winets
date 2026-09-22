@@ -131,9 +131,10 @@ def showcase(directory, epochs, period_s=0.5):
         print(f"    activations       : single_engine {single['activations']},"
               f" blackboard {board['activations']}")
         print("  Agreement is a result here, not an assumption; a test asserts it and can fail.")
-    print("\n  The closed loop acts without relaying evidence, because the Null planner proposes")
-    print("  from its declared configuration. That is the baseline behaving correctly: it sets")
-    print("  a floor, and each stage stays substitutable on its own.")
+    print("\n  Only an arm that concluded something from evidence can act. A mutation needs")
+    print("  precondition evidence, and the Null diagnosis offers a first-candidate guess")
+    print("  carrying no support, so the first three arms reach no command at all. Capability")
+    print("  accrues as bindings are swapped; the loop does not assume it.")
     print("\n  Nothing here is a network result. The world is a deterministic queueing model,")
     print("  and every verdict is inconclusive because no requirement was evaluated.")
     print(f"\n  Elapsed {time.perf_counter() - started:.1f} s")

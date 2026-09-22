@@ -83,20 +83,26 @@ class RunTests(unittest.TestCase):
         second, _, _ = self.execute("null_baseline", "repeat-b", "run:repeat")
         self.assertEqual(first.head(), second.head())
 
-    def test_the_closed_loop_applies_an_action_the_null_arm_suppresses(self):
-        suppressed_store, suppressed_model, _ = self.execute("null_baseline", "open", "run:open")
-        applied_store, applied_model, _ = self.execute("closed_loop", "closed", "run:closed")
-        # The Null action arm never mutates the world.
+    def test_only_an_arm_that_concluded_from_evidence_can_act(self):
+        """A mutation needs precondition evidence, and a Null diagnosis supplies none.
+
+        The closed-loop arm binds the action stage to the world but reasons with the Null
+        diagnosis, whose first-candidate guess carries no support. It therefore cannot act,
+        and that is the contract holding rather than a missing capability.
+        """
+        suppressed_store, suppressed_model, _ = self.execute("closed_loop", "open", "run:open")
+        applied_store, applied_model, _ = self.execute("expert", "closed", "run:closed")
+        # No evidence-backed conclusion, so no command and no mutation.
         self.assertEqual(suppressed_model.truth()["selected_path"]["site-1"], "lte")
         self.assertEqual(suppressed_model.path_version["site-1"], 0)
-        # The model-backed arm applies the same admitted command.
+        # The arm that reasons over relayed evidence reaches and applies a command.
         self.assertEqual(applied_model.truth()["selected_path"]["site-1"], "alternative")
         self.assertGreater(applied_model.path_version["site-1"], 0)
-        # Differing only in the action binding, the runs differ in evidence too.
+        # The two runs differ in evidence as well as in what the world ended up doing.
         self.assertNotEqual(suppressed_store.head(), applied_store.head())
 
     def test_an_applied_receipt_cites_evidence_the_run_actually_exports(self):
-        store, model, _ = self.execute("closed_loop", "evidence", "run:evidence")
+        store, model, _ = self.execute("expert", "evidence", "run:evidence")
         receipts = []
         for index in range(EPOCHS):
             dataset = store.dataset(f"dataset:action:{index}")
@@ -150,8 +156,8 @@ class RunTests(unittest.TestCase):
 
     def test_the_record_cache_is_transparent_to_the_evidence(self):
         """A cache too small to hold the working set must change nothing but the timing."""
-        cached, _, _ = self.execute("closed_loop", "cache-warm", "run:cache")
-        cold, _, _ = self.execute("closed_loop", "cache-cold", "run:cache", cache_records=1)
+        cached, _, _ = self.execute("expert", "cache-warm", "run:cache")
+        cold, _, _ = self.execute("expert", "cache-cold", "run:cache", cache_records=1)
         self.assertEqual(cached.head(), cold.head())
         self.assertEqual(cached.verify(), cold.verify())
 

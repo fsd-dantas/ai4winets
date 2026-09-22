@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **92 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **106 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -34,6 +34,21 @@ SCADA, a disturbance that degrades service and then drains its backlog without l
 exported observations that satisfy the telemetry contract. It is a deterministic
 queueing model with no radio, protocol conformance or calibrated value, and no run of it
 is evidence about a wireless network.
+
+The **symbolic core and the three planners** are exercised against the properties the
+design declares. A* with a zero heuristic matches uniform-cost search on the same graph
+and costs, across four problems; the optimal cost matches the enumerated certificate; and
+every planner's plan is replayed through the shared validator, which separates
+executability from goal achievement. An unknown precondition prohibits the edge, so no
+planner switches onto a leg it has no evidence it can reach. Operator effects are
+configuration only, checked structurally: none may assert a service outcome. A bounded GPS
+failure reports that it found nothing within its budget, which is not infeasibility, and
+an exhausted search budget is reported rather than truncated.
+
+One of those tests found a real defect. GPS returned a plan whose second step deleted the
+goal its first step had achieved, because it checked only the goals still outstanding.
+decision-methods.md warns of exactly this, and the planner now rechecks every goal before
+returning, with the undone goals recorded in its trace.
 
 **Rule-based diagnosis** is exercised in both organisations over one shared rule
 inventory. The hypothesis under test (RQ-E) is that they agree and that their

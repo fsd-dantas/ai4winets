@@ -7,6 +7,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **Symbolic core and three planners** in `software/ecora/symbolic.py` and
+  `software/ecora/planning.py`: one state projection, operator catalog and plan validator,
+  searched by forward uniform cost (the STRIPS baseline), GPS means-ends analysis and A*.
+  They share the representation, costs and validator, so a difference between them is a
+  difference in search. An unknown precondition prohibits the edge, so a planner cannot
+  switch onto a leg it has no evidence it can reach; operator effects are configuration
+  and never predicted service; and only the validator may say a goal was achieved. A*
+  starts from a zero heuristic, which makes it a correctness reference against uniform
+  cost rather than a claim about heuristics. A bounded search that finds nothing says so,
+  and does not report infeasibility.
 - **Rule-based diagnosis in two organisations** in `software/ecora/experts.py`: a single
   engine evaluating a versioned rule collection to a fixed point, and one expert per rule
   scheduled by a blackboard controller over a revisioned board. They share the rule

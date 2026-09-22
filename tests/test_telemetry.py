@@ -30,21 +30,21 @@ class ProjectionTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
 
-    def open(self, name, *, projection=None, extra_capabilities=()):
+    def open(self, name, *, projection=None, extra_capabilities=(), treatment="observing"):
         model = world()
         environment = closed_loop_environment(model, period_s=PERIOD, projection=projection,
                                               extra_capabilities=extra_capabilities)
         registry, study, scenario_set, scenario, caps = environment
         store = ArtifactStore(Path(self.temp.name) / name)
         self.addCleanup(store.close)
-        run = registry.admit(study, scenario_set, scenario, caps, "observing", f"run:{name}")
+        run = registry.admit(study, scenario_set, scenario, caps, treatment, f"run:{name}")
         return store, Boundary(store, registry, run), model, study
 
     def relayed(self, store, dataset_id):
         return Record.from_dict(store.messages(dataset_id)[0].data["payload"])
 
     def test_it_relays_the_permitted_local_signals(self):
-        store, boundary, model, study = self.open("relay")
+        store, boundary, model, study = self.open("relay", treatment="expert")
         run = Run(boundary, model, streams=Streams(study.data["seed_manifest"]),
                   capability_ids=CAPABILITIES, period_s=PERIOD, epochs=3,
                   assembly=study.data["assembly"])

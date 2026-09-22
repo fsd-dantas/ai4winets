@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **77 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **83 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -34,6 +34,14 @@ SCADA, a disturbance that degrades service and then drains its backlog without l
 exported observations that satisfy the telemetry contract. It is a deterministic
 queueing model with no radio, protocol conformance or calibrated value, and no run of it
 is evidence about a wireless network.
+
+The **Proposed telemetry provider** is exercised against its declared projection: it
+relays the permitted local signals and reports full coverage when they all arrive; an
+expected signal the adapter never supplies becomes an explicit unknown with its reason and
+lowers declared completeness; a signal older than the declared freshness bound is reported
+as stale rather than relayed as fresh; another site's signal is dropped even when offered
+and counted in the trace; and a projection that expects a signal it holds no capability
+for is refused at configuration rather than at run time.
 
 **Boundary playback** is exercised against a stage whose output depends on its input,
 with a negative control: different recorded evidence must not reproduce the same output,
@@ -113,11 +121,13 @@ research cost, and `fsync` is now about a quarter of the per-epoch figure.
 Every number here was measured against the finite reference model, which is a toy. The
 ns-3 cost is unmeasured, so **6.43 CPU days is a floor rather than an estimate**.
 
-`python -m ecora showcase .ecora-runs/showcase` runs the Null baseline and the closed
-loop over one frozen study, differing in the action binding alone, and prints the sensed
-and relayed signal counts, the applied actions, the resulting path, the assurance verdict,
-the provenance of the claim and a re-read integrity check. It completes in about three
-seconds and is covered by a test, since it is demonstrated live.
+`python -m ecora showcase .ecora-runs/showcase` runs three treatments over one frozen
+study, each differing from the previous one in a single stage binding: the Null baseline,
+then the closed loop with the action stage bound to the world, then the observing arm with
+the Proposed telemetry projection. It prints the sensed and relayed signal counts, the
+applied actions, the resulting path, the assurance verdict, which binding changed between
+each pair, the provenance of the final claim and a re-read integrity check. It completes
+in a few seconds and is covered by a test, since it is demonstrated live.
 
 `python -m ecora demo .ecora-runs/example` runs the same invocation sequence for two
 frozen treatment bindings. Both produce valid DiagnosisRecord payloads with different

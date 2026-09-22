@@ -7,8 +7,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
-- **`ecora showcase`**: runs the Null baseline and the closed loop over one frozen study,
-  differing in the action binding alone, and prints the sensed and relayed signal counts,
+- **Proposed telemetry provider** in `software/ecora/telemetry.py`: contract-constrained
+  normalisation, quality assessment and local projection onto one site's declared view. It
+  never invents a value; an expected signal that is absent, or older than the declared
+  freshness bound, is relayed as an explicit unknown carrying its reason and lowers
+  declared completeness. It cannot report the absence of a signal it holds no capability
+  to observe, and a projection expecting one is refused at configuration. Nothing from
+  another site reaches a local projection, whatever the adapter offered.
+- **`ecora showcase`**: runs three treatments over one frozen study, each differing from
+  the previous one in a single stage binding, and prints the sensed and relayed signal counts,
   the applied actions, the resulting path, the assurance verdict, the provenance of the
   claim and a re-read integrity check. It completes in about three seconds and is covered
   by a test, because it is meant to be run in front of people.

@@ -52,7 +52,11 @@ def _execute(root, treatment, epochs, period_s):
                 applied += payload.kind == "ActionReceipt" and payload.data["disposition"] == "applied"
         report = Record.from_dict(store.messages(dataset)[0].data["payload"])
         binding = run.binding("action")
+        sensing = run.binding("telemetry")
         return {"treatment": treatment, "arm": binding["arm"], "provider": binding["provider_id"],
+                "sensing_arm": sensing["arm"], "sensing_provider": sensing["provider_id"],
+                "bindings": {stage: run.binding(stage)["provider_id"]
+                             for stage in ("telemetry", "diagnosis", "planning", "resolution", "action")},
                 "sensed": sensed, "relayed": relayed, "decided": epochs, "applied": applied,
                 "path": model.truth()["selected_path"]["site-1"],
                 "verdict": report.data["claims"][0]["verdict"] if report.data["claims"] else "none",
@@ -60,32 +64,39 @@ def _execute(root, treatment, epochs, period_s):
 
 
 def showcase(directory, epochs, period_s=0.5):
-    """Run the Null baseline and the closed loop over one frozen study, and compare them."""
+    """Run the declared treatments over one frozen study and compare them.
+
+    Each differs from the previous one in a single stage binding, so the difference
+    between any two rows is attributable to the stage that changed.
+    """
     started = time.perf_counter()
     results = [_execute(directory, treatment, epochs, period_s)
-               for treatment in ("null_baseline", "closed_loop")]
+               for treatment in ("null_baseline", "closed_loop", "observing")]
     scope = results[0]["scope"]
-    print("ECoRA -- one frozen study, two treatments, one differing binding\n")
+    print("ECoRA -- one frozen study, three treatments, one binding apart\n")
     print(f"  study     {scope['study_id']}")
     print(f"  scenario  {scope['scenario_id']} revision {scope['scenario_revision']}")
     print(f"  set       v{scope['scenario_set_version']}  {scope['scenario_set_hash'][:12]}")
     print(f"  world     1 site, two legs, shared egress 256000 bit/s (synthetic)")
     print(f"  schedule  {epochs} decision epochs at {period_s} s\n")
-    header = (f"  {'treatment':<16}{'action arm':<12}{'sensed':>8}{'relayed':>9}{'decided':>9}"
-              f"{'applied':>9}   {'path':<13}{'verdict'}")
+    header = (f"  {'treatment':<16}{'telemetry':<10}{'action':<10}{'sensed':>8}{'relayed':>9}"
+              f"{'decided':>9}{'applied':>9}   {'path':<13}{'verdict'}")
     print(header)
     print("  " + "-" * (len(header) - 2))
     for r in results:
-        print(f"  {r['treatment']:<16}{r['arm']:<12}{r['sensed']:>8}{r['relayed']:>9}"
-              f"{r['decided']:>9}{r['applied']:>9}   {r['path']:<13}{r['verdict']}")
+        print(f"  {r['treatment']:<16}{r['sensing_arm']:<10}{r['arm']:<10}{r['sensed']:>8}"
+              f"{r['relayed']:>9}{r['decided']:>9}{r['applied']:>9}   {r['path']:<13}{r['verdict']}")
     print("\n  sensed  = signals the adapter read from the world")
-    print("  relayed = signals the telemetry stage passed on. The Null arm withholds every")
-    print("            one, so neither treatment reasons from evidence in this configuration.")
-    print("\n  The treatments differ in the action stage alone:")
-    for r in results:
-        print(f"    {r['treatment']:<16} action <- {r['provider']:<16} ({r['arm']})")
-    print("\n  Provenance of the closed-loop claim:")
+    print("  relayed = signals the telemetry stage passed on to the rest of the loop")
+    print("\n  Each treatment differs from the one above it in exactly one binding:")
+    for earlier, later in zip(results, results[1:]):
+        changed = [stage for stage in earlier["bindings"]
+                   if earlier["bindings"][stage] != later["bindings"][stage]]
+        for stage in changed:
+            print(f"    {earlier['treatment']:<14} -> {later['treatment']:<14} {stage:<11}"
+                  f"{earlier['bindings'][stage]} -> {later['bindings'][stage]}")
     closed = results[-1]
+    print(f"\n  Provenance of the {closed['treatment']} claim:")
     print(f"    study {closed['scope']['study_id']}")
     print(f"      scenario {closed['scope']['scenario_id']}@{closed['scope']['scenario_revision']}")
     print(f"        run {closed['scope']['run_id']}")
@@ -96,11 +107,13 @@ def showcase(directory, epochs, period_s=0.5):
         i = r["integrity"]
         print(f"    {r['treatment']:<16} {i['datasets']:>4} datasets  {i['messages']:>4} messages"
               f"  {i['events']:>4} journal events")
-    print("\n  The closed loop still acts, because the Null planner proposes from its declared")
-    print("  configuration rather than from evidence. That is the baseline behaving correctly:")
-    print("  it sets a floor, and each stage stays substitutable on its own.")
+    print("\n  The closed loop acts without relaying evidence, because the Null planner proposes")
+    print("  from its declared configuration. That is the baseline behaving correctly: it sets")
+    print("  a floor, and each stage stays substitutable on its own.")
+    print("  The observing arm relays real evidence, and the Null diagnosis still ignores it.")
+    print("  Reasoning over that evidence is the next milestone, not a gap in this one.")
     print("\n  Nothing here is a network result. The world is a deterministic queueing model,")
-    print("  and both verdicts are inconclusive because no requirement was evaluated.")
+    print("  and every verdict is inconclusive because no requirement was evaluated.")
     print(f"\n  Elapsed {time.perf_counter() - started:.1f} s")
 
 
@@ -117,7 +130,7 @@ def main(argv=None):
     demo.add_argument("directory", type=Path)
     verify = commands.add_parser("verify", help="verify an artifact store")
     verify.add_argument("directory", type=Path)
-    show = commands.add_parser("showcase", help="run the Null and closed-loop arms and compare them")
+    show = commands.add_parser("showcase", help="run the declared treatments and compare them")
     show.add_argument("directory", type=Path)
     show.add_argument("--epochs", type=int, default=4)
     args = parser.parse_args(argv)
@@ -134,7 +147,7 @@ def main(argv=None):
             record = Record.from_json(args.file.read_bytes())
             print(f"Valid {record.kind}/1 {record.content_hash}")
         elif args.command == "showcase":
-            for treatment in ("null_baseline", "closed_loop"):
+            for treatment in ("null_baseline", "closed_loop", "observing"):
                 if (args.directory / treatment).exists():
                     raise ContractError(f"showcase directory already exists: {args.directory / treatment}")
             showcase(args.directory, args.epochs)

@@ -114,7 +114,7 @@ class RunTests(unittest.TestCase):
             for observation_id in receipt["application_observation_ids"]:
                 self.assertIn(observation_id, exported)
 
-    def test_the_showcase_runs_and_reports_both_arms(self):
+    def test_the_showcase_runs_and_reports_every_arm(self):
         """It is demonstrated live, so a silent break is worse than a slow test."""
         import io
         from contextlib import redirect_stdout
@@ -123,19 +123,22 @@ class RunTests(unittest.TestCase):
         with redirect_stdout(captured):
             main(["showcase", str(Path(self.temp.name) / "showcase"), "--epochs", "2"])
         printed = captured.getvalue()
-        for expected in ("null_baseline", "closed_loop", "sensed", "relayed",
-                         "differ in the action stage alone", "Provenance",
+        for expected in ("null_baseline", "closed_loop", "observing", "sensed", "relayed",
+                         "differs from the one above it in exactly one binding", "Provenance",
                          "Nothing here is a network result"):
             with self.subTest(expected=expected):
                 self.assertIn(expected, printed)
-        # The two arms must actually diverge, or the demonstration shows nothing.
+        # Each step of the chain must name the single binding that changed.
+        self.assertIn("null.action -> model.action", printed)
+        self.assertIn("null.telemetry -> telemetry.projection", printed)
+        # The arms must actually diverge, or the demonstration shows nothing.
         self.assertIn("lte", printed)
         self.assertIn("alternative", printed)
 
     def test_the_showcase_refuses_to_overwrite_an_existing_directory(self):
         from ecora.__main__ import main
         target = Path(self.temp.name) / "twice"
-        (target / "null_baseline").mkdir(parents=True)
+        (target / "observing").mkdir(parents=True)
         with self.assertRaises(SystemExit):
             main(["showcase", str(target)])
 

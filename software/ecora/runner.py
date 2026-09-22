@@ -16,8 +16,22 @@ from .fixtures import ASSEMBLY, fixture_environment
 from .model import FiniteModel
 from .registry import ProviderResult
 from .schema import INPUT_TYPES, OUTPUT_TYPES
+from .telemetry import projection_binding
 
 STREAM_NAMES = ("arrivals", "errors", "disturbances", "controller")
+
+# The local view one site's agents are permitted: its own AMI queue and its path selector.
+# Declared here rather than inferred, so what a projection expects is frozen with a study.
+PROJECTION = {
+    "neighbourhood": {"subject": "site-1", "services": ["ami", "shared"]},
+    "expected": [
+        {"subject": "site-1", "service": "ami", "metric": "queue_occupancy", "unit": "byte",
+         "capability_id": "observe.ami.queue"},
+        {"subject": "site-1", "service": "shared", "metric": "path_state", "unit": "id",
+         "capability_id": "observe.shared.path"},
+    ],
+    "max_observation_age_s": 0.5,
+}
 
 
 class Stream:
@@ -231,14 +245,16 @@ class Continuation:
         return model
 
 
-def closed_loop_environment(model, *, period_s, assembly=None):
+def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilities=(),
+                            projection=None):
     """A study whose action stage is bound to the finite world, with a Null arm beside it.
 
     The Null treatment and the closed-loop treatment differ in one binding, so a paired
     comparison between them attributes any difference to that stage rather than to the
     orchestration around it.
     """
-    registry, study, scenario_set, scenario, caps = fixture_environment(assembly=assembly)
+    registry, study, scenario_set, scenario, caps = fixture_environment(
+        assembly=assembly, extra_capabilities=extra_capabilities)
     spec = Record("ProviderSpec", {
         "stage_id": "action", "provider_id": "model.action", "provider_version": "finite-v1",
         "arm": "proposed", "input_types": list(INPUT_TYPES["action"]),
@@ -257,5 +273,12 @@ def closed_loop_environment(model, *, period_s, assembly=None):
         bindings.append({k: v for k, v in spec.data.items() if k != "direct_truth_access"} |
                         {"information_regime": "contract_only", "allow_privileged_inputs": False,
                          "configuration": configuration, "configuration_hash": digest(configuration)})
-    data = {**data, "treatments": [*data["treatments"], {"treatment_id": "closed_loop", "bindings": bindings}]}
+    # A third treatment differing from closed_loop in the telemetry binding alone, so the
+    # three form a chain where each step changes exactly one stage.
+    granted = [c["capability_id"] for c in caps.data["capabilities"]]
+    projection = projection_binding(registry, granted, projection or PROJECTION)
+    observing = [dict(projection) if b["stage_id"] == "telemetry" else dict(b) for b in bindings]
+    data = {**data, "treatments": [*data["treatments"],
+                                   {"treatment_id": "closed_loop", "bindings": bindings},
+                                   {"treatment_id": "observing", "bindings": observing}]}
     return registry, Record("StudyManifest", data), scenario_set, scenario, caps

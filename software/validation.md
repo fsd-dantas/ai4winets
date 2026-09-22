@@ -8,7 +8,7 @@ reported no broken requirements. The [dependency snapshot](requirements-validati
 records the runtime versions used. Python 3.11 is the declared minimum, but this validation
 record does not claim a local test on every supported Python or operating-system version.
 
-`python -m unittest discover -s tests -v` passed **106 tests**, including generated JSON
+`python -m unittest discover -s tests -v` passed **123 tests**, including generated JSON
 round-trip properties, malformed inputs, required fields, freeze membership, capability
 scope, future/stale evidence, terminal outcomes, inherited privileges and state, immutable
 lineage, duplicated deliveries/dispatches, and corruption/interruption handling.
@@ -34,6 +34,22 @@ SCADA, a disturbance that degrades service and then drains its backlog without l
 exported observations that satisfy the telemetry contract. It is a deterministic
 queueing model with no radio, protocol conformance or calibrated value, and no run of it
 is evidence about a wireless network.
+
+**Eco-problem solving** is exercised in both halves. The local assessment shows the
+asymmetry the design asks for: two services reading the same occupancy reach different
+conclusions, one seeing immediate contention and the other room to defer, and the same
+reading satisfies one agent while dissatisfying the other. Satisfaction stays a vector of
+predicates carrying its own evidence, and an unobservable signal leaves it unknown rather
+than false.
+
+The four anti-collision mechanisms are exercised separately before any combination. Each
+admits one contender and defers the rest while naming what each was contending with;
+uncontended proposals on separate resources both proceed; yield-with-aging follows the
+waiting time rather than identity, and reverses when the waits reverse; a conceding agent
+keeps its place in the queue rather than being starved by losing; a lost reservation grant
+deadlocks rather than proceeding anyway; and backoff draws are per-agent and reproducible.
+Marks are visible only in their own neighbourhood, expire on read, and report their reads,
+writes and bytes as ideal local shared memory that is explicitly not network overhead.
 
 The **symbolic core and the three planners** are exercised against the properties the
 design declares. A* with a zero heuristic matches uniform-cost search on the same graph

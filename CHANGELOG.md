@@ -7,6 +7,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **Eco-problem solving** in `software/ecora/eco.py`: per-agent local satisfaction with
+  differentiated interpretation, an environmental mark substrate, and four anti-collision
+  mechanisms (expiring marks, randomised backoff, local reservation, yield with aging).
+  Two services reading the same signal reach different conclusions, which is the design's
+  intent rather than an inconvenience, and satisfaction stays a vector of predicates
+  because collapsing it into a score would need declared weights and a sensitivity
+  analysis. The substrate stores and exposes marks without choosing an allocation, and its
+  read API enforces local scope; its reads, writes and bytes are reported as ideal local
+  shared memory and explicitly not as network overhead. Backoff draws are derived from an
+  agent's own identity, so they are agent-specific and reproducible without a shared
+  generator whose position would depend on how often other agents consulted it.
 - **Symbolic core and three planners** in `software/ecora/symbolic.py` and
   `software/ecora/planning.py`: one state projection, operator catalog and plan validator,
   searched by forward uniform cost (the STRIPS baseline), GPS means-ends analysis and A*.

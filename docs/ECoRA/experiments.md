@@ -53,7 +53,7 @@ those actions are implemented; all actions remain disabled until their adapter c
 | S7 | Same demand from different initial allocations/agent states | Does self-organisation depend on initial conditions? | Basin and activation-order sensitivity |
 | S8 | Interacting configuration goals in an enumerable symbolic model | Do planners undo earlier goals or exceed budgets? | Valid final plan or explicit bounded failure |
 
-S3 requires independently verified impairment and restoration hooks. S6 requires explicit observation/communication delay modelling. S8 is a planner microbenchmark, not a wireless performance result.
+S3 requires independently verified impairment and restoration hooks; both worlds now provide them, verified against the schedule and through measured delivery ([validation](../../software/validation.md#impairment-and-restoration-hooks)). S6 requires explicit observation/communication delay modelling. S8 is a planner microbenchmark, not a wireless performance result.
 
 Capacity classifications must use measured attainable service or a declared analytical bound with assumptions. Aggregate offered bitrate alone is insufficient when deadlines, directionality, overhead and bottleneck placement matter. A planner timeout is not evidence of physical infeasibility.
 

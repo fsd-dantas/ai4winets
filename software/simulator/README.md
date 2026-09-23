@@ -15,6 +15,11 @@ must name the version of the actuator it writes, as observed through `actuator_v
 one with none is refused `missing_version` and one with an outdated version
 `stale_version`, and neither mutates anything.
 
+Disturbances are applied on the schedule the scenario declares, never by a command. The
+`cohorts` answer's accounting lists each one as applied, with its time and the leg condition
+read back from the model objects; `Ns3World.impairments()` returns that ledger and
+`verify_impairments` checks it against the schedule.
+
 `observe` also exports the centre's delivery summary per site, `scada_response`: the mean
 response time of SCADA transactions completed in the window ending 10 ms ago, the
 register's summary delay, and missing with `no_completion` when none completed.

@@ -162,6 +162,9 @@ class FiniteModel:
         self.rate_tables = {leg: tuple(sorted(tuple(entry) for entry in table))
                             for leg, table in (rate_tables or {}).items()}
         self._conditions = {}
+        # What each disturbance did, as the queues read back afterwards. The harness's
+        # evidence that an impairment or restoration took effect; no controller port reads it.
+        self._impairments = []
         self.leg_specs = dict(leg_specs or {})
         self.path = {site: initial_path for site in self.sites}
         self.pacing = {site: initial_pacing for site in self.sites}
@@ -319,6 +322,20 @@ class FiniteModel:
             # wake that queue, or the backlog would sit with nothing to drain it.
             if was_idle and queue.rate_bps > 0 and queue.pending and not queue.busy:
                 self._start_service(key)
+        if kind == "rate":
+            served = {self._queues[(data["site"], data["leg"], d)].rate_bps for d in DIRECTIONS}
+            condition = {"rate_bps": served.pop() if len(served) == 1 else None}
+        else:
+            condition = dict(self._conditions[(data["site"], data["leg"])])
+        self._impairments.append({**data, "applied_at_s": self.now, "condition": condition})
+
+    def impairments(self):
+        """Every disturbance applied so far, when, and the leg condition it left.
+
+        Harness evidence, held apart from controller authority: the action catalog cannot
+        reach a leg's condition, and no observation or truth projection exports this ledger.
+        """
+        return [dict(entry, condition=dict(entry["condition"])) for entry in self._impairments]
 
     def _arrive(self, packet, hop):
         key = packet.route[hop]
@@ -458,7 +475,7 @@ class FiniteModel:
         return False, "unsupported_operator"
 
     def actuator_state(self):
-        """The gateway actuators' readback: selected path, pacing and path version.
+        """The gateway actuators' readback: selected path, pacing and their versions.
 
         What a receipt may cite as the resulting state. It is what the actuators report
         about themselves, the same as their path and pacing observations, not model truth.

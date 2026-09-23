@@ -7,6 +7,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Changed
 
+- **Impairments are verified, and held apart from the controller** (B24). Both worlds keep
+  a ledger of every disturbance they apply, when, and the leg condition read back afterwards
+  (in the simulator from the model objects themselves). A new check folds the expected
+  condition from the scenario alone and refuses a ledger with an impairment missing, late or
+  without effect; both worlds pass it on every scenario and agree entry by entry. On S3 the
+  effect is also measured through delivery: clean before the load, none on time under it,
+  clean again after restoration, in both worlds. No command, observation or truth
+  projection reaches a leg condition.
 - **A write must name the actuator version it was planned against** (B23a). Both worlds
   export each actuator's version as `actuator_version`, the planning problem carries the
   versions observed, and resolvers write the version of the actuator each step targets or

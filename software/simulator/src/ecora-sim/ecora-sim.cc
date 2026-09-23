@@ -1541,8 +1541,29 @@ World::Disturb(const json& disturbance)
             site->altCentral->SetDataRate(DataRate(Rate(rate)));
         }
     }
+    // The ledger states the leg's condition as read back from the model objects, not as
+    // the disturbance declared it, so a hook that did not take effect is visible.
     json applied = disturbance;
     applied["applied_at_s"] = Now();
+    if (kind == "rate")
+    {
+        DataRateValue rate;
+        site->altGateway->GetAttribute("DataRate", rate);
+        bool silent = site->altGatewayLoss->GetRate() >= 1.0 && site->altCentralLoss->GetRate() >= 1.0;
+        applied["condition"] = {{"rate_bps", silent ? 0.0 : double(rate.Get().GetBitRate())}};
+    }
+    else
+    {
+        uint32_t active = 0;
+        for (bool on : m_competitorActive)
+        {
+            active += on ? 1 : 0;
+        }
+        // The matrix model is the only loss on the channel, so received power at 0 dBm is
+        // the negated loss it applies between this site and the cell.
+        double loss = -m_radioLoss->CalcRxPower(0.0, site->mobility, m_enb->GetObject<MobilityModel>());
+        applied["condition"] = {{"extra_loss_db", loss}, {"competing_ues", active}};
+    }
     m_disturbanceLog.push_back(applied);
 }
 

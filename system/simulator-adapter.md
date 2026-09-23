@@ -141,7 +141,7 @@ through `configure`.
 | `topology.initial_path` | initial selector value | initial gateway forwarding selector |
 | `topology.initial_pacing` | initial release profile | initial gateway release profile |
 | `flows` | generation period, payload, deadline | the traffic applications |
-| `disturbances` | scheduled rate changes | the impairment hooks, held apart from controller authority |
+| `disturbances` | scheduled rate and radio changes, logged with their read-back leg condition | the impairment hooks, held apart from controller authority and logged the same way |
 
 A scenario that declares a world the simulator cannot build is refused at `configure`, in
 the same way and for the same reason that the finite world refuses one it cannot build.

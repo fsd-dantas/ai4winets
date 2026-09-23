@@ -741,6 +741,39 @@ for the Oracle arm. No goal consumes either label yet, so the rules inform diagn
 changing a plan; a sufficiency test shows the full run concludes them and that withholding
 the summary loses exactly those labels.
 
+## Impairment and restoration hooks
+
+Disturbances are the scenario's, not the controller's. Both worlds apply the declared
+schedule themselves and keep a ledger of what they applied: each disturbance, the time it
+took effect and the leg's condition read back afterwards. In the simulator that readback
+comes from the model objects (the loss the propagation model applies between site and
+cell, the competing terminals running, the point-to-point device's rate and error model),
+not from the declaration. `verify_impairments` folds the expected condition from the
+scenario alone and refuses a ledger with an impairment missing, late, out of order or
+without effect. Both worlds pass it on all seven scenarios, and their read-back conditions
+agree entry by entry.
+
+The ledger is the hook's own account, so the effect is also measured through traffic. On
+uncontrolled S3, SCADA on time, finite world / simulator:
+
+| Window | Condition | On time |
+| --- | --- | --- |
+| 0–1 s | 48 dB, cell idle | 11 of 11 / 10 of 11 |
+| 2–5 s | 48 dB, 5 competing terminals | 0 of 31 / 0 of 31 |
+| 6–11 s | restored at 5.0 s | 50 of 50 / 53 of 53 |
+
+The simulator drains its backlog more slowly after restoration: in the second after 5.0 s it
+delivers 6 of 11 on time where the finite world delivers all ten, so recovery is scored
+from 6 s. Its one first-second shortfall is a transaction still pending at 14 s, before any
+disturbance; its cause is not established here.
+
+The hooks are held apart from controller authority, and tests show it in both worlds:
+commands naming a leg condition or a restoration are refused as unsupported operators and
+leave the ledger unchanged, no observation exports a leg condition (the simulator refuses
+the request as an unsupported signal), and no truth projection carries one. The schedule is
+fixed at configure; a hook the harness can call mid-run is needed only for branching (B55)
+and is not built.
+
 ## Simulator adapter
 
 `ecora.simulator` drives the simulator from Windows through WSL. For every scenario the

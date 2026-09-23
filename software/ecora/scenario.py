@@ -193,6 +193,52 @@ def verify_world(model, scenario):
     return model
 
 
+def verify_impairments(ledger, scenario, now_s):
+    """Refuse a world whose applied impairments are not the ones its scenario schedules.
+
+    `ledger` is what the world says it applied: each declared disturbance, the time it
+    took effect and the leg condition read back afterwards. Every disturbance due before
+    `now_s` must appear once, in declared order, at its declared time, and leave the
+    condition the schedule implies; one due exactly at `now_s` may or may not have fired.
+    The condition is folded from the declaration here, independently of either world.
+    """
+    data = scenario.data if isinstance(scenario, Record) else scenario
+    schedule = data["disturbances"]
+    identity = data["scenario_id"]
+    due = sum(1 for d in schedule if d["at_s"] < now_s)
+    possible = sum(1 for d in schedule if d["at_s"] <= now_s)
+    require(due <= len(ledger) <= possible,
+            f"scenario {identity}: {len(ledger)} impairments applied by {now_s} s, "
+            f"{due} were due")
+    legs = {entry["leg_id"]: entry for entry in data["topology"]["legs"]}
+    conditions = {}
+    for declared, applied in zip(schedule, ledger):
+        stated = {k: v for k, v in applied.items() if k not in ("applied_at_s", "condition")}
+        require(stated == declared,
+                f"scenario {identity}: applied {stated!r} where {declared!r} was scheduled")
+        require(abs(applied["applied_at_s"] - declared["at_s"]) < 1e-9,
+                f"scenario {identity}: {declared['kind']} on {declared['site']}/{declared['leg']} "
+                f"took effect at {applied['applied_at_s']} s, scheduled for {declared['at_s']} s")
+        key = (declared["site"], declared["leg"])
+        if declared["kind"] == "rate":
+            conditions[key] = {"rate_bps": declared["rate_bps"]}
+        else:
+            field = "extra_loss_db" if declared["kind"] == "radio_loss" else "competing_ues"
+            conditions[key] = {**conditions.get(key, {"extra_loss_db": 0, "competing_ues": 0}),
+                               field: declared[field]}
+        expected, actual = conditions[key], applied["condition"]
+        require(legs[declared["leg"]]["kind"] == ("point_to_point" if declared["kind"] == "rate"
+                                                  else "lte"),
+                f"scenario {identity}: {declared['kind']} cannot apply to leg {declared['leg']}")
+        require(set(actual) == set(expected)
+                and all(actual[f] is not None and abs(actual[f] - expected[f]) < 1e-6
+                        for f in expected),
+                f"scenario {identity}: after {declared['kind']} at {declared['at_s']} s, "
+                f"{declared['site']}/{declared['leg']} reads back {actual!r}, "
+                f"the schedule implies {expected!r}")
+    return ledger
+
+
 def load(path):
     """Read a scenario file into a validated, content-addressed record."""
     return Record("ScenarioSpec", json.loads(Path(path).read_text(encoding="utf-8")))

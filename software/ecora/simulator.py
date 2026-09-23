@@ -157,10 +157,9 @@ class SimulatorClient:
 class Ns3World:
     """The simulated world behind the six-call interface, as far as it is implemented.
 
-    `advance_to` and `cohorts` are answered by the simulator. `observations`, `apply` and
-    `truth` are forwarded and currently refused by it, with its reason; they are not
-    filled in here, because a world that approximated them would be claiming evidence it
-    does not produce.
+    `advance_to`, `cohorts`, `observations` and `apply` are answered by the simulator.
+    `truth` is forwarded and refused by it, with its reason; it is not filled in here,
+    because a world that approximated it would be claiming evidence it does not produce.
     """
 
     def __init__(self, client, scenario, rng_run=1):
@@ -184,6 +183,10 @@ class Ns3World:
 
     def accounting(self, cohort_specs=()):
         return self.client.request("cohorts", cohort_specs=list(cohort_specs))["accounting"]
+
+    def impairments(self):
+        """Every disturbance the simulator applied, when, and the leg condition read back."""
+        return self.accounting()["disturbances_applied"]
 
     def queues(self):
         """Every instrumented queue, named as the finite world names them."""

@@ -9,6 +9,7 @@ from .boundary import Boundary
 from .contracts import ContractError, Record, require
 from .fixtures import batch, fixture_environment, payload_fixtures
 from .metrics import measurements, read_run
+from .report import render, run_report, stability_limits
 from .runner import Run, Streams, closed_loop_environment
 from .scenario import SCENARIOS, build_world, load
 from .study import resolve as resolve_study
@@ -69,10 +70,7 @@ def _execute(root, treatment, epochs, period_s, scenario, knowledge):
                                  if h["status"] == "supported")
                 for entry in payload.data["rule_trace"]:
                     activations += entry.get("activations", 0)
-        measured, _ = measurements(
-            read_run(store, epochs),
-            {"stability_window_s": period_s * 2, "action_churn_limit": 2,
-             "claim_churn_limit": 4, "stale_retry_limit": 2}, period_s)
+        measured, _ = measurements(read_run(store, epochs), stability_limits(period_s), period_s)
         behaviour = {m["metric"]: m["value"] for m in measured}
         report = Record.from_dict(store.messages(dataset)[0].data["payload"])
         # The population the verdict rests on. A verdict without it reads as a finding
@@ -273,6 +271,56 @@ def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO,
     print(f"\n  Elapsed {time.perf_counter() - started:.1f} s")
 
 
+def sufficiency_study(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO,
+                      study=DEFAULT_STUDY):
+    """Contract-limited versus privileged diagnosis over each named observation subset."""
+    from . import sufficiency
+    started = time.perf_counter()
+    spec = _scenario(scenario)
+    knowledge = resolve_study(study)
+    runs, subsets = sufficiency.execute(
+        directory, build_model=lambda: build_world(spec),
+        environment=lambda model: closed_loop_environment(
+            model, period_s=period_s, scenario=spec, study=knowledge),
+        capability_ids=CAPABILITIES, knowledge=knowledge, period_s=period_s, epochs=epochs)
+    comparison = sufficiency.compare(runs, subsets, knowledge.rules)
+    print("ECoRA -- telemetry sufficiency, downstream stages held fixed\n")
+    print(f"  scenario  {spec.data['scenario_id']}   study {knowledge.study_id}"
+          f"   {epochs} epochs at {period_s} s")
+    print(f"  measure   {comparison['service_metric']} per service; diagnosis scored "
+          f"against truth after each decision\n")
+    services = sorted({s for row in comparison["rows"] for s in row["contract"]["service"]})
+
+    def figures(values):
+        return "  ".join("   n/a" if values.get(s) is None else f"{values[s]:+.3f}"
+                         for s in services)
+
+    header = (f"  {'subset':<38}{'arm':<11}{'exact':>6}{'missed':>7}{'applied':>8}   "
+              + "  ".join(f"{s:>6}" for s in services))
+    print(header)
+    print("  " + "-" * (len(header) - 2))
+    for row in comparison["rows"]:
+        for arm in ("contract", "privileged"):
+            entry = row[arm]
+            diagnosis = entry["diagnosis"]
+            delivered = "  ".join("   n/a" if entry["service"].get(s) is None
+                                  else f"{entry['service'][s]:6.3f}" for s in services)
+            name = row["subset"] if arm == "contract" else ""
+            print(f"  {name:<38}{arm:<11}{diagnosis['exact_epochs']:>3}/{diagnosis['epochs']:<2}"
+                  f"{sum(diagnosis['missed'].values()):>7}{entry['applied']:>8}   {delivered}")
+    print(f"\n  {'subset':<38}{'access headroom':>24}{'subset cost':>22}   unidentifiable")
+    for row in comparison["rows"]:
+        print(f"  {row['subset']:<38}{figures(row['access_headroom']):>24}"
+              f"{figures(row['subset_cost']):>22}   {', '.join(row['unidentifiable']) or '-'}")
+    print("\n  access headroom = privileged minus contract-limited, same signals, same downstream")
+    print("  subset cost     = full contract arm minus this subset's contract arm")
+    print("  unidentifiable  = labels no diagnoser can conclude on this subset, privileged or not")
+    print("\n  A privileged arm is a reference under simulator truth, not deployable evidence.")
+    print("  A zero access gap says the contract loses nothing for these predicates in these")
+    print("  states. It is not a sufficiency finding in general, and this is not a network.")
+    print(f"\n  Elapsed {time.perf_counter() - started:.1f} s")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="ecora")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -293,6 +341,15 @@ def main(argv=None):
                       help="a scenario identifier under scenarios/, or a path to a scenario file")
     show.add_argument("--study", default=DEFAULT_STUDY,
                       help="a study identifier under studies/, or a path to a study file")
+    report = commands.add_parser("report", help="report a recorded run in four separate sections")
+    report.add_argument("directory", type=Path)
+    report.add_argument("--json", action="store_true", help="emit the report as JSON")
+    enough = commands.add_parser("sufficiency",
+                                 help="compare contract-limited and privileged diagnosis per subset")
+    enough.add_argument("directory", type=Path)
+    enough.add_argument("--epochs", type=int, default=4)
+    enough.add_argument("--scenario", default="s1-degraded-primary")
+    enough.add_argument("--study", default=DEFAULT_STUDY)
     args = parser.parse_args(argv)
     try:
         if args.command in {"schema", "fixtures"}:
@@ -313,6 +370,17 @@ def main(argv=None):
                 if (args.directory / treatment).exists():
                     raise ContractError(f"showcase directory already exists: {args.directory / treatment}")
             showcase(args.directory, args.epochs, scenario=args.scenario, study=args.study)
+        elif args.command == "report":
+            if not (args.directory / "journal.jsonl").is_file():
+                raise ContractError("no existing artifact journal at this path")
+            with ArtifactStore(args.directory) as store:
+                built = run_report(store)
+            print(json.dumps(built, indent=2, sort_keys=True) if args.json else render(built))
+        elif args.command == "sufficiency":
+            require(not args.directory.exists() or not any(args.directory.iterdir()),
+                    f"sufficiency directory is not empty: {args.directory}")
+            sufficiency_study(args.directory, args.epochs, scenario=args.scenario,
+                              study=args.study)
         elif args.command == "verify":
             if not (args.directory / "journal.jsonl").is_file():
                 raise ContractError("no existing artifact journal at this path")

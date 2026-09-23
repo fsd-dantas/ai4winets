@@ -7,6 +7,20 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **Run reports in four separate sections** in `software/ecora/report.py` and
+  `python -m ecora report`: service outcomes, coordination stability, missing evidence and
+  privileged-information results. Read only from the artifact store, so a report is
+  regenerated identically by anyone holding the run. A verdict that rests on truth anywhere
+  upstream is labelled privileged where it is reported, and an inconclusive requirement is
+  listed as missing evidence rather than counted with the passes.
+- **Telemetry sufficiency comparison** in `software/ecora/sufficiency.py` and
+  `python -m ecora sufficiency`: contract-limited versus privileged diagnosis over the same
+  signals, downstream held fixed, across leave-one-out observation subsets. Diagnoses are
+  scored against ground truth after each decision by a harness port whose reads reach no
+  provider, and identifiability is computed from the rule inventory beside the measurement.
+  On the degraded-primary scenario access headroom is zero on every subset, while
+  withholding the alternative-leg probe costs SCADA 0.38 of its within-age delivery,
+  because no diagnoser on that subset can establish that the switch is allowed.
 - **Cohort extraction and requirement evaluation** in `software/ecora/assessment.py`, the
   Proposed arms for the last two stages. Every run previously ended inconclusive by
   construction, because nothing in the pipeline could reach a verdict; a run now returns

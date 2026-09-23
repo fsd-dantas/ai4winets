@@ -294,6 +294,10 @@ class ArtifactStore:
         else:
             self.append("RunAdmitted", data)
 
+    def dataset_ids(self):
+        """Every dataset this store holds, in a stable order."""
+        return sorted(self._datasets)
+
     def messages(self, dataset_id):
         return tuple(self.get(h) for h in self.dataset(dataset_id).data["message_hashes"])
 

@@ -172,20 +172,13 @@ class OracleDiagnosisProvider:
         self.port = port
 
     def invoke(self, inputs, prior_state, context):
-        from .experts import _Inference, snapshot_from
+        from .experts import infer
         watermark = context.data["decision_watermark_s"]
         config = context.data["configuration"]
         before = len(self.port.log)
         truth = [self.port.read(capability_id, watermark) for capability_id in config["reads"]]
-        observed, unknown = snapshot_from(truth)
-        rules = config["rules"]
-        inference = _Inference(rules, config.get("activation_budget", 1000))
-        passes, changed = 0, True
-        while changed:
-            changed = False
-            passes += 1
-            for rule in rules:
-                changed |= inference.consider(rule, observed, unknown)
+        inference, passes, unknown = infer(config["rules"], truth,
+                                           config.get("activation_budget", 1000))
         record = inference.record("oracle_state", passes)
         state = {"evaluations": prior_state.data["state"].get("evaluations", 0) + 1}
         return ProviderResult((record,), state,

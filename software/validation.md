@@ -432,6 +432,53 @@ property of the v1 domain rather than a result about search, planning headroom h
 by construction, and no procedure is claimed better than another. A domain where they
 separate is what the interacting-goal microbenchmark is for.
 
+## Run reports and telemetry sufficiency
+
+`python -m ecora report <run-directory>` reads one recorded run and reports it in four
+sections that are never merged: service outcomes per service with each requirement's
+verdict, coordination stability, missing evidence, and privileged-information results
+(`--json` for the structured form). Everything is read from the artifact store; reopening
+the store with no model in reach reproduces the report byte for byte, and a test asserts
+it. Privilege follows lineage, so a verdict resting on truth anywhere upstream is labelled
+as a privileged reference in the service section itself, not only in the fourth. An
+inconclusive requirement is listed as missing evidence and is never tallied as met.
+
+`python -m ecora sufficiency <directory>` runs the comparison stage-arms.md and the
+telemetry contract prescribe. Planning, resolution, action, result and assurance are
+identical across every cell, and a test asserts that by provider and configuration hash.
+Diagnosis varies between the contract-limited arm (the study's rules over the telemetry
+projection) and the privileged arm (the same rules over exact current truth of the same
+signals). Observation subsets are declared leave-one-out: the full projection, then each
+expected signal withheld once. All twelve cells run under one study hash.
+
+The harness scores every diagnosis against ground truth at each decision instant through a
+logged port of its own, whose reads go to no provider; the contract arms' datasets stay
+`contract_only` with it running. Identifiability is computed from the rule inventory rather
+than inferred from a run: a label whose every derivation needs a withheld signal is lost to
+every diagnoser on that subset, privileged or not. Tests assert that no arm misses a label
+outside that set and that none concludes anything false.
+
+On `s1-degraded-primary`, four epochs at 0.5 s:
+
+| Subset withheld | Access headroom | Subset cost (SCADA within-age delivery) | Applied actions |
+| --- | --- | --- | --- |
+| none | 0 | 0 | 1 |
+| `site-1/alternative/path_probe` | 0 | 0.381 | 0 |
+| `path_state` | 0 | 0 | 4 |
+| any other single signal | 0 | 0 | 1 |
+
+Access headroom is zero on every subset: the projection relays fresh values each epoch, so
+exact truth of the same signals concludes and delivers the same. Staleness is where a gap
+opens, which the diagnosis Oracle tests exercise separately. Withholding the alternative
+probe makes `alternative_viable` unidentifiable, so the switch has no precondition
+evidence, and neither arm can make it. Withholding path state costs no service but
+triples the actions applied, because a planner that cannot see the current path reapplies
+the switch every epoch.
+
+These are findings about this rule inventory, this finite model and these states. They do
+not establish that the observation contract is sufficient in general, and the privileged
+rows are references rather than deployable evidence.
+
 `python -m ecora demo .ecora-runs/example` runs the same invocation sequence for two
 frozen treatment bindings. Both produce valid DiagnosisRecord payloads with different
 synthetic fixture labels. Each treatment yields three committed datasets, three messages

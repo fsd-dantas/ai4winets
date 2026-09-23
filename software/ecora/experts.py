@@ -174,6 +174,24 @@ class _Inference:
             "confidence_semantics": "categorical"})
 
 
+def infer(rules, observations, budget):
+    """The whole rule inventory over one set of observations, to a fixed point.
+
+    The diagnosis Oracle and the ground-truth scorer both reason this way over truth, so
+    they share it: a scorer that inferred differently from the Oracle it scores beside
+    would report a disagreement between two implementations as a diagnostic error.
+    """
+    observed, unknown = snapshot_from(observations)
+    inference = _Inference(rules, budget)
+    passes, changed = 0, True
+    while changed:
+        changed = False
+        passes += 1
+        for rule in rules:
+            changed |= inference.consider(rule, observed, unknown)
+    return inference, passes, unknown
+
+
 class SingleExpertProvider:
     """One engine evaluating the whole rule collection to a fixed point."""
 

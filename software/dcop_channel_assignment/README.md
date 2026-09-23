@@ -1,7 +1,8 @@
 # Wireless channel assignment domain foundation
 
-Status: implemented domain contracts, fixtures, message transport, distributed DFS and
-upward UTIL propagation. VALUE reconstruction remains planned. This package has no ECoRA imports. Its DCOP core uses only the Python standard
+Status: implemented domain contracts, fixtures, message transport, distributed DFS, upward
+UTIL propagation and downward VALUE reconstruction (`agents.solve`). The independent
+evaluator and a solving CLI remain planned. This package has no ECoRA imports. Its DCOP core uses only the Python standard
 library; optional geographic adapters use Shapely for geometry and NetworkX for graph
 validation, not for channel allocation.
 
@@ -52,10 +53,10 @@ PYTHONPATH=software python -m unittest discover -s tests -p test_dcop_domain.py 
 The checks independently enumerate all 256 assignments of a four-agent fixture to verify
 translation preserves costs and forbidden assignments. Other checks exercise geometry,
 invalid inputs, local visibility, immutable inputs, serialization and order independence.
-They do not establish DPOP correctness because its protocol is not implemented yet.
+They cover the domain layer; DPOP correctness is checked by the UTIL and VALUE tests below.
 
-Table joins/projection and UTIL propagation are implemented. Next: VALUE reconstruction
-(CA-10). See the [architecture](../../docs/dcop-channel-assignment/architecture.md).
+Table joins/projection, UTIL propagation and VALUE reconstruction are implemented. Next: the
+independent evaluator (CA-11). See the [architecture](../../docs/dcop-channel-assignment/architecture.md).
 
 The optional [Curitiba map package](../../data/geography/curitiba-metropolitan/README.md)
 contains source provenance, reproduction commands and the geographic validation results.
@@ -80,7 +81,7 @@ explores its own neighbors. Completed descendants answer later ancestor probes w
 child RETURN messages carry subtree separator identifiers. Each agent combines these with
 its ancestor neighbors to derive its separator locally. Agents progress NEW -> DFS ->
 READY_FOR_UTIL. With UTIL enabled, agents then enter WAITING_FOR_CHILD_UTIL and UTIL_COMPLETE;
-entry-budget failures enter BUDGET_EXCEEDED. VALUE execution is still rejected.
+entry-budget failures enter BUDGET_EXCEEDED. A solve continues to ASSIGNED; see below.
 
 `QueueTransport` provides reliable FIFO delivery and rejects duplicate identities,
 cross-run messages and unknown endpoints. Agents also validate peer identity, phase and
@@ -118,10 +119,39 @@ $env:PYTHONPATH = 'software'
 The synthetic preference mode assigns every agent channel costs `(0,10,20,30)`; without
 `--preferences` all costs are zero. The command above returns cost 140 and 13 UTIL messages.
 This is an integration example, not a measured wireless benefit or a frozen study result.
-No channel assignment is returned yet: conditional choices remain local to agents for
-the later VALUE phase. `optimal_cost`, `infeasible` and `budget_exceeded` are distinct
+The CLI does not print channels yet; `agents.solve` below returns them. `optimal_cost`, `infeasible` and `budget_exceeded` are distinct
 outcomes. An infeasible cost serializes as `"forbidden"`; interrupted computation has
 no cost (`null`). `--trace` includes delivered DFS and UTIL messages with explicit cost encoding.
+
+## Reconstruct channels through VALUE
+
+```python
+from dcop_channel_assignment.agents import solve
+from dcop_channel_assignment.fixtures import grid_map
+from dcop_channel_assignment.translation import to_dcop
+
+result = solve(to_dcop(grid_map()), max_entries=1_000_000)
+result.status, result.cost, result.assignment
+```
+
+`solve` runs DFS, UTIL and VALUE. When the root cost is finite, the harness asks the root to
+start VALUE; the root takes its conditional choice for the empty context and sends each
+child exactly that child's separator assignment. Each agent checks that its VALUE comes from
+its parent, after its own UTIL, and covers exactly its separator with in-domain values;
+then it looks up its own conditional choice, enters ASSIGNED and sends on. A child's
+separator lies within its parent's separator plus the parent, so the parent always holds
+the values the child needs. The harness reads each agent's own choice and, as an internal
+guard, checks that the assignment costs the root optimum; the independent evaluator is
+still planned (CA-11).
+
+An infeasible root refuses to start VALUE: the result has status `infeasible`, no
+assignment and no VALUE messages. A budget stop also returns no assignment. Ties choose the
+lowest channel at every agent, so the 1 x 3 grid colors as `c1, c2, c1`.
+[VALUE tests](../../tests/test_dcop_value.py) reconstruct the enumerated optimum on 30
+generated instances under every root (6 infeasible), color the grids without conflicts,
+certify K5 infeasible with four channels under every root, and reject VALUE messages from
+the wrong sender, in the wrong phase, over the wrong scope or with out-of-domain values.
+The geographic tests color the 14-region Curitiba map under two roots and both cost modes.
 
 ## Interactive message replay
 

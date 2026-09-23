@@ -1,7 +1,7 @@
 # Architecture
 
-**Status: DFS and UTIL implemented; VALUE, evaluation, demonstration and mobile-cell
-epochs planned. Revision: 0.2. Date: 2026-09-23.**
+**Status: DFS, UTIL and VALUE implemented; independent evaluation, demonstration and
+mobile-cell epochs planned. Revision: 0.3. Date: 2026-09-23.**
 
 [Study design](README.md) · [Package](../../software/dcop_channel_assignment/README.md)
 
@@ -59,8 +59,8 @@ exist.
 | --- | --- | --- | --- | --- |
 | **Wireless Planning** | Region, AP and channel identity; map geometry; adjacency derived from shared boundaries; channel scores; mobile-cell sequences | A validated scenario snapshot per epoch | `wireless.py`, `geography.py`, `curitiba.py`, `fixtures.py` | implemented; hand-authored maps and mobile-cell sequences planned |
 | **Translation** | The mapping from wireless terms to DCOP terms | `to_dcop(scenario) -> DcopInstance` | `translation.py` | implemented |
-| **DCOP Coordination** (core) | Immutable instance; agent sessions, their phase state and pseudo-tree position; cost tables | Local views, typed messages, solve outcome | `dcop.py`, `tables.py`, `agents.py`, `protocol.py` | DFS and UTIL implemented; VALUE planned |
-| **Execution** | One run's configuration (root, budget, mode); epoch ordering for mobile cells | `solve(...)` and the CLI | `__main__.py` | inspection CLI implemented; `solve` and epoch runner planned |
+| **DCOP Coordination** (core) | Immutable instance; agent sessions, their phase state and pseudo-tree position; cost tables | Local views, typed messages, solve outcome | `dcop.py`, `tables.py`, `agents.py`, `protocol.py` | implemented |
+| **Execution** | One run's configuration (root, budget, mode); epoch ordering for mobile cells | `solve(...)` and the CLI | `agents.py`, `__main__.py` | `solve` and inspection CLI implemented; solving CLI and epoch runner planned |
 | **Evidence and Presentation** | Evaluation records, exhaustive reference, independent baseline, figures | Verdicts, comparison tables, colored map, replay | `visualize.py` | replay implemented; evaluator, reference, baseline and colored map planned |
 
 Dependencies point one way: Wireless Planning → Translation → DCOP Coordination, with
@@ -94,7 +94,7 @@ and wrongly scoped messages explicitly.
 | DFS | `dfs_seen` | visited neighbor → prober | none | back edges | implemented |
 | DFS | `dfs_return` | child → parent | Subtree separator | one per tree edge | implemented |
 | UTIL | `util` | child → parent | Cost table over the child's separator | N - 1 | implemented |
-| VALUE | `value` | parent → child | Assignment of the child's separator | N - 1 | planned |
+| VALUE | `value` | parent → child | Assignment of the child's separator | N - 1 | implemented |
 
 DFS sends exactly two messages per edge (34 on the 17-edge grid, 58 on the 29-edge core,
 132 on the 66-edge metropolitan map). UTIL and VALUE send one message per tree edge. The
@@ -128,21 +128,26 @@ The table over a separator of size `k` has `4^k` entries, and the join before el
 `4^(k+1)`. That is the whole cost story of RQ3: 1,024 entries at `k = 4`, 16,384 at `k = 6`,
 16,777,216 at `k = 11`.
 
-### VALUE: choices flow down (planned)
+### VALUE: choices flow down (implemented)
 
-1. When UTIL completes with a finite cost, the root picks its conditional choice for the
-   empty context and sends each child the assignment of that child's separator.
-2. An agent that receives VALUE from its parent checks that the assignment covers exactly its
-   own separator with in-domain values, looks up its conditional choice for that context,
-   and sends each child the assignment of the child's separator. A child's separator lies
-   within its parent's separator plus the parent itself, so the parent always holds every
-   value the child needs.
+1. When UTIL completes with a finite cost, the harness tells the root to start VALUE. The
+   root picks its conditional choice for the empty context and sends each child the
+   assignment of that child's separator.
+2. An agent that receives VALUE checks that it came from its parent, after its own UTIL,
+   and that the assignment covers exactly its own separator with in-domain values. It looks
+   up its conditional choice for that context and sends each child the assignment of the
+   child's separator. A child's separator lies within its parent's separator plus the
+   parent itself, so the parent always holds every value the child needs.
 3. A leaf that has chosen its channel is finished. The run completes when every agent has
    chosen once.
 
-If the root's cost is forbidden, the root sends no VALUE. No agent receives a context, no
-channel is fabricated, and the run's outcome is `infeasible`. Agents other than the root
-then end in `util_complete`, which is terminal for an infeasible run.
+The harness then reads each agent's own choice into the run's assignment and checks, as an
+internal guard, that the assignment costs exactly the root's optimum. The independent
+evaluator (CA-11) is a separate check.
+
+If the root's cost is forbidden, the root refuses to start VALUE. No agent receives a
+context, no channel is fabricated, and the run's outcome is `infeasible`. Every agent then
+ends in `util_complete`, which is terminal for an infeasible run.
 
 ## Agent lifecycle
 
@@ -161,9 +166,8 @@ stateDiagram-v2
     budget_exceeded --> [*]
 ```
 
-The states up to `util_complete` and `budget_exceeded` are implemented. `assigned` and the
-transitions into it are planned with VALUE. A message that does not fit the current state
-is a protocol error, never ignored.
+All states are implemented. A message that does not fit the current state is a protocol
+error, never ignored.
 
 ## Run outcomes
 
@@ -186,10 +190,11 @@ partial assignment.
 | The pseudo-tree spans all agents and every non-tree edge joins ancestor and descendant | `validate_pseudotree`, after every DFS | implemented |
 | Every factor is owned exactly once | Post-DFS ownership check | implemented |
 | Each UTIL table's scope equals its sender's separator | Receiving agent, on every UTIL message | implemented |
-| The root cost equals the exact optimum | Tests against exhaustive enumeration, every root | implemented for UTIL |
-| Each VALUE context covers exactly the receiver's separator | Receiving agent | planned |
-| The reconstructed assignment is complete, conflict-free and costs what the root reported | Independent evaluator, sharing no code with the solver | planned |
-| An infeasible run yields no assignment | Evaluator and K5 tests | planned |
+| The root cost equals the exact optimum | Tests against exhaustive enumeration, every root | implemented |
+| Each VALUE context covers exactly the receiver's separator and comes from its parent | Receiving agent | implemented |
+| Every agent chooses exactly once, and the assignment costs what the root reported | `solve` guard; tests with an enumeration-based evaluator | implemented |
+| The reconstructed assignment is complete and conflict-free | Independent evaluator, sharing no code with the solver | planned (CA-11); tests check it today |
+| An infeasible run yields no assignment and no VALUE message | K5 tests under every root; generated infeasible instances | implemented |
 | Epoch `t`'s stability costs derive only from epoch `t - 1`'s validated plan | Epoch runner tests | planned |
 
 ## Mobile cells in the architecture (planned)

@@ -1,8 +1,8 @@
 # Distributed channel assignment as map coloring with DPOP
 
-**Status: architecture and research question fixed; domain foundation, distributed DFS and
-upward UTIL implemented; VALUE reconstruction, the colored-map demonstration and all
-results remain planned. Revision: 0.2. Date: 2026-09-23.**
+**Status: architecture and research question fixed; domain foundation and the full
+DFS/UTIL/VALUE solve implemented and tested; the independent evaluator, the colored-map
+demonstration, mobile-cell epochs and all results remain planned. Revision: 0.3. Date: 2026-09-23.**
 
 ## What is this study?
 
@@ -33,7 +33,7 @@ ECoRA stage and not a change to ECoRA's contracts.
 | [Protocol replay](visualization.html) | Offline replay of actual DFS/UTIL messages on the 14-region map |
 
 The replay shows protocol activity, not channel assignments. Colors there identify senders,
-recipients and phases. Channel coloring appears only once VALUE reconstruction lands.
+recipients and phases. The colored map is drawn once the evaluator and demonstration land.
 
 ## Purpose and provenance
 
@@ -168,16 +168,16 @@ records this and the other design decisions.
 
 | Instance | Regions | Edges | Role | Status |
 | --- | --- | --- | --- | --- |
-| Synthetic 3 x 4 grid | 12 | 17 | Hand-sized demonstration; zero and preference costs | UTIL implemented |
-| Curitiba Central Urban Core | 14 | 29 | Primary demonstration on real municipal geography | UTIL implemented |
+| Synthetic 3 x 4 grid | 12 | 17 | Hand-sized demonstration; zero and preference costs | solved, tested |
+| Curitiba Central Urban Core | 14 | 29 | Primary demonstration on real municipal geography | solved, tested |
 | Curitiba metropolitan area | 29 | 66 | Limit case: shows the exponential table cost | UTIL stops with `budget_exceeded` |
 | Hand-authored map | at least 10 | as drawn | A map supplied at presentation time, validated before solving | planned |
 | Small trace map | 5 | with one non-tree edge | Every UTIL table and VALUE message checkable by hand | planned |
 | Mobile-cell sequence | fixed regions + 1 mobile | per epoch | A mobile cell crossing a map in declared epochs (RQ4) | planned |
-| K5 with four colors | 5 | 10 | Certified infeasible; not a map, since K5 is nonplanar | planned |
-| K5 minus one edge | 5 | 9 | Feasible counterpart one edge away | planned |
+| K5 with four colors | 5 | 10 | Certified infeasible; not a map, since K5 is nonplanar | tested |
+| K5 minus one edge | 5 | 9 | Feasible counterpart one edge away | tested |
 
-Figures from the current UTIL integration checks, with a 1,000,000-entry table budget:
+Figures from the current integration checks, with a 1,000,000-entry table budget:
 
 | Instance | Root | Largest separator | Largest joined table | DFS messages | Outcome |
 | --- | --- | --- | --- | --- | --- |

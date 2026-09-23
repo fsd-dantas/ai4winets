@@ -10,7 +10,7 @@ except ModuleNotFoundError as exc:
     from_geojson = None
 
 from dcop_channel_assignment.translation import to_dcop
-from dcop_channel_assignment.agents import build_pseudotree
+from dcop_channel_assignment.agents import build_pseudotree, solve
 
 
 def feature(code, polygons):
@@ -73,6 +73,24 @@ class GeographicTests(unittest.TestCase):
                 self.assertEqual(len(result.positions),n)
                 self.assertEqual(len(result.messages),2*m)
                 self.assertEqual(sum(len(p.owned_factors) for p in result.positions),n+m)
+
+    def test_central_core_is_colored_and_metropolitan_map_stops_at_budget(self):
+        root = Path(__file__).resolve().parents[1]/'data/geography/curitiba-metropolitan'
+        document = json.loads((root/'central-core-14.geojson').read_text(encoding='utf-8'))
+        for preferences in (False,True):
+            scenario = from_geojson(document,scenario_id='core',preferences=preferences)
+            for agent_root in (None,'ap-4106902'):
+                with self.subTest(preferences=preferences,root=agent_root):
+                    result = solve(to_dcop(scenario),max_entries=1_000_000,root=agent_root)
+                    self.assertEqual(result.status,'optimal_cost')
+                    channels = dict(result.assignment.values)
+                    self.assertEqual(set(channels),{r.ap_id for r in scenario.regions})
+                    # Adjacency from the map geometry, not from the solver's factors.
+                    self.assertEqual([e for e in scenario.edges if channels[e[0]] == channels[e[1]]],[])
+        document = json.loads((root/'metropolitan-29.geojson').read_text(encoding='utf-8'))
+        result = solve(to_dcop(from_geojson(document,scenario_id='metro')),max_entries=1_000_000)
+        self.assertEqual(result.status,'budget_exceeded')
+        self.assertIsNone(result.assignment)
 
     def test_order_independence(self):
         features = [feature(1,[rectangle(0,0)]),feature(2,[rectangle(1,0)])]

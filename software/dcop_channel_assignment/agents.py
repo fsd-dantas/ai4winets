@@ -1,9 +1,9 @@
-"""Local-state distributed DFS and upward UTIL propagation."""
+"""Local-state distributed DFS, upward UTIL and downward VALUE propagation."""
 
 from dataclasses import dataclass
 from enum import Enum
 
-from .dcop import Cost, DcopInstance, Factor, LocalView, identifier
+from .dcop import Assignment, Cost, DcopInstance, Factor, LocalView, identifier
 from .tables import TableBudgetExceeded, check_size, join, minimize
 from .protocol import Explore, Kind, Message, MessagePort, ProtocolError, QueueTransport, Return, Seen, SendPort
 
@@ -14,6 +14,7 @@ class Phase(str, Enum):
     READY = 'ready_for_util'
     UTIL = 'waiting_for_child_util'
     UTIL_DONE = 'util_complete'
+    ASSIGNED = 'assigned'
     FAILED = 'budget_exceeded'
 
 
@@ -57,6 +58,7 @@ class AgentSession:
         self._child_separators = {}
         self._child_tables = {}
         self.projection = None
+        self.value = None
         self.max_join_entries = 0
         self._max_entries = None
 
@@ -125,11 +127,14 @@ class AgentSession:
         elif message.kind == Kind.UTIL:
             self._receive_util(message)
             self._received.add(key)
+        elif message.kind == Kind.VALUE:
+            self._receive_value(message)
+            self._received.add(key)
         else:
-            raise ProtocolError('VALUE execution is not implemented')
+            raise ProtocolError('Unknown message kind')
 
     def position(self) -> TreePosition:
-        if self.phase not in (Phase.READY, Phase.UTIL, Phase.UTIL_DONE, Phase.FAILED):
+        if self.phase not in (Phase.READY, Phase.UTIL, Phase.UTIL_DONE, Phase.ASSIGNED, Phase.FAILED):
             raise ProtocolError('Pseudo-tree position is not complete')
         above = set(self.ancestors)
         owned = tuple(sorted(f.id for f in self.view.factors
@@ -202,6 +207,40 @@ class AgentSession:
         if self.parent is not None:
             self._send(self.parent,Kind.UTIL,projection.table)
 
+    def start_value(self):
+        if self.parent is not None or self.phase != Phase.UTIL_DONE:
+            raise ProtocolError('VALUE starts once, at the root, after UTIL completes')
+        if self.projection.table.at(()).value is None:
+            # An infeasible root has nothing to reconstruct; no channel is fabricated.
+            raise ProtocolError('Root cost is forbidden; there is no assignment to reconstruct')
+        self._choose({})
+
+    def _receive_value(self, message):
+        if self.phase != Phase.UTIL_DONE or message.sender != self.parent:
+            raise ProtocolError('VALUE must come from the parent after UTIL completes')
+        context = dict(message.payload.values)
+        table = self.projection.table
+        if tuple(sorted(context)) != table.scope:
+            raise ProtocolError('VALUE context differs from own DFS separator')
+        for name,domain in zip(table.scope,table.domains):
+            if context[name] not in domain:
+                raise ProtocolError('VALUE context value is outside its domain')
+        self._choose(context)
+
+    def _choose(self, context):
+        choice = self.projection.choice_for(Assignment(tuple(context.items())))
+        if choice is None:
+            raise ProtocolError('VALUE context admits no feasible choice')
+        self.value = choice
+        self.phase = Phase.ASSIGNED
+        # A child's separator lies within this agent's separator plus itself.
+        known = {**context,self.id:choice}
+        for child in self.children:
+            scope = self._child_separators[child]
+            if not set(scope) <= set(known):
+                raise ProtocolError('Child separator is outside the known context')
+            self._send(child,Kind.VALUE,Assignment(tuple((n,known[n]) for n in scope)))
+
 
 @dataclass(frozen=True)
 class PseudoTreeResult:
@@ -249,6 +288,10 @@ class UtilResult:
 
 def propagate_util(instance: DcopInstance, *, max_entries: int,
                    run_id='util-demo', root=None) -> UtilResult:
+    return _run_util(instance,max_entries=max_entries,run_id=run_id,root=root)[2]
+
+
+def _run_util(instance, *, max_entries, run_id, root):
     check_size((),max_entries)
     agents, transport, tree = _prepare(instance,run_id=run_id,root=root)
     try:
@@ -258,13 +301,49 @@ def propagate_util(instance: DcopInstance, *, max_entries: int,
             agent.start_util(max_entries=max_entries)
         transport.drain()
     except TableBudgetExceeded as exc:
-        return UtilResult('budget_exceeded',tree,None,transport.trace,
-                          max(a.max_join_entries for a in agents.values()),exc.required,exc.limit)
+        return agents, transport, UtilResult('budget_exceeded',tree,None,transport.trace,
+                                             max(a.max_join_entries for a in agents.values()),
+                                             exc.required,exc.limit)
     if any(a.phase != Phase.UTIL_DONE for a in agents.values()):
         raise ProtocolError('UTIL phase stalled without completing all agents')
     cost = agents[tree.root].projection.table.at(())
-    return UtilResult('infeasible' if cost.value is None else 'optimal_cost',tree,cost,
-                      transport.trace,max(a.max_join_entries for a in agents.values()))
+    return agents, transport, UtilResult('infeasible' if cost.value is None else 'optimal_cost',
+                                         tree,cost,transport.trace,
+                                         max(a.max_join_entries for a in agents.values()))
+
+
+@dataclass(frozen=True)
+class SolveResult:
+    status: str
+    tree: PseudoTreeResult
+    cost: Cost | None
+    assignment: Assignment | None
+    messages: tuple[Message, ...]
+    max_join_entries: int
+    required_entries: int | None = None
+    entry_limit: int | None = None
+
+
+def solve(instance: DcopInstance, *, max_entries: int,
+          run_id='solve-demo', root=None) -> SolveResult:
+    """Run DFS, UTIL and VALUE. The harness starts phases and reads each agent's own choice.
+
+    Only an optimal root cost starts VALUE: an infeasible or interrupted run returns no
+    assignment, and its messages end where UTIL ended.
+    """
+    agents, transport, util = _run_util(instance,max_entries=max_entries,run_id=run_id,root=root)
+    assignment = None
+    if util.status == 'optimal_cost':
+        agents[util.tree.root].start_value()
+        transport.drain()
+        if any(a.phase != Phase.ASSIGNED for a in agents.values()):
+            raise ProtocolError('VALUE phase stalled before every agent chose')
+        assignment = Assignment(tuple((name,agent.value) for name,agent in agents.items()))
+        # Internal consistency guard; the independent evaluator is a separate check.
+        if instance.cost(assignment) != util.cost:
+            raise ProtocolError('Reconstructed assignment does not cost the root optimum')
+    return SolveResult(util.status,util.tree,util.cost,assignment,transport.trace,
+                       util.max_join_entries,util.required_entries,util.entry_limit)
 
 
 def validate_pseudotree(instance: DcopInstance, result: PseudoTreeResult):

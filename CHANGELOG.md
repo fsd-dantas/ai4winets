@@ -74,6 +74,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
   scenario entering the set, a study freezing and a claim leaving the repository, and marks
   each item as enforced, partly in place or planned. The per-scenario declaration is
   planned; nothing in the scenarios changes yet.
+- **Downward DPOP VALUE reconstruction** (CA-10): the root chooses from its conditional
+  choices, and each parent sends each child exactly the child's separator assignment, so
+  every agent chooses its own channel once. `agents.solve` runs all three phases and checks
+  that the assignment costs the root's optimum. An infeasible root sends no VALUE and no
+  channel is fabricated. Tests reconstruct the enumerated optimum on generated instances
+  under every root, color the grids and the 14-region Curitiba map with no conflicts, and
+  certify K5 infeasible with four channels. The generator now reaches infeasible instances,
+  which it previously never did.
 - **Interactive Curitiba DPOP replay**: a self-contained HTML view generated from the
   actual DFS/UTIL integration trace, with municipal highlights, step/play controls and
   conditional cost tables. Protocol activity colors are distinguished from future channel assignments.

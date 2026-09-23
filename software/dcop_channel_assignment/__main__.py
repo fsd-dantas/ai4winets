@@ -1,4 +1,5 @@
-"""Inspect distributed DFS and UTIL costs; final channel reconstruction is not yet implemented."""
+"""Inspect distributed DFS and UTIL costs. agents.solve reconstructs channels; this CLI
+prints them once the independent evaluator exists (CA-11, CA-12)."""
 
 import argparse
 from dataclasses import asdict

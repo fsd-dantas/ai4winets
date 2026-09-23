@@ -102,7 +102,10 @@ the common egress capacity. Capacity labels require an uncontrolled pilot and de
 service evidence; offered bitrate alone cannot certify feasibility.
 
 The harness may reduce the alternative leg's service rate, inject packet loss on its receiver,
-and restore the original settings. It also schedules workload bursts and telemetry/mark
+and restore the original settings. It may also impair the LTE leg at the radio, as extra
+path loss in dB on one site's link, and restore it (ADR-29). An LTE leg has no rate to
+change: its capacity follows from the radio, so its degradation is declared as a radio
+condition and the resulting capacity is measured, not configured. It also schedules workload bursts and telemetry/mark
 delay or loss. Those controls and their current/future schedules never enter ordinary
 controller inputs. v1 recovery claims concern these represented disturbances, not diagnosed
 physical root causes or adversarial attacks.

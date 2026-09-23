@@ -907,81 +907,24 @@
       "type": "object"
     },
     "Disturbance": {
-      "additionalProperties": false,
-      "properties": {
-        "at_s": {
-          "minimum": 0,
-          "type": "number"
+      "oneOf": [
+        {
+          "$ref": "#/$defs/RateDisturbance"
         },
-        "leg": {
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
-          "type": "string"
-        },
-        "rate_bps": {
-          "minimum": 0,
-          "type": "number"
-        },
-        "site": {
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
-          "type": "string"
+        {
+          "$ref": "#/$defs/RadioLossDisturbance"
         }
-      },
-      "required": [
-        "at_s",
-        "site",
-        "leg",
-        "rate_bps"
-      ],
-      "type": "object"
+      ]
     },
     "Flow": {
-      "additionalProperties": false,
-      "properties": {
-        "deadline_s": {
-          "exclusiveMinimum": 0,
-          "type": "number"
+      "oneOf": [
+        {
+          "$ref": "#/$defs/PeriodicFlow"
         },
-        "destination": {
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
-          "type": "string"
-        },
-        "flow_id": {
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
-          "type": "string"
-        },
-        "generation": {
-          "$ref": "#/$defs/Generation"
-        },
-        "max_deferral_s": {
-          "minimum": 0,
-          "type": "number"
-        },
-        "payload_bytes": {
-          "minimum": 0,
-          "type": "integer"
-        },
-        "service": {
-          "enum": [
-            "scada",
-            "ami"
-          ]
-        },
-        "source": {
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
-          "type": "string"
+        {
+          "$ref": "#/$defs/RequestResponseFlow"
         }
-      },
-      "required": [
-        "flow_id",
-        "source",
-        "destination",
-        "service",
-        "generation",
-        "payload_bytes",
-        "deadline_s",
-        "max_deferral_s"
-      ],
-      "type": "object"
+      ]
     },
     "Generation": {
       "additionalProperties": false,
@@ -1038,6 +981,16 @@
       "type": "object"
     },
     "Leg": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/PointToPointLeg"
+        },
+        {
+          "$ref": "#/$defs/LteLeg"
+        }
+      ]
+    },
+    "LogicalRadio": {
       "additionalProperties": false,
       "properties": {
         "capacity_bps": {
@@ -1048,20 +1001,67 @@
           "minimum": 0,
           "type": "number"
         },
+        "loss_rates": {
+          "items": {
+            "$ref": "#/$defs/LossRate"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": false
+        }
+      },
+      "required": [
+        "capacity_bps",
+        "delay_s",
+        "loss_rates"
+      ],
+      "type": "object"
+    },
+    "LossRate": {
+      "additionalProperties": false,
+      "properties": {
+        "capacity_bps": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "extra_loss_db": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "extra_loss_db",
+        "capacity_bps"
+      ],
+      "type": "object"
+    },
+    "LteLeg": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "lte"
+        },
         "leg_id": {
           "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
           "type": "string"
         },
+        "logical": {
+          "$ref": "#/$defs/LogicalRadio"
+        },
         "queue_limit_bytes": {
           "minimum": 0,
           "type": "integer"
+        },
+        "radio": {
+          "$ref": "#/$defs/Radio"
         }
       },
       "required": [
         "leg_id",
-        "capacity_bps",
-        "delay_s",
-        "queue_limit_bytes"
+        "kind",
+        "queue_limit_bytes",
+        "radio",
+        "logical"
       ],
       "type": "object"
     },
@@ -1475,6 +1475,59 @@
       ],
       "type": "object"
     },
+    "PeriodicFlow": {
+      "additionalProperties": false,
+      "properties": {
+        "deadline_s": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "destination": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        },
+        "flow_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        },
+        "generation": {
+          "$ref": "#/$defs/Generation"
+        },
+        "max_deferral_s": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "pattern": {
+          "const": "periodic"
+        },
+        "payload_bytes": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "service": {
+          "enum": [
+            "scada",
+            "ami"
+          ]
+        },
+        "source": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "flow_id",
+        "pattern",
+        "source",
+        "destination",
+        "service",
+        "generation",
+        "payload_bytes",
+        "deadline_s",
+        "max_deferral_s"
+      ],
+      "type": "object"
+    },
     "PlanProposal": {
       "additionalProperties": false,
       "properties": {
@@ -1732,6 +1785,38 @@
       ],
       "type": "object"
     },
+    "PointToPointLeg": {
+      "additionalProperties": false,
+      "properties": {
+        "capacity_bps": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "delay_s": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "kind": {
+          "const": "point_to_point"
+        },
+        "leg_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        },
+        "queue_limit_bytes": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "leg_id",
+        "kind",
+        "capacity_bps",
+        "delay_s",
+        "queue_limit_bytes"
+      ],
+      "type": "object"
+    },
     "ProviderContext": {
       "additionalProperties": false,
       "properties": {
@@ -1844,6 +1929,138 @@
         "state_schema_version",
         "capability_ids",
         "direct_truth_access"
+      ],
+      "type": "object"
+    },
+    "Radio": {
+      "additionalProperties": false,
+      "properties": {
+        "dl_bandwidth_rb": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "dl_earfcn": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "enb_noise_figure_db": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "enb_position_m": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "type": "array"
+        },
+        "enb_tx_dbm": {
+          "type": "number"
+        },
+        "site_positions_m": {
+          "additionalProperties": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+          },
+          "minProperties": 1,
+          "type": "object"
+        },
+        "ue_noise_figure_db": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "ue_tx_dbm": {
+          "type": "number"
+        },
+        "ul_bandwidth_rb": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ul_earfcn": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "dl_bandwidth_rb",
+        "ul_bandwidth_rb",
+        "dl_earfcn",
+        "ul_earfcn",
+        "enb_tx_dbm",
+        "ue_tx_dbm",
+        "enb_noise_figure_db",
+        "ue_noise_figure_db",
+        "enb_position_m",
+        "site_positions_m"
+      ],
+      "type": "object"
+    },
+    "RadioLossDisturbance": {
+      "additionalProperties": false,
+      "properties": {
+        "at_s": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "extra_loss_db": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "kind": {
+          "const": "radio_loss"
+        },
+        "leg": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        },
+        "site": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "at_s",
+        "site",
+        "leg",
+        "kind",
+        "extra_loss_db"
+      ],
+      "type": "object"
+    },
+    "RateDisturbance": {
+      "additionalProperties": false,
+      "properties": {
+        "at_s": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "kind": {
+          "const": "rate"
+        },
+        "leg": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        },
+        "rate_bps": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "site": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "at_s",
+        "site",
+        "leg",
+        "kind",
+        "rate_bps"
       ],
       "type": "object"
     },
@@ -2458,6 +2675,69 @@
         "mode",
         "original_run_id",
         "original_invocation_id"
+      ],
+      "type": "object"
+    },
+    "RequestResponseFlow": {
+      "additionalProperties": false,
+      "properties": {
+        "deadline_s": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "destination": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        },
+        "flow_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        },
+        "generation": {
+          "$ref": "#/$defs/Generation"
+        },
+        "max_deferral_s": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "pattern": {
+          "const": "request_response"
+        },
+        "payload_bytes": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "processing_delay_s": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "response_bytes": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "service": {
+          "enum": [
+            "scada",
+            "ami"
+          ]
+        },
+        "source": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "flow_id",
+        "pattern",
+        "source",
+        "destination",
+        "service",
+        "generation",
+        "payload_bytes",
+        "response_bytes",
+        "processing_delay_s",
+        "deadline_s",
+        "max_deferral_s"
       ],
       "type": "object"
     },
@@ -3202,7 +3482,7 @@
       "additionalProperties": false,
       "properties": {
         "egress": {
-          "$ref": "#/$defs/Leg"
+          "$ref": "#/$defs/PointToPointLeg"
         },
         "initial_pacing": {
           "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",

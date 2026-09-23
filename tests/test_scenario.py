@@ -29,11 +29,16 @@ def delivered(world, horizon=8.0):
 class BuildingTests(unittest.TestCase):
     def test_the_world_comes_from_the_scenario_and_not_from_code(self):
         data = json.loads((SCENARIOS / "s0-nominal.json").read_text(encoding="utf-8"))
+        # The site end of a transaction is its destination; of a reading, its source. The
+        # LTE leg positions every site, so moving the site moves its position too.
+        legs = [{**leg, "radio": {**leg["radio"], "site_positions_m": {"site-a": [100, 0, 0]}}}
+                if leg["kind"] == "lte" else leg for leg in data["topology"]["legs"]]
         moved = Record("ScenarioSpec", {
             **data,
-            "topology": {**data["topology"], "sites": ["site-a"],
+            "topology": {**data["topology"], "sites": ["site-a"], "legs": legs,
                          "initial_path": "alternative", "initial_pacing": "restricted"},
-            "flows": [{**flow, "source": "site-a"} for flow in data["flows"]]})
+            "flows": [{**flow, "destination": "site-a"} if flow["pattern"] == "request_response"
+                      else {**flow, "source": "site-a"} for flow in data["flows"]]})
         world = build_world(moved)
         self.assertEqual(world.sites, ("site-a",))
         self.assertEqual(world.path["site-a"], "alternative")
@@ -107,7 +112,9 @@ class VerificationTests(unittest.TestCase):
                                "alternative": Link("alternative", 1000000, 0.010, 65536)},
                      "egress": Link("egress", 256000, 0.001, 65536),
                      "scada_period_s": 0.1, "ami_period_s": 1.0, "scada_bytes": 512,
-                     "ami_bytes": 512, "scada_deadline_s": 0.25, "ami_deadline_s": 10.0}
+                     "ami_bytes": 512, "scada_deadline_s": 0.25, "ami_deadline_s": 10.0,
+                     "scada_request_bytes": 128, "scada_processing_delay_s": 0.001,
+                     "loss_rates": {"lte": [(50, 32000), (200, 0)]}}
         return FiniteModel(**{**arguments, **changes})
 
     def test_a_matching_world_passes_and_is_returned(self):

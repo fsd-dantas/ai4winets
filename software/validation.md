@@ -458,12 +458,15 @@ than inferred from a run: a label whose every derivation needs a withheld signal
 every diagnoser on that subset, privileged or not. Tests assert that no arm misses a label
 outside that set and that none concludes anything false.
 
-On `s1-degraded-primary`, four epochs at 0.5 s:
+On `s1-degraded-primary` revision 2, four epochs at 0.5 s, with SCADA as a request/response
+transaction (ADR-29). Revision 1 modelled SCADA as a one-way message and measured the
+alternative-probe cost at 0.381; the round trip is more exposed to the degraded leg, so the
+figure rose. Every other finding was unchanged by the revision.
 
 | Subset withheld | Access headroom | Subset cost (SCADA within-age delivery) | Applied actions |
 | --- | --- | --- | --- |
 | none | 0 | 0 | 1 |
-| `site-1/alternative/path_probe` | 0 | 0.381 | 0 |
+| `site-1/alternative/path_probe` | 0 | 0.429 | 0 |
 | `path_state` | 0 | 0 | 4 |
 | any other single signal | 0 | 0 | 1 |
 

@@ -20,14 +20,31 @@ JSON, but the artifact that is hashed stays JSON.
 | Field | Meaning |
 | --- | --- |
 | `topology.sites` | the sites that generate traffic |
-| `topology.legs` | the access legs, each with capacity, propagation delay and queue limit |
-| `topology.egress` | the shared egress leg both services contend for |
+| `topology.legs` | the access legs, each declaring its `kind` |
+| `topology.egress` | the shared point-to-point egress both services contend for |
 | `topology.initial_path` | the leg selected at the start of the run |
 | `topology.initial_pacing` | the AMI release profile at the start of the run |
-| `flows` | one flow per service class: generation period, payload size, deadline, deferral bound |
+| `flows` | one flow per service class, each with a `pattern` |
 | `requirements` | what the assurance stage scores the run against |
-| `disturbances` | scheduled changes to a leg's rate, each naming a declared site and leg |
+| `disturbances` | scheduled changes to a leg, each naming a declared site and leg and a `kind` |
 | `initial_state.note` | a plain statement of the condition the scenario creates |
+
+**Leg kinds.** A `point_to_point` leg declares its rate, propagation delay and queue limit.
+An `lte` leg declares no rate, because in the simulator its capacity follows from the radio.
+It declares radio parameters (bandwidth, EARFCNs, transmit powers, noise figures,
+positions) and, under `logical`, how the finite world reads it: a capacity, a delay and a
+table from extra path loss to rate. The simulator reports the logical block as not
+applicable rather than using it.
+
+**Disturbance kinds.** `rate` changes a point-to-point leg's rate. `radio_loss` adds path
+loss in dB to one site's LTE link. The finite world maps a loss through the leg's table,
+taking the largest declared loss not above it. The mapping is nominal and uncalibrated
+until the simulator pilot measures what each loss actually does (ADR-29).
+
+**Flow patterns.** SCADA is `request_response`: the central application sends
+`payload_bytes` down the site's selected leg, and the site answers with `response_bytes`
+after `processing_delay_s`. The deadline covers the round trip, and the transaction is the
+obligation. AMI is `periodic`: readings from the site.
 
 A scenario naming a site, leg or path it does not declare is refused when it is read. So is
 one the finite model cannot build — a missing service flow, an unknown pacing profile, or a

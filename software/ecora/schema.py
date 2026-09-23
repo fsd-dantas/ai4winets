@@ -35,6 +35,8 @@ HASH = {"type": "string", "pattern": "^[0-9a-f]{64}$"}
 COUNT = {"type": "integer", "minimum": 0}
 TIME = {"type": "number", "minimum": 0}
 POSITIVE = {"type": "number", "exclusiveMinimum": 0}
+POSITIVE_COUNT = {"type": "integer", "minimum": 1}
+NUMBER = {"type": "number"}
 PROBABILITY = {"type": "number", "minimum": 0, "maximum": 1}
 BOOL = {"type": "boolean"}
 JSON_OBJECT = {"type": "object"}  # Only explicit configuration/state/trace extension points.
@@ -67,16 +69,51 @@ def definitions():
                            threshold=TIME, window_s=POSITIVE, denominator=TEXT,
                            missingness_limit=PROBABILITY)
     d["Generation"] = obj(period_s=POSITIVE)
-    d["Flow"] = obj(flow_id=ID, source=ID, destination=ID, service=enum("scada", "ami"),
-                    generation=ref("Generation"), payload_bytes=COUNT, deadline_s=POSITIVE,
-                    max_deferral_s=TIME)
+    # A periodic flow is one-way from a site. A request/response flow is a transaction: the
+    # central application sends payload_bytes, the site answers with response_bytes after
+    # its processing delay, and the deadline covers the round trip.
+    d["PeriodicFlow"] = obj(flow_id=ID, pattern={"const": "periodic"}, source=ID,
+                            destination=ID, service=enum("scada", "ami"),
+                            generation=ref("Generation"), payload_bytes=COUNT,
+                            deadline_s=POSITIVE, max_deferral_s=TIME)
+    d["RequestResponseFlow"] = obj(flow_id=ID, pattern={"const": "request_response"},
+                                   source=ID, destination=ID, service=enum("scada", "ami"),
+                                   generation=ref("Generation"), payload_bytes=COUNT,
+                                   response_bytes=COUNT, processing_delay_s=TIME,
+                                   deadline_s=POSITIVE, max_deferral_s=TIME)
+    d["Flow"] = {"oneOf": [ref("PeriodicFlow"), ref("RequestResponseFlow")]}
     # Topology and disturbances carry shape so a scenario can build the world it declares.
     # While they were opaque objects nothing could read them, and the frozen scenario hash
     # bound a description rather than the world that actually ran.
-    d["Leg"] = obj(leg_id=ID, capacity_bps=POSITIVE, delay_s=TIME, queue_limit_bytes=COUNT)
+    #
+    # A leg says what kind of transport it is. A point-to-point leg has a configured rate.
+    # An LTE leg has none: its capacity emerges from the radio, so it declares radio
+    # parameters, and separately the finite world's interpretation of it, which a
+    # simulator reports as not applicable rather than silently using.
+    d["PointToPointLeg"] = obj(leg_id=ID, kind={"const": "point_to_point"},
+                               capacity_bps=POSITIVE, delay_s=TIME, queue_limit_bytes=COUNT)
+    position = {"type": "array", "items": NUMBER, "minItems": 3, "maxItems": 3}
+    d["Radio"] = obj(dl_bandwidth_rb=POSITIVE_COUNT, ul_bandwidth_rb=POSITIVE_COUNT,
+                     dl_earfcn=COUNT, ul_earfcn=COUNT, enb_tx_dbm=NUMBER, ue_tx_dbm=NUMBER,
+                     enb_noise_figure_db=TIME, ue_noise_figure_db=TIME,
+                     enb_position_m=position,
+                     site_positions_m={"type": "object", "additionalProperties": position,
+                                       "minProperties": 1})
+    d["LossRate"] = obj(extra_loss_db=TIME, capacity_bps=TIME)
+    d["LogicalRadio"] = obj(capacity_bps=POSITIVE, delay_s=TIME,
+                            loss_rates=array(ref("LossRate"), 1))
+    d["LteLeg"] = obj(leg_id=ID, kind={"const": "lte"}, queue_limit_bytes=COUNT,
+                      radio=ref("Radio"), logical=ref("LogicalRadio"))
+    d["Leg"] = {"oneOf": [ref("PointToPointLeg"), ref("LteLeg")]}
     d["Topology"] = obj(sites=array(ID, 1, True), legs=array(ref("Leg"), 2),
-                        egress=ref("Leg"), initial_path=ID, initial_pacing=ID)
-    d["Disturbance"] = obj(at_s=TIME, site=ID, leg=ID, rate_bps=TIME)
+                        egress=ref("PointToPointLeg"), initial_path=ID, initial_pacing=ID)
+    # A rate change applies to a point-to-point leg; a radio impairment to an LTE leg, as
+    # extra path loss, because an LTE leg has no rate to change.
+    d["RateDisturbance"] = obj(at_s=TIME, site=ID, leg=ID, kind={"const": "rate"},
+                               rate_bps=TIME)
+    d["RadioLossDisturbance"] = obj(at_s=TIME, site=ID, leg=ID, kind={"const": "radio_loss"},
+                                    extra_loss_db=TIME)
+    d["Disturbance"] = {"oneOf": [ref("RateDisturbance"), ref("RadioLossDisturbance")]}
     d["ScenarioSpec"] = obj(scenario_id=ID, revision=ID, synthetic={"const": True},
                             topology=ref("Topology"), flows=array(ref("Flow"), 1),
                             requirements=array(ref("Requirement"), 1), initial_state=JSON_OBJECT,

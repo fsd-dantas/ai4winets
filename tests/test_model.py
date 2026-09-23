@@ -39,10 +39,21 @@ class ModelTests(unittest.TestCase):
         world = model().advance_to(5.0)
         truth = world.truth()
         accounted = truth["delivered"] + truth["dropped"]
-        queued = sum(truth["queue_bytes"].values()) + truth["egress_bytes"]
         self.assertLessEqual(accounted, truth["generated"])
+        # No obligation is both delivered and dropped, or delivered twice.
+        delivered = [obligation.packet_id for obligation, _, _ in world.delivered]
+        dropped = {obligation.packet_id for obligation, _, _ in world.dropped}
+        self.assertEqual(len(delivered), len(set(delivered)))
+        self.assertFalse(set(delivered) & dropped)
         if accounted < truth["generated"]:
-            self.assertGreater(queued, 0, "unaccounted demand must still be queued")
+            # Unaccounted demand is somewhere: queued in either direction, held at the
+            # gateway, or on its way through an event still to fire.
+            queued = (sum(truth["queue_bytes"].values()) + sum(truth["queue_bytes_down"].values())
+                      + truth["egress_bytes"] + truth["egress_bytes_down"]
+                      + sum(truth["held_ami"].values()))
+            in_flight = any(kind in ("hop", "deliver", "respond", "serviced")
+                            for _, _, kind, _ in world._calendar)
+            self.assertTrue(queued > 0 or in_flight, "unaccounted demand must still be in the model")
 
     def test_path_selection_changes_the_leg_and_its_version(self):
         world = model().advance_to(1.0)

@@ -6,8 +6,24 @@ propagation and finite limits, so that contracts, coordination and replay can be
 before a network simulator exists. It has no radio, no protocol conformance, no PHY or MAC
 behaviour, and no calibrated value.
 
+SCADA is a transaction, as v1-scope defines it. The central application sends a request
+down the site's selected leg, the site answers after its processing delay, and the
+response comes back up. The obligation is the transaction: it completes when the response
+arrives centrally, and its deadline runs from the request's generation across both
+directions. A request or a response lost on the way loses the transaction. AMI readings
+are one-way from the site.
+
+Every leg and the egress have two directions, each its own FIFO queue at the same rate,
+because a request and a response do not wait behind each other. A disturbance changes both
+directions of a leg together. An LTE leg is interpreted here through its declared logical
+capacity, and a radio impairment through its declared loss-to-rate table: the largest
+declared loss not above the impairment sets the rate. That table is this model's
+interpretation, not a radio result.
+
 Declared simplifications, each of which bounds what a run of this model can support:
 
+- The UDP envelope and gateway processing delay are not represented; the simulator counts
+  both, so byte and delay figures from the two worlds are not directly comparable.
 - Service already in progress when a disturbance changes a link rate completes at its
   scheduled time; the new rate applies to subsequent services only. A release interval
   already being counted behaves the same way when the pacing profile changes.
@@ -55,13 +71,21 @@ class _Queue:
 
 @dataclass(frozen=True)
 class Packet:
+    """One datagram. `route` is the queues it crosses, fixed when it is released."""
+
     packet_id: str
     service: str
     site_id: str
     size_bytes: int
     generated_s: float
     deadline_s: float
-    path: tuple
+    route: tuple
+    kind: str = "reading"
+    obligation_id: str = ""
+
+
+DIRECTIONS = ("up", "down")
+EGRESS = ("egress", "egress")
 
 
 class FiniteModel:
@@ -69,15 +93,25 @@ class FiniteModel:
 
     def __init__(self, *, sites, links, egress, scada_period_s, ami_period_s,
                  scada_bytes, ami_bytes, scada_deadline_s, ami_deadline_s,
-                 initial_path="lte", initial_pacing="normal", disturbances=()):
+                 initial_path="lte", initial_pacing="normal", disturbances=(),
+                 scada_request_bytes=128, scada_processing_delay_s=0.001, loss_rates=None,
+                 leg_specs=None):
         require(sites, "the model needs at least one site")
         require(set(links) >= {"lte", "alternative"}, "both legs must be declared")
         self.sites = tuple(sites)
         self.links = dict(links)
         self.egress = egress
         self.periods = {"scada": scada_period_s, "ami": ami_period_s}
+        # For SCADA this is the response; the request has its own size.
         self.sizes = {"scada": scada_bytes, "ami": ami_bytes}
+        self.request_bytes = scada_request_bytes
+        self.processing_delay_s = scada_processing_delay_s
         self.deadlines = {"scada": scada_deadline_s, "ami": ami_deadline_s}
+        # Per leg, (extra_loss_db, capacity_bps) in increasing loss. A leg without one
+        # cannot take a radio impairment, because nothing says what it would mean.
+        self.loss_rates = {leg: tuple(tuple(entry) for entry in table)
+                           for leg, table in (loss_rates or {}).items()}
+        self.leg_specs = dict(leg_specs or {})
         self.path = {site: initial_path for site in self.sites}
         self.pacing = {site: initial_pacing for site in self.sites}
         self.path_version = {site: 0 for site in self.sites}
@@ -87,8 +121,11 @@ class FiniteModel:
         self._queues = {}
         for site in self.sites:
             for leg, link in self.links.items():
-                self._queues[(site, leg)] = _Queue(link, link.capacity_bps)
-        self._queues[("egress", "egress")] = _Queue(egress, egress.capacity_bps)
+                for direction in DIRECTIONS:
+                    self._queues[(site, leg, direction)] = _Queue(link, link.capacity_bps)
+        for direction in DIRECTIONS:
+            self._queues[(*EGRESS, direction)] = _Queue(egress, egress.capacity_bps)
+        self._obligations = {}
         self._ami_pending = {site: deque() for site in self.sites}
         self._ami_releasing = {site: False for site in self.sites}
         self.generated, self.delivered, self.dropped = [], [], []
@@ -121,14 +158,29 @@ class FiniteModel:
         self.now = time_s
         return self
 
+    def _uplink(self, site):
+        """The route up from a site, over the leg selected at the moment of release."""
+        return ((site, self.path[site], "up"), (*EGRESS, "up"))
+
     def _on_generate(self, data):
         service, site = data["service"], data["site"]
         self._counter += 1
-        packet = Packet(f"packet:{service}:{site}:{self._counter}", service, site,
-                        self.sizes[service], self.now,
-                        self.now + self.deadlines[service], (site, "egress"))
-        self.generated.append(packet)
-        if service == "ami":
+        identity = f"packet:{service}:{site}:{self._counter}"
+        deadline = self.now + self.deadlines[service]
+        if service == "scada":
+            # The central application sends the request over the site's selected leg,
+            # chosen now: a request already released keeps its leg if the site switches.
+            packet = Packet(identity, service, site, self.request_bytes, self.now, deadline,
+                            ((*EGRESS, "down"), (site, self.path[site], "down")),
+                            "request", identity)
+            self._obligations[identity] = packet
+            self.generated.append(packet)
+            self._arrive(packet, 0)
+        else:
+            packet = Packet(identity, service, site, self.sizes[service], self.now, deadline,
+                            (), "reading", identity)
+            self._obligations[identity] = packet
+            self.generated.append(packet)
             # Pacing governs release from the gateway, not the rate a released packet is
             # served at. Slowing the service instead would leave a paced reading at the
             # head of a shared queue holding SCADA up behind it, which is the opposite of
@@ -136,9 +188,15 @@ class FiniteModel:
             self._ami_pending[site].append(packet)
             if not self._ami_releasing[site]:
                 self._start_release(site)
-        else:
-            self._arrive(packet, 0)
         self._schedule(self.now + self.periods[service], "generate", data)
+
+    def _on_respond(self, data):
+        """The site answers a request it received, over its leg selected now."""
+        request = data["packet"]
+        response = Packet(f"{request.packet_id}:response", "scada", request.site_id,
+                          self.sizes["scada"], request.generated_s, request.deadline_s,
+                          self._uplink(request.site_id), "response", request.obligation_id)
+        self._arrive(response, 0)
 
     def _start_release(self, site):
         """Admit the next held reading after its profile's interval has elapsed."""
@@ -152,27 +210,47 @@ class FiniteModel:
 
     def _on_release(self, data):
         site = data["site"]
-        self._arrive(self._ami_pending[site].popleft(), 0)
+        reading = self._ami_pending[site].popleft()
+        # The leg is chosen at release, not at generation: a held reading goes out on
+        # whatever the site selects when the gate opens.
+        self._arrive(Packet(reading.packet_id, reading.service, site, reading.size_bytes,
+                            reading.generated_s, reading.deadline_s, self._uplink(site),
+                            "reading", reading.obligation_id), 0)
         self._ami_releasing[site] = False
         self._start_release(site)
 
+    def rate_for(self, disturbance):
+        """The service rate a disturbance sets on its leg."""
+        if disturbance.get("kind", "rate") == "rate":
+            return disturbance["rate_bps"]
+        table = self.loss_rates.get(disturbance["leg"])
+        require(table, f"leg {disturbance['leg']} declares no loss-to-rate interpretation")
+        rate = self.links[disturbance["leg"]].capacity_bps
+        for loss, capacity in table:
+            if loss <= disturbance["extra_loss_db"]:
+                rate = capacity
+        return rate
+
     def _on_disturb(self, data):
-        """Reduce or restore a declared link rate. In-flight service is unaffected."""
-        key = (data["site"], data["leg"])
-        queue = self._queues[key]
-        was_idle = queue.rate_bps <= 0
-        queue.rate_bps = data["rate_bps"]
-        # A leg taken to zero stops serving and holds its queue. Restoring it has to wake
-        # that queue, or the backlog would sit there with nothing scheduled to drain it.
-        if was_idle and queue.rate_bps > 0 and queue.pending and not queue.busy:
-            self._start_service(key)
+        """Change a leg's rate in both directions. In-flight service is unaffected."""
+        rate = self.rate_for(data)
+        for direction in DIRECTIONS:
+            key = (data["site"], data["leg"], direction)
+            queue = self._queues[key]
+            was_idle = queue.rate_bps <= 0
+            queue.rate_bps = rate
+            # A leg taken to zero stops serving and holds its queue. Restoring it has to
+            # wake that queue, or the backlog would sit with nothing to drain it.
+            if was_idle and queue.rate_bps > 0 and queue.pending and not queue.busy:
+                self._start_service(key)
 
     def _arrive(self, packet, hop):
-        key = (packet.site_id, self.path[packet.site_id]) if hop == 0 else ("egress", "egress")
+        key = packet.route[hop]
         queue = self._queues[key]
         if queue.occupied_bytes + packet.size_bytes > queue.link.queue_limit_bytes:
             queue.dropped += 1
-            self.dropped.append((packet, self.now, "queue_overflow"))
+            self.dropped.append((self._obligations[packet.obligation_id], self.now,
+                                 "queue_overflow"))
             return
         queue.occupied_bytes += packet.size_bytes
         queue.pending.append((packet, hop))
@@ -200,8 +278,10 @@ class FiniteModel:
         queue.occupied_bytes -= packet.size_bytes
         queue.served_bytes += packet.size_bytes
         arrival = self.now + queue.link.delay_s
-        if hop + 1 < len(packet.path):
+        if hop + 1 < len(packet.route):
             self._schedule(arrival, "hop", {"packet": packet, "hop": hop + 1})
+        elif packet.kind == "request":
+            self._schedule(arrival + self.processing_delay_s, "respond", {"packet": packet})
         else:
             self._schedule(arrival, "deliver", {"packet": packet})
         queue.busy = False
@@ -211,8 +291,10 @@ class FiniteModel:
         self._arrive(data["packet"], data["hop"])
 
     def _on_deliver(self, data):
-        packet = data["packet"]
-        self.delivered.append((packet, self.now, self.now <= packet.deadline_s))
+        # Delivery completes the obligation: a reading, or a transaction whose response
+        # arrived. Exactly at the deadline is on time.
+        obligation = self._obligations[data["packet"].obligation_id]
+        self.delivered.append((obligation, self.now, self.now <= obligation.deadline_s))
 
     # -- actuation ------------------------------------------------------------
 
@@ -249,10 +331,11 @@ class FiniteModel:
         parameters. A leg whose service has been taken away does not answer, and the
         absence is reported as unknown rather than as a slow reply.
         """
-        queue = self._queues[(site, leg)]
-        if queue.rate_bps <= 0:
+        up, down = (self._queues[(site, leg, direction)] for direction in DIRECTIONS)
+        if up.rate_bps <= 0 or down.rate_bps <= 0:
             return None
-        return 2 * (queue.link.delay_s + (probe_bytes * 8) / queue.rate_bps)
+        return (2 * up.link.delay_s + (probe_bytes * 8) / up.rate_bps
+                + (probe_bytes * 8) / down.rate_bps)
 
     @staticmethod
     def observation_id(site, metric, at_s):
@@ -270,7 +353,8 @@ class FiniteModel:
         window = {"start_s": start, "end_s": self.now}
         exported = []
         for site in self.sites:
-            key = (site, self.path[site])
+            # The local queue an agent sees is its uplink on the selected leg.
+            key = (site, self.path[site], "up")
             capability = capability_ids.get((site, "queue_occupancy"))
             if capability:
                 exported.append(self._observation(
@@ -318,8 +402,13 @@ class FiniteModel:
         return {"time_s": self.now,
                 "selected_path": dict(self.path), "pacing": dict(self.pacing),
                 "queue_bytes": {f"{site}/{leg}": q.occupied_bytes
-                                for (site, leg), q in self._queues.items() if site != "egress"},
-                "egress_bytes": self._queues[("egress", "egress")].occupied_bytes,
+                                for (site, leg, direction), q in self._queues.items()
+                                if site != "egress" and direction == "up"},
+                "queue_bytes_down": {f"{site}/{leg}": q.occupied_bytes
+                                     for (site, leg, direction), q in self._queues.items()
+                                     if site != "egress" and direction == "down"},
+                "egress_bytes": self._queues[(*EGRESS, "up")].occupied_bytes,
+                "egress_bytes_down": self._queues[(*EGRESS, "down")].occupied_bytes,
                 "held_ami": {site: len(pending) for site, pending in self._ami_pending.items()},
                 "generated": len(self.generated), "delivered": len(self.delivered),
                 "dropped": len(self.dropped)}

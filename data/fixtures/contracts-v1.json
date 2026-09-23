@@ -1,6 +1,6 @@
 [
   {
-    "content_hash": "6b6e6011e2667dc7dd771787d6264b8dd6763555a6f6e9a72c89fd68866a0999",
+    "content_hash": "818dc5a45893955535c0de82d877d3675919f5cd9d8cff6c71908b7965e4079f",
     "data": {
       "access_policy_version": "v1",
       "analysis_version": "fixture-1",
@@ -63,7 +63,7 @@
       "compute_budget_s": 60,
       "frozen": true,
       "parameter_set_hash": "ffbc2dfc402782325da71132100e74ff511d1585dd80e4ea196ed4bcace3fef2",
-      "scenario_set_hash": "0659568ba24299adb819e4165570666d3fa8dc14f065d215bf8fb302e052d4b1",
+      "scenario_set_hash": "0ff05d727a5e668c57aaa655a519751eedb19ed416793e55226d6aec4c9b6645",
       "scenario_set_version": "1",
       "scoring_version": "fixture-1",
       "seed_manifest": {
@@ -668,12 +668,12 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "0659568ba24299adb819e4165570666d3fa8dc14f065d215bf8fb302e052d4b1",
+    "content_hash": "0ff05d727a5e668c57aaa655a519751eedb19ed416793e55226d6aec4c9b6645",
     "data": {
       "benchmark_definition": "Synthetic contract fixture, not a research benchmark.",
       "members": [
         {
-          "content_hash": "1fdcff0013398c4a2b55fee4a73a12d544b5014549ebbe9003acd3730e082a70",
+          "content_hash": "1f7b0c119242f734b7283b80ad865f901820877583e69b590ca28480b87f609f",
           "revision": "1",
           "scenario_id": "scenario:fixture",
           "weight": 1
@@ -687,7 +687,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "1fdcff0013398c4a2b55fee4a73a12d544b5014549ebbe9003acd3730e082a70",
+    "content_hash": "1f7b0c119242f734b7283b80ad865f901820877583e69b590ca28480b87f609f",
     "data": {
       "disturbances": [],
       "flows": [
@@ -699,6 +699,7 @@
             "period_s": 1
           },
           "max_deferral_s": 2,
+          "pattern": "periodic",
           "payload_bytes": 512,
           "service": "ami",
           "source": "site-1"
@@ -730,6 +731,7 @@
         "egress": {
           "capacity_bps": 256000,
           "delay_s": 0.001,
+          "kind": "point_to_point",
           "leg_id": "egress",
           "queue_limit_bytes": 65536
         },
@@ -739,12 +741,14 @@
           {
             "capacity_bps": 1000000,
             "delay_s": 0.01,
+            "kind": "point_to_point",
             "leg_id": "alternative",
             "queue_limit_bytes": 65536
           },
           {
             "capacity_bps": 1000000,
             "delay_s": 0.01,
+            "kind": "point_to_point",
             "leg_id": "lte",
             "queue_limit_bytes": 65536
           }
@@ -1207,7 +1211,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "73fc36a41f9c840a794642f1cbf9d0f89a32a423ce4ff0d07e720d9780dad40e",
+    "content_hash": "ceaccc12b711d68054fd12752ce949a42aa1b08abf61f239f35df1de6c53203a",
     "data": {
       "claims": [
         {
@@ -1230,7 +1234,7 @@
       "limitations": [
         "No simulated evidence."
       ],
-      "scenario_set_hash": "0659568ba24299adb819e4165570666d3fa8dc14f065d215bf8fb302e052d4b1",
+      "scenario_set_hash": "0ff05d727a5e668c57aaa655a519751eedb19ed416793e55226d6aec4c9b6645",
       "scenario_set_version": "1",
       "study_id": "study:fixture"
     },

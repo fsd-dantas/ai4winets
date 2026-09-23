@@ -5,6 +5,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ## [Unreleased]
 
+### Changed
+
+- **Scenarios declare legs by kind, and SCADA is a transaction** (ADR-29, scenario
+  revision 2). An LTE leg carries radio parameters instead of a rate, since in the
+  simulator its capacity emerges, and it is degraded by extra path loss rather than by a
+  rate change. The finite world reads it through a declared logical capacity and a
+  loss-to-rate table, nominal until the simulator pilot measures it. SCADA is modelled as
+  v1 scope defines it in both worlds: a central request down the selected leg, a response
+  after the site's processing delay, and a deadline over the round trip. Every link now has
+  both directions. All six scenarios keep the conditions their notes describe.
+
 ### Added
 
 - **A reproducible ns-3 build and model manifest** in `software/simulator/`. ns-3 is
@@ -26,7 +37,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
   scored against ground truth after each decision by a harness port whose reads reach no
   provider, and identifiability is computed from the rule inventory beside the measurement.
   On the degraded-primary scenario access headroom is zero on every subset, while
-  withholding the alternative-leg probe costs SCADA 0.38 of its within-age delivery,
+  withholding the alternative-leg probe costs SCADA 0.43 of its within-age delivery
+  (0.38 before SCADA became a round-trip transaction),
   because no diagnoser on that subset can establish that the switch is allowed.
 - **Cohort extraction and requirement evaluation** in `software/ecora/assessment.py`, the
   Proposed arms for the last two stages. Every run previously ended inconclusive by

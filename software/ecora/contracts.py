@@ -181,17 +181,31 @@ def validate(kind, data):
         _unique(data["flows"], "flow_id")
         _unique(data["requirements"], "requirement_id")
         _unique(data["topology"]["legs"], "leg_id")
-        legs = {leg["leg_id"] for leg in data["topology"]["legs"]}
+        legs = {leg["leg_id"]: leg for leg in data["topology"]["legs"]}
         sites = set(data["topology"]["sites"])
         require(data["topology"]["initial_path"] in legs, "the initial path must name a declared leg")
         for flow in data["flows"]:
             require(flow["max_deferral_s"] < flow["deadline_s"], "deferral must precede deadline")
-            require(flow["source"] in sites, f"flow {flow['flow_id']} leaves an undeclared site")
+            # A transaction starts centrally and is answered by a site; a periodic flow
+            # starts at a site. Either way one end is a declared site.
+            site_end = flow["destination"] if flow["pattern"] == "request_response" else flow["source"]
+            require(site_end in sites, f"flow {flow['flow_id']} names an undeclared site")
             if flow["service"] == "scada":
                 require(flow["max_deferral_s"] == 0, "SCADA cannot be deferred")
+        for leg in legs.values():
+            if leg["kind"] == "lte":
+                require(set(leg["radio"]["site_positions_m"]) == sites,
+                        f"LTE leg {leg['leg_id']} must position every declared site")
+                losses = [entry["extra_loss_db"] for entry in leg["logical"]["loss_rates"]]
+                require(losses == sorted(set(losses)),
+                        "loss-to-rate entries are declared in increasing loss, once each")
         for disturbance in data["disturbances"]:
             require(disturbance["site"] in sites, "a disturbance names an undeclared site")
             require(disturbance["leg"] in legs, "a disturbance names an undeclared leg")
+            kind = legs[disturbance["leg"]]["kind"]
+            # An LTE leg has no rate to change, and a point-to-point leg has no radio.
+            require((disturbance["kind"], kind) in {("rate", "point_to_point"), ("radio_loss", "lte")},
+                    f"a {disturbance['kind']} disturbance cannot apply to a {kind} leg")
     elif kind == "CapabilityManifest":
         _unique(data["capabilities"], "capability_id")
         for cap in data["capabilities"]:

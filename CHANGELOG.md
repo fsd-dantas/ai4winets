@@ -7,17 +7,28 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Changed
 
+- **A write must name the actuator version it was planned against** (B23a). Both worlds
+  export each actuator's version as `actuator_version`, the planning problem carries the
+  versions observed, and resolvers write the version of the actuator each step targets or
+  abstain. Both worlds refuse a command with no version or an outdated one and change
+  nothing. No run reaches the stale refusal yet: evidence and application share an instant,
+  and control latency is what will make it reachable. Withholding the path version on S1
+  costs the same service as withholding the alternative probe, because resolution will not
+  write a version it was not shown.
+- **Studies read the delivery summary** (B22c). Every study's projection expects
+  `scada_response`, and two contradicting rules conclude whether SCADA is overdue at the
+  0.25 s deadline or timely below it, with a privileged truth projection for the Oracle arm.
+  No goal consumes either label yet. Every study's knowledge and hash change.
 - **The loop closes in the simulator** (B23). The simulator applies `select_path` and
   `set_ami_pacing` as the finite world does, command for command and refusal for refusal.
   On the silent and degraded primaries the planner and eco treatments switch once and SCADA
   recovers fully in both worlds, while the Null arm's suppressed commands leave the path and
   its version untouched. Receipts now cite the actuators' readback as the resulting state;
-  they had read the privileged truth channel for it. The state-version compare-and-swap the
-  contract names is not yet enforced in either world, and is recorded as a decision.
+  they had read the privileged truth channel for it.
 - **Sites can see what the shared egress does to their deliveries** (B22b). Both worlds
   export the centre's delivery summary, `scada_response`, delayed by the declared 10 ms and
   missing rather than zero when nothing completed. It shows the contended egress plainly
-  where the site's own queue stays empty. No study reads it yet.
+  where the site's own queue stays empty.
 - **The finite world's probe is real traffic** (B22a). It was computed from the leg's rate,
   so it never waited behind queued traffic and never lagged as evidence. It is now sent
   every 0.2 s, echoed at the far end of its leg, lost after 0.15 s and valid for 0.5 s, as

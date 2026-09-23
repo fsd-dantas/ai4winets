@@ -449,7 +449,7 @@ identical across every cell, and a test asserts that by provider and configurati
 Diagnosis varies between the contract-limited arm (the study's rules over the telemetry
 projection) and the privileged arm (the same rules over exact current truth of the same
 signals). Observation subsets are declared leave-one-out: the full projection, then each
-expected signal withheld once. All twelve cells run under one study hash.
+expected signal withheld once. All eighteen cells run under one study hash.
 
 The harness scores every diagnosis against ground truth at each decision instant through a
 logged port of its own, whose reads go to no provider; the contract arms' datasets stay
@@ -466,12 +466,14 @@ nominal table made nearly silent) 0.429; revision 3 (degraded but still deliveri
 With realistic probes no evidence exists at the first decision epoch, in either world, so
 the switch comes one epoch later in both arms: 0.190 for SCADA and 0.143 for AMI, and
 withholding path state now costs three applications rather than four. Access headroom is
-zero on every subset throughout.
+zero on every subset throughout. With B22c and B23a the projection gained three signals and
+so three subsets; the figures above did not move.
 
 | Subset withheld | Access headroom | Subset cost (within-age delivery, SCADA / AMI) | Applied actions |
 | --- | --- | --- | --- |
 | none | 0 | 0 | 1 |
 | `site-1/alternative/path_probe` | 0 | 0.190 / 0.143 | 0 |
+| `site-1/selected_path/actuator_version` | 0 | 0.190 / 0.143 | 0 |
 | `path_state` | 0 | 0 | 3 |
 | any other single signal | 0 | 0 | 1 |
 
@@ -481,7 +483,10 @@ opens, which the diagnosis Oracle tests exercise separately. Withholding the alt
 probe makes `alternative_viable` unidentifiable, so the switch has no precondition
 evidence, and neither arm can make it. Withholding path state costs no service but
 triples the actions applied, because a planner that cannot see the current path reapplies
-the switch every epoch.
+the switch every epoch. Withholding the path version costs the same service as withholding
+the alternative probe for a different reason: diagnosis is exact, but resolution will not
+write a version it was not shown. Withholding `scada_response` loses its two labels and no
+service, because no goal reads them.
 
 These are findings about this rule inventory, this finite model and these states. They do
 not establish that the observation contract is sufficient in general, and the privileged
@@ -697,9 +702,23 @@ drift across the window's closing edge.
 
 Receipts now state the actuator's readback as the resulting state. The action provider had
 read `truth()` for it, which is the privileged channel; a test makes `truth()` raise and
-runs the loop to show no receipt needs it. The contract's state-version compare-and-swap
-is not enforced in either world: every provider sends version 0, and no controller observes
-the version, so enforcing it would refuse every second switch. Recorded as a decision.
+runs the loop to show no receipt needs it.
+
+**State versions.** The contract's compare-and-swap is enforced in both worlds. Each
+actuator's version is exported as `actuator_version`, subject `site/selected_path` or
+`site/pacing_profile`; the harness carries the versions it relayed into the planning
+problem, planners copy them into their proposals, and a resolver writes the version of the
+actuator each step targets, abstaining when it was not shown one. Both worlds refuse a
+command with no version (`missing_version`) or an outdated one (`stale_version`) and change
+nothing; a second write planned on the version the first consumed is stale, and the two
+actuators version independently. The same commands receive the same answers in both worlds.
+
+No run reaches `stale_version`. Evidence is observed and the command applied at the same
+instant, and resolution admits one write per target, so the version planned against is
+always current. The blackboard treatment still reapplies its switch every epoch, each write
+naming the version the previous one produced: compare-and-swap prevents lost updates, not
+churn. The refusal becomes reachable with control latency (B25), when a decision can be
+applied after the state it read has moved.
 
 ## Delivery summaries
 
@@ -715,9 +734,12 @@ cannot, at 3 s, finite world / simulator:
 | S1 degraded LTE | 4.1 / 5.8 KB | 422 / 499 ms |
 | S2 silent LTE | growing | missing / missing |
 
-S9's contention is invisible to the queue and plain in the summary. The signal is exported
-and grantable; no study's projection yet expects it, so no rule reads it. Whether the
-studies should, which changes their knowledge and their hashes, is recorded as a decision.
+S9's contention is invisible to the queue and plain in the summary. Every study's
+projection now expects it, and two contradicting rules read it: `overdue_scada` at or above
+the SCADA deadline (0.25 s) and `timely_scada` below it, with a privileged truth projection
+for the Oracle arm. No goal consumes either label yet, so the rules inform diagnosis without
+changing a plan; a sufficiency test shows the full run concludes them and that withholding
+the summary loses exactly those labels.
 
 ## Simulator adapter
 

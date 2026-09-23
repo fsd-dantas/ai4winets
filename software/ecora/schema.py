@@ -170,17 +170,21 @@ def definitions():
                           status=enum("supported", "contradicted", "unknown"))
     d["DiagnosisRecord"] = obj(hypotheses=array(ref("Hypothesis")), rule_trace=array(JSON_OBJECT),
                                unresolved_conflicts=IDS, confidence_semantics=enum("categorical"))
+    # `state_versions` maps an actuator, `<site>/<actuator>`, to the version the controller
+    # observed it at. It travels problem -> proposal -> command, so a write names the state
+    # it was decided against and a stale one can be refused.
     d["PlanningProblem"] = obj(known_predicates=IDS, unknown_predicates=IDS, goals=IDS,
                                operator_catalog_version=ID, action_costs=JSON_OBJECT,
                                expansion_budget=COUNT, time_budget_s=POSITIVE,
-                               memory_budget_bytes=COUNT, horizon_steps=COUNT)
+                               memory_budget_bytes=COUNT, horizon_steps=COUNT,
+                               state_versions=JSON_OBJECT)
     d["PlanStep"] = obj(operator=enum(*OPERATORS), target=ID, arguments=JSON_OBJECT,
                         preconditions=IDS, add_effects=IDS, delete_effects=IDS, cost=TIME)
     d["PlanProposal"] = obj(proposal_id=ID, agent_id=ID, site_id=ID,
                             service=enum("scada", "ami"), steps=array(ref("PlanStep")),
                             assumptions=IDS, estimated_cost=TIME, valid_until_s=TIME,
                             goal_status=enum("achieved_in_model", "unmet", "unknown"),
-                            certificate_ref=nullable(ID))
+                            certificate_ref=nullable(ID), state_versions=JSON_OBJECT)
     d["ResolutionDecision"] = obj(proposal_id=ID, disposition=enum("admit", "defer", "reject"),
                                   reason=ref("Reason"), conflicting_proposal_ids=IDS)
     d["ResolutionRecord"] = obj(resolution_id=ID, proposal_ids=IDS,

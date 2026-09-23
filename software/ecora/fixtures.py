@@ -26,7 +26,9 @@ NULL_CONFIGURATION = _BASELINE.nulls
 def planning_problem(**changes):
     """A PlanningProblem conforming to ASSEMBLY; predicates stay run-derived."""
     data = {**ASSEMBLY["planning"], "known_predicates": ["selected_lte"],
-            "unknown_predicates": ["reachable_alternative"]}
+            "unknown_predicates": ["reachable_alternative"],
+            # Observed at the actuators' initial versions, so a write can name them.
+            "state_versions": {"site-1/selected_path": 0, "site-1/pacing_profile": 0}}
     return Record("PlanningProblem", {**data, **changes})
 
 
@@ -94,7 +96,8 @@ class FixtureProvider:
             proposal = Record("PlanProposal", {"proposal_id": "proposal:fixture", "agent_id": "agent:site-1:ami",
                               "site_id": "site-1", "service": "ami", "steps": [], "assumptions": [],
                               "estimated_cost": 0, "valid_until_s": watermark + 1,
-                              "goal_status": "unknown", "certificate_ref": None})
+                              "goal_status": "unknown", "certificate_ref": None,
+                              "state_versions": {}})
             return ProviderResult((proposal,), {}, {"fixture": True})
         if self.stage == "resolution":
             proposal_ids = [p.data["proposal_id"] for p in payloads if p.kind == "PlanProposal"]
@@ -157,6 +160,12 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assemb
                   "service": "ami", "name": "pacing_profile", "unit": "id",
                   "evidence_refs": ["fixture:observation"]}
     # The centre's delivery summary for the site's SCADA transactions, delayed in transit.
+    # Each actuator's version, observable so a write can name the state it was decided on.
+    versions = [{"capability_id": f"observe.{service}.{short}_version", "kind": "observe",
+                 "target": f"site-1/{actuator}", "service": service, "name": "actuator_version",
+                 "unit": "count", "evidence_refs": ["fixture:observation"]}
+                for service, short, actuator in (("shared", "path", "selected_path"),
+                                                 ("ami", "pacing", "pacing_profile"))]
     summary_cap = {"capability_id": "observe.scada.response", "kind": "observe",
                    "target": "site-1", "service": "scada", "name": "scada_response", "unit": "s",
                    "evidence_refs": ["fixture:observation"]}
@@ -173,11 +182,21 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assemb
     truths.append({"capability_id": "truth.shared.cohort_record", "kind": "truth",
                    "target": "site-1", "service": "shared", "name": "cohort_record",
                    "unit": "count", "evidence_refs": ["fixture:truth"]})
+    # The actuators' versions as truth, for an Oracle telemetry arm to relay.
+    truths += [{"capability_id": f"truth.{service}.{short}_version", "kind": "truth",
+                "target": f"site-1/{actuator}", "service": service, "name": "actuator_version",
+                "unit": "count", "evidence_refs": ["fixture:truth"]}
+               for service, short, actuator in (("shared", "path", "selected_path"),
+                                                ("ami", "pacing", "pacing_profile"))]
+    # The delivery summary's privileged reference: the same mean, without its delay.
+    truths.append({"capability_id": "truth.scada.response", "kind": "truth",
+                   "target": "site-1", "service": "scada", "name": "scada_response",
+                   "unit": "s", "evidence_refs": ["fixture:truth"]})
     truths += [{"capability_id": f"truth.probe.{leg}", "kind": "truth",
                 "target": f"site-1/{leg}", "service": "shared", "name": "path_probe",
                 "unit": "s", "evidence_refs": ["fixture:truth"]}
                for leg in ("lte", "alternative")]
-    granted = [cap, path_cap, pacing_cap, summary_cap, actuator, path_actuator, *probes, *truths]
+    granted = [cap, path_cap, pacing_cap, summary_cap, *versions, actuator, path_actuator, *probes, *truths]
     ordinary = [c["capability_id"] for c in granted if c["kind"] != "truth"]
     caps = Record("CapabilityManifest", {"adapter_id": "fixture", "adapter_version": "1", "model_version": "fixture-1",
                   "capabilities": [*granted, *extra_capabilities], "limitations": ["Fixture only; no enabled simulator."],
@@ -252,10 +271,12 @@ def payload_fixtures():
         "DiagnosisRecord": {"hypotheses": [], "rule_trace": [], "unresolved_conflicts": [], "confidence_semantics": "categorical"},
         "PlanningProblem": {"known_predicates": [], "unknown_predicates": ["reachable"], "goals": ["selected_alternative"],
                             "operator_catalog_version": "v1", "action_costs": {"select_path": 2},
-                            "expansion_budget": 100, "time_budget_s": 2, "memory_budget_bytes": 1024, "horizon_steps": 8},
+                            "expansion_budget": 100, "time_budget_s": 2, "memory_budget_bytes": 1024, "horizon_steps": 8,
+                            "state_versions": {"site-1/selected_path": 0}},
         "PlanProposal": {"proposal_id": "proposal:fixture", "agent_id": "agent:site-1:ami", "site_id": "site-1", "service": "ami",
                          "steps": [], "assumptions": [], "estimated_cost": 0, "valid_until_s": 1,
-                         "goal_status": "unknown", "certificate_ref": None},
+                         "goal_status": "unknown", "certificate_ref": None,
+                         "state_versions": {"site-1/selected_path": 0}},
         "ResolutionRecord": {"resolution_id": "resolution:fixture", "proposal_ids": ["proposal:fixture"],
                              "decisions": [{"proposal_id": "proposal:fixture", "disposition": "defer", "reason": reason(),
                                             "conflicting_proposal_ids": []}], "claim_versions": {}, "command_ids": []},

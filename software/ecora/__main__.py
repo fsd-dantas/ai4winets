@@ -21,6 +21,8 @@ CAPABILITIES = {("site-1", "queue_occupancy"): "observe.ami.queue",
                 ("site-1", "path_state"): "observe.shared.path",
                 ("site-1", "pacing_profile"): "observe.ami.pacing",
                 ("site-1", "scada_response"): "observe.scada.response",
+                ("site-1/selected_path", "actuator_version"): "observe.shared.path_version",
+                ("site-1/pacing_profile", "actuator_version"): "observe.ami.pacing_version",
                 ("site-1/lte", "path_probe"): "observe.probe.lte",
                 ("site-1/alternative", "path_probe"): "observe.probe.alternative"}
 
@@ -297,7 +299,8 @@ def sufficiency_study(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO
         return "  ".join("   n/a" if values.get(s) is None else f"{values[s]:+.3f}"
                          for s in services)
 
-    header = (f"  {'subset':<38}{'arm':<11}{'exact':>6}{'missed':>7}{'applied':>8}   "
+    width = max(len("subset"), *(len(row["subset"]) for row in comparison["rows"])) + 2
+    header = (f"  {'subset':<{width}}{'arm':<11}{'exact':>6}{'missed':>7}{'applied':>8}   "
               + "  ".join(f"{s:>6}" for s in services))
     print(header)
     print("  " + "-" * (len(header) - 2))
@@ -308,11 +311,11 @@ def sufficiency_study(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO
             delivered = "  ".join("   n/a" if entry["service"].get(s) is None
                                   else f"{entry['service'][s]:6.3f}" for s in services)
             name = row["subset"] if arm == "contract" else ""
-            print(f"  {name:<38}{arm:<11}{diagnosis['exact_epochs']:>3}/{diagnosis['epochs']:<2}"
+            print(f"  {name:<{width}}{arm:<11}{diagnosis['exact_epochs']:>3}/{diagnosis['epochs']:<2}"
                   f"{sum(diagnosis['missed'].values()):>7}{entry['applied']:>8}   {delivered}")
-    print(f"\n  {'subset':<38}{'access headroom':>24}{'subset cost':>22}   unidentifiable")
+    print(f"\n  {'subset':<{width}}{'access headroom':>24}{'subset cost':>22}   unidentifiable")
     for row in comparison["rows"]:
-        print(f"  {row['subset']:<38}{figures(row['access_headroom']):>24}"
+        print(f"  {row['subset']:<{width}}{figures(row['access_headroom']):>24}"
               f"{figures(row['subset_cost']):>22}   {', '.join(row['unidentifiable']) or '-'}")
     print("\n  access headroom = privileged minus contract-limited, same signals, same downstream")
     print("  subset cost     = full contract arm minus this subset's contract arm")

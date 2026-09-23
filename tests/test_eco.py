@@ -20,7 +20,8 @@ def proposal(agent_id, proposal_id, operator="select_path", target="site-1",
             "cost": 2}
     return {"proposal_id": proposal_id, "agent_id": agent_id, "site_id": "site-1",
             "service": "ami", "steps": [step], "assumptions": [], "estimated_cost": 2,
-            "valid_until_s": 1, "goal_status": "unmet", "certificate_ref": None}
+            "valid_until_s": 1, "goal_status": "unmet", "certificate_ref": None,
+            "state_versions": {"site-1/selected_path": 0, "site-1/pacing_profile": 0}}
 
 
 class Message:

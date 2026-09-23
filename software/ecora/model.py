@@ -166,6 +166,7 @@ class FiniteModel:
         self.path = {site: initial_path for site in self.sites}
         self.pacing = {site: initial_pacing for site in self.sites}
         self.path_version = {site: 0 for site in self.sites}
+        self.pacing_version = {site: 0 for site in self.sites}
         self.now = 0.0
         self._sequence = 0
         self._calendar = []
@@ -430,6 +431,15 @@ class FiniteModel:
             return False, "no_op"
         if target not in self.sites:
             return False, "unknown_target"
+        if operator in ("select_path", "set_ami_pacing"):
+            # Compare-and-swap on the actuator's version: a write names the state it was
+            # decided against, and a write decided against an older state is refused.
+            expected = data.get("expected_state_version")
+            current = (self.path_version if operator == "select_path" else self.pacing_version)[target]
+            if expected is None:
+                return False, "missing_version"
+            if expected != current:
+                return False, "stale_version"
         if operator == "select_path":
             path = data["arguments"]["path"]
             if path not in self.links:
@@ -443,6 +453,7 @@ class FiniteModel:
             if profile not in PACING_BPS:
                 return False, "unknown_profile"
             self.pacing[target] = profile
+            self.pacing_version[target] += 1
             return True, None
         return False, "unsupported_operator"
 
@@ -453,7 +464,8 @@ class FiniteModel:
         about themselves, the same as their path and pacing observations, not model truth.
         """
         return {"selected_path": dict(self.path), "pacing": dict(self.pacing),
-                "path_version": dict(self.path_version)}
+                "path_version": dict(self.path_version),
+                "pacing_version": dict(self.pacing_version)}
 
     # -- observation ----------------------------------------------------------
 
@@ -509,6 +521,15 @@ class FiniteModel:
                 exported.append(self._observation(
                     self.observation_id(site, "pacing_profile", self.now), site, "ami",
                     "pacing_profile", "id", self.pacing[site], capability, window))
+            # Each actuator's version, its own subject: what a write must name.
+            for actuator, versions in (("selected_path", self.path_version),
+                                       ("pacing_profile", self.pacing_version)):
+                capability = capability_ids.get((f"{site}/{actuator}", "actuator_version"))
+                if capability:
+                    exported.append(self._observation(
+                        self.observation_id(f"{site}/{actuator}", "actuator_version", self.now),
+                        f"{site}/{actuator}", "shared" if actuator == "selected_path" else "ami",
+                        "actuator_version", "count", versions[site], capability, window))
             capability = capability_ids.get((site, "scada_response"))
             if capability:
                 exported.append(self._scada_response(site, capability, window_s))
@@ -553,6 +574,17 @@ class FiniteModel:
                 "code": "no_completion",
                 "detail": "No SCADA transaction completed in the summarised window."})
         return observation
+
+    def current_scada_response(self, site, window_s=0.5):
+        """Truth, not evidence: the mean response over the last window ending now.
+
+        What the site's summary will say once it arrives. Only a privileged reference may
+        read it; the undelayed value is exactly what no controller has.
+        """
+        times = [at - obligation.generated_s for obligation, at, _ in self.delivered
+                 if obligation.service == "scada" and obligation.site_id == site
+                 and self.now - window_s < at <= self.now]
+        return sum(times) / len(times) if times else None
 
     def delivery_summary(self, site, window_s):
         """SCADA transactions the centre completed for this site in the summarised window.

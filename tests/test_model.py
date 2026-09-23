@@ -57,12 +57,43 @@ class ModelTests(unittest.TestCase):
 
     def test_path_selection_changes_the_leg_and_its_version(self):
         world = model().advance_to(1.0)
-        command = {"operator": "select_path", "target": "site-1", "arguments": {"path": "alternative"}}
+        command = {"operator": "select_path", "target": "site-1", "arguments": {"path": "alternative"},
+                   "expected_state_version": 0}
         applied, reason = world.apply(command)
         self.assertTrue(applied)
         self.assertIsNone(reason)
         self.assertEqual(world.truth()["selected_path"]["site-1"], "alternative")
         self.assertEqual(world.path_version["site-1"], 1)
+
+    def test_a_write_must_name_the_version_it_was_planned_against(self):
+        """Compare-and-swap: a write planned on stale state changes nothing."""
+        world = model().advance_to(1.0)
+        switch = {"operator": "select_path", "target": "site-1", "arguments": {"path": "alternative"}}
+        pace = {"operator": "set_ami_pacing", "target": "site-1", "arguments": {"profile": "restricted"}}
+        before = world.actuator_state()
+        self.assertEqual(world.apply(switch), (False, "missing_version"))
+        self.assertEqual(world.apply({**switch, "expected_state_version": 3}), (False, "stale_version"))
+        self.assertEqual(world.apply(pace), (False, "missing_version"))
+        self.assertEqual(world.actuator_state(), before, "a refused write mutates nothing")
+        self.assertEqual(world.apply({**switch, "expected_state_version": 0}), (True, None))
+        # A second write planned on the version the first one consumed is now stale.
+        back = {**switch, "arguments": {"path": "lte"}, "expected_state_version": 0}
+        self.assertEqual(world.apply(back), (False, "stale_version"))
+        self.assertEqual(world.actuator_state()["selected_path"]["site-1"], "alternative")
+        # Each actuator keeps its own version: the switch did not stale the pacing write.
+        self.assertEqual(world.apply({**pace, "expected_state_version": 0}), (True, None))
+        self.assertEqual((world.path_version["site-1"], world.pacing_version["site-1"]), (1, 1))
+
+    def test_the_version_a_write_needs_is_the_one_the_world_exports(self):
+        world = model().advance_to(1.0)
+        capabilities = {("site-1/selected_path", "actuator_version"): "observe.shared.path_version",
+                        ("site-1/pacing_profile", "actuator_version"): "observe.ami.pacing_version"}
+        exported = {o["subject"]: o["value"] for o in world.observations(capability_ids=capabilities)}
+        self.assertEqual(exported, {"site-1/selected_path": 0, "site-1/pacing_profile": 0})
+        world.apply({"operator": "select_path", "target": "site-1",
+                     "arguments": {"path": "alternative"}, "expected_state_version": 0})
+        exported = {o["subject"]: o["value"] for o in world.observations(capability_ids=capabilities)}
+        self.assertEqual(exported["site-1/selected_path"], 1)
 
     def test_unknown_target_or_path_is_refused_without_mutating(self):
         world = model().advance_to(1.0)

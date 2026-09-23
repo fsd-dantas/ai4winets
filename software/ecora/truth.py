@@ -42,6 +42,13 @@ PROJECTIONS = {
     "held_ami": ("count", lambda model, site: model.truth()["held_ami"][site]),
     # A per-leg quantity: the target names the leg, as it does for an ordinary probe.
     "path_probe": ("s", lambda model, target: model.probe(*target.split("/", 1))),
+    # The centre's delivery performance as it stands now, without the reporting delay a
+    # site's summary carries: the privileged reference for the delivery summary signal.
+    "scada_response": ("s", lambda model, site: model.current_scada_response(site)),
+    # An actuator's version: the target names the site and the actuator.
+    "actuator_version": ("count", lambda model, target: model.actuator_state()[
+        "path_version" if target.endswith("/selected_path") else "pacing_version"][
+        target.split("/", 1)[0]]),
 }
 
 

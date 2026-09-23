@@ -42,7 +42,8 @@ def problem(goals, *, known=(ON_LTE, REACH_LTE, REACH_ALT, PACE_NORMAL), unknown
         "goals": list(goals), "operator_catalog_version": "v1",
         "action_costs": {"select_path": 2, "set_ami_pacing": 1},
         "expansion_budget": budget, "time_budget_s": 2, "memory_budget_bytes": 1024,
-        "horizon_steps": horizon})
+        "horizon_steps": horizon,
+        "state_versions": {"site-1/selected_path": 0, "site-1/pacing_profile": 0}})
 
 
 def proposal(proposal_id, *, service="ami", operator="select_path", arguments=None,
@@ -54,7 +55,8 @@ def proposal(proposal_id, *, service="ami", operator="select_path", arguments=No
     return Message("PlanProposal", {
         "proposal_id": proposal_id, "agent_id": f"agent:site-1:{service}", "site_id": "site-1",
         "service": service, "steps": [step], "assumptions": [], "estimated_cost": cost,
-        "valid_until_s": 1, "goal_status": "unmet", "certificate_ref": None})
+        "valid_until_s": 1, "goal_status": "unmet", "certificate_ref": None,
+        "state_versions": {"site-1/selected_path": 0, "site-1/pacing_profile": 0}})
 
 
 def plan(goals, config=None, **changes):

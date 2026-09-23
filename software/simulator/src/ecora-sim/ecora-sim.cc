@@ -293,6 +293,7 @@ struct Site
     std::string path;
     std::string pacing;
     uint64_t pathVersion = 0;
+    uint64_t pacingVersion = 0;
     std::deque<uint64_t> held;
     bool releasing = false;
     double extraLossDb = 0;
@@ -1005,6 +1006,15 @@ World::Observation(const Site& site,
                 "SDU segment boundary in a PDU."};
         }
     }
+    else if (metric == "actuator_version")
+    {
+        // The actuator's own version, readback: what a write must name to be accepted.
+        bool path = subject.size() >= 14 && subject.compare(subject.size() - 14, 14, "/selected_path") == 0;
+        observation["service"] = path ? "shared" : "ami";
+        observation["unit"] = "count";
+        observation["value"] = path ? site.pathVersion : site.pacingVersion;
+        observation["assumptions"] = {"Gateway actuator version readback in the ns-3 model."};
+    }
     else if (metric == "scada_response")
     {
         // The window ending one summary delay ago: the newest the centre's report can be.
@@ -1082,14 +1092,19 @@ json
 World::ActuatorState() const
 {
     // The gateway actuators' own readback: what a controller can see, not simulator truth.
-    json paths = json::object(), pacing = json::object(), versions = json::object();
+    json paths = json::object(), pacing = json::object(), versions = json::object(),
+         pacingVersions = json::object();
     for (const auto& site : m_sites)
     {
         paths[site.name] = site.path;
         pacing[site.name] = site.pacing;
         versions[site.name] = site.pathVersion;
+        pacingVersions[site.name] = site.pacingVersion;
     }
-    return {{"selected_path", paths}, {"pacing", pacing}, {"path_version", versions}};
+    return {{"selected_path", paths},
+            {"pacing", pacing},
+            {"path_version", versions},
+            {"pacing_version", pacingVersions}};
 }
 
 json
@@ -1124,6 +1139,21 @@ World::Apply(const json& request)
     {
         return answer(false, "unknown_target");
     }
+    if (operatorName == "select_path" || operatorName == "set_ami_pacing")
+    {
+        // Compare-and-swap on the actuator's version, as the finite world does: a write
+        // names the state it was decided against, and one decided against an older state
+        // is refused.
+        uint64_t current = operatorName == "select_path" ? site->pathVersion : site->pacingVersion;
+        if (!command.contains("expected_state_version") || command.at("expected_state_version").is_null())
+        {
+            return answer(false, "missing_version");
+        }
+        if (command.at("expected_state_version").get<uint64_t>() != current)
+        {
+            return answer(false, "stale_version");
+        }
+    }
     const json& arguments = command.at("arguments");
     if (operatorName == "select_path")
     {
@@ -1147,6 +1177,7 @@ World::Apply(const json& request)
         // A release interval already being counted completes at its old rate, as it does
         // in the finite world; the next one uses the new profile.
         site->pacing = profile;
+        ++site->pacingVersion;
         return answer(true, nullptr);
     }
     return answer(false, "unsupported_operator");
@@ -1175,8 +1206,11 @@ World::Observe(const json& request)
         Require(site != nullptr, "unknown_subject", "no site " + siteName + " in this world");
         if (subject.find('/') != std::string::npos)
         {
-            std::string leg = subject.substr(subject.find('/') + 1);
-            Require(site->probes.count(leg), "unknown_subject", "no leg " + leg + " at " + siteName);
+            // Below a site a subject is one of its legs or one of its actuators.
+            std::string part = subject.substr(subject.find('/') + 1);
+            Require(site->probes.count(part) || part == "selected_path" || part == "pacing_profile",
+                    "unknown_subject",
+                    "no leg or actuator " + part + " at " + siteName);
         }
         observations.push_back(
             Observation(*site, subject, grant.at("metric"), grant.at("capability_id"), windowS));

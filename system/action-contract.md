@@ -1,6 +1,6 @@
 # Action authority and stage substitution
 
-**Status: normative specification; command/receipt validation and dispatch intents implemented. `select_path` and `set_ami_pacing` are applied in both the finite world and the simulator, with the same refusals, and receipts cite the actuator's readback rather than truth. The state-version compare-and-swap is not enforced in either world: providers send version 0 and no controller yet observes the version.**
+**Status: normative specification; command/receipt validation and dispatch intents implemented. `select_path` and `set_ami_pacing` are applied in both the finite world and the simulator, with the same refusals, and receipts cite the actuator's readback rather than truth. The state-version compare-and-swap is enforced in both worlds: each actuator's version is an observed signal (`actuator_version`), the planning problem carries the versions observed, resolvers write the one each step targets or abstain, and a command with no version or an outdated one is refused (`missing_version`, `stale_version`) without mutating. No run yet reaches `stale_version`, because observation and application share an instant; control latency (B25) is what makes it reachable.**
 
 [Interfaces](interfaces.md) · [Stage arms](../docs/ECoRA/stage-arms.md)
 

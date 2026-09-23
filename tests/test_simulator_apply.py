@@ -18,11 +18,20 @@ except ImportError:
 
 KNOWLEDGE = resolve("baseline")
 COMMANDS = {
-    "switch": {"operator": "select_path", "target": "site-1", "arguments": {"path": "alternative"}},
-    "unknown_path": {"operator": "select_path", "target": "site-1", "arguments": {"path": "satellite"}},
+    "switch": {"operator": "select_path", "target": "site-1", "arguments": {"path": "alternative"},
+               "expected_state_version": 0},
+    "unknown_path": {"operator": "select_path", "target": "site-1", "arguments": {"path": "satellite"},
+                     "expected_state_version": 0},
     "unknown_target": {"operator": "select_path", "target": "site-9", "arguments": {"path": "lte"}},
-    "restrict": {"operator": "set_ami_pacing", "target": "site-1", "arguments": {"profile": "restricted"}},
-    "unknown_profile": {"operator": "set_ami_pacing", "target": "site-1", "arguments": {"profile": "fast"}},
+    "restrict": {"operator": "set_ami_pacing", "target": "site-1", "arguments": {"profile": "restricted"},
+                 "expected_state_version": 0},
+    "unknown_profile": {"operator": "set_ami_pacing", "target": "site-1", "arguments": {"profile": "fast"},
+                        "expected_state_version": 0},
+    "missing_version": {"operator": "select_path", "target": "site-1", "arguments": {"path": "lte"}},
+    "stale_version": {"operator": "select_path", "target": "site-1", "arguments": {"path": "lte"},
+                      "expected_state_version": 7},
+    "stale_pacing": {"operator": "set_ami_pacing", "target": "site-1",
+                     "arguments": {"profile": "minimum"}, "expected_state_version": 0},
     "unsupported": {"operator": "publish_mark", "target": "site-1", "arguments": {}},
     "no_op": {"operator": "no_op", "target": "site-1", "arguments": {}},
 }

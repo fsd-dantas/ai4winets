@@ -135,7 +135,7 @@ class TransactionTests(unittest.TestCase):
         model.advance_to(0.0)
         in_flight = [p for p in model.generated if p.service == "scada"]
         self.assertEqual(in_flight[0].route[-1], ("site-1", "lte", "down"))
-        model.apply({"operator": "select_path", "target": "site-1",
+        model.apply({"operator": "select_path", "target": "site-1", "expected_state_version": 0,
                      "arguments": {"path": "alternative"}})
         model.advance_to(0.2)
         later = [p for p in model.generated if p.service == "scada"][-1]

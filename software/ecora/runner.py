@@ -182,9 +182,10 @@ class Run:
         diagnosis = self._advance("diagnosis", f"diagnosis:{index}", [telemetry], at)
         known, unknown = self._projection(diagnosis)
         problem = self.boundary.assemble(
-            f"assemble-planning:{index}", "planning", [diagnosis],
+            f"assemble-planning:{index}", "planning", [diagnosis, telemetry],
             Record("PlanningProblem", {**self.assembly["planning"],
-                                       "known_predicates": known, "unknown_predicates": unknown}),
+                                       "known_predicates": known, "unknown_predicates": unknown,
+                                       "state_versions": self._versions(telemetry)}),
             watermark_s=at).data["dataset_id"]
         planning = self._advance("planning", f"planning:{index}", [problem], at)
         resolution = self._advance("resolution", f"resolution:{index}", [planning], at)
@@ -216,6 +217,23 @@ class Run:
         unknown = {predicate for predicates in mapping.values()
                    for predicate in predicates if predicate.startswith("reachable:")} - known
         return sorted(known), sorted(unknown)
+
+    def _versions(self, telemetry_dataset):
+        """The actuator versions the controller's own telemetry relayed this epoch.
+
+        Read from what the telemetry stage passed on, never from the world, so an arm that
+        was not given a version has none, and its resolver will write no command rather than
+        guess one. An observation marked missing is not a version.
+        """
+        versions = {}
+        for message in self.boundary.store.messages(telemetry_dataset):
+            payload = Record.from_dict(message.data["payload"])
+            if payload.kind != "TelemetryBatch":
+                continue
+            for observation in payload.data["observations"]:
+                if observation["metric"] == "actuator_version" and observation["quality"] != "missing":
+                    versions[observation["subject"]] = observation["value"]
+        return versions
 
     def _export(self, label, at, sequence):
         batch = observation_batch(self.model, self.capability_ids, at, self.period_s, sequence)

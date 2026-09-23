@@ -124,6 +124,24 @@ class ComparisonTests(unittest.TestCase):
         self.assertGreater(row["subset_cost"]["scada"], 0)
         self.assertEqual(row["access_headroom"]["scada"], 0)
 
+    def test_the_scada_rules_conclude_in_a_run_and_only_their_signal_explains_them(self):
+        """A rule no run can reach is untested however its unit tests pass."""
+        row = self.rows["without:scada_response"]
+        self.assertEqual(set(row["unidentifiable"]), {"scada_overdue", "scada_timely"})
+        for arm in ("contract", "privileged"):
+            missed = row[arm]["diagnosis"]["missed"]
+            self.assertTrue(missed, "withholding the summary must lose a label the full run concluded")
+            self.assertLessEqual(set(missed), {"scada_overdue", "scada_timely"})
+
+    def test_without_the_path_version_a_switch_is_diagnosed_but_never_written(self):
+        """Compare-and-swap: resolution will not write a version it was not shown."""
+        row = self.rows["without:site-1/selected_path/actuator_version"]
+        self.assertEqual(row["unidentifiable"], [], "no rule reads the version")
+        for arm in ("contract", "privileged"):
+            self.assertEqual(row[arm]["diagnosis"]["exact_epochs"], row[arm]["diagnosis"]["epochs"])
+            self.assertEqual(row[arm]["applied"], 0)
+        self.assertGreater(row["subset_cost"]["scada"], 0)
+
     def test_no_access_headroom_where_the_contract_relays_fresh_evidence(self):
         """The finding for this model and these states, not a general claim."""
         for subset, row in self.rows.items():

@@ -13,8 +13,11 @@ from ecora.telemetry import projection_binding
 CAPABILITIES = {("site-1", "queue_occupancy"): "observe.ami.queue",
                 ("site-1", "path_state"): "observe.shared.path",
                 ("site-1", "pacing_profile"): "observe.ami.pacing",
+                ("site-1", "scada_response"): "observe.scada.response",
                 ("site-1/lte", "path_probe"): "observe.probe.lte",
-                ("site-1/alternative", "path_probe"): "observe.probe.alternative"}
+                ("site-1/alternative", "path_probe"): "observe.probe.alternative",
+                ("site-1/selected_path", "actuator_version"): "observe.shared.path_version",
+                ("site-1/pacing_profile", "actuator_version"): "observe.ami.pacing_version"}
 PERIOD = 0.5
 
 
@@ -54,13 +57,15 @@ class ProjectionTests(unittest.TestCase):
         run.execute()
         # At the first instant no probe has been answered, so both are relayed as unknown.
         first = self.relayed(store, "dataset:telemetry:0")
-        self.assertEqual(first.data["omitted_metrics"], ["path_probe"])
+        # Nor has any SCADA transaction completed, so there is no delivery summary yet.
+        self.assertEqual(first.data["omitted_metrics"], ["path_probe", "scada_response"])
         batch = self.relayed(store, "dataset:telemetry:1")
         self.assertEqual(batch.data["completeness"], 1)
         self.assertEqual(batch.data["omitted_metrics"], [])
         self.assertEqual(sorted(o["metric"] for o in batch.data["observations"]),
-                         ["pacing_profile", "path_probe", "path_probe", "path_state",
-                          "queue_occupancy"])
+                         ["actuator_version", "actuator_version", "pacing_profile",
+                          "path_probe", "path_probe", "path_state", "queue_occupancy",
+                          "scada_response"])
         # Each leg is probed under its own subject, so a rule can say which leg it means.
         self.assertEqual(sorted(o["subject"] for o in batch.data["observations"]
                                 if o["metric"] == "path_probe"),
@@ -110,7 +115,8 @@ class ProjectionTests(unittest.TestCase):
         batch = self.relayed(store, stale.data["dataset_id"])
         self.assertEqual(batch.data["completeness"], 0)
         self.assertEqual(batch.data["omitted_metrics"],
-                         ["pacing_profile", "path_probe", "path_state", "queue_occupancy"])
+                         ["actuator_version", "pacing_profile", "path_probe", "path_state",
+                          "queue_occupancy", "scada_response"])
         for observation in batch.data["observations"]:
             self.assertEqual(observation["quality"], "missing")
             self.assertEqual(observation["missing_reason"]["code"], "stale")

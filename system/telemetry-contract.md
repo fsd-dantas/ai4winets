@@ -37,6 +37,7 @@ excluded from the initial Proposed projection even if the LTE trace can export t
 | packet_drop | Packet ID and reason where observable | Queue/device/application trace |
 | path_state | Applied path identifier and configuration version | Actuator observation |
 | pacing_profile | Applied AMI release profile identifier | Actuator observation |
+| actuator_version | Count of writes applied to one actuator (`site/selected_path`, `site/pacing_profile`); the version a command must name | Actuator observation |
 | path_probe | Probe/leg ID, send and acknowledgement times or timeout; seconds | Gateway probe application and delayed acknowledgement trace |
 | claim_state | Local claim owner, resource, version and expiry | Coordination substrate |
 

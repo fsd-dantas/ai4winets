@@ -12,7 +12,10 @@ CAPABILITIES = {("site-1", "queue_occupancy"): "observe.ami.queue",
                 ("site-1", "path_state"): "observe.shared.path",
                 ("site-1", "pacing_profile"): "observe.ami.pacing",
                 ("site-1/lte", "path_probe"): "observe.probe.lte",
-                ("site-1/alternative", "path_probe"): "observe.probe.alternative"}
+                ("site-1/alternative", "path_probe"): "observe.probe.alternative",
+                ("site-1", "scada_response"): "observe.scada.response",
+                ("site-1/selected_path", "actuator_version"): "observe.shared.path_version",
+                ("site-1/pacing_profile", "actuator_version"): "observe.ami.pacing_version"}
 PERIOD = 0.5
 EPOCHS = 4
 

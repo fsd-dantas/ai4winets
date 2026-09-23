@@ -25,7 +25,7 @@ counted, and none of those counts is network overhead.
 from dataclasses import dataclass, field
 from functools import partial
 
-from .contracts import Record, canonical, digest, require
+from .contracts import observed_version, Record, canonical, digest, require
 from .registry import ProviderResult
 from .schema import INPUT_TYPES, OUTPUT_TYPES
 
@@ -300,12 +300,17 @@ class EcoResolutionProvider:
         if not capability or not step["preconditions"]:
             return None
         scope, service, fluent = scopes[step["operator"]]
+        # The version the controller observed; without one there is nothing to check a
+        # stale write against, so no command is written.
+        version = observed_version(proposal, step["target"], step["operator"])
+        if version is None:
+            return None
         return Record("ActionCommand", {
             "command_id": f"command:{proposal['proposal_id']}", "operator": step["operator"],
             "catalog_version": "v1", "target": step["target"], "scope": scope, "service": service,
             "issuer": proposal["agent_id"], "arguments": step["arguments"], "argument_units": {},
             "read_set": [f"{step['target']}/{fluent}"], "write_set": [f"{step['target']}/{fluent}"],
-            "resource_footprint": [f"{step['target']}/{service}"], "expected_state_version": 0,
+            "resource_footprint": [f"{step['target']}/{service}"], "expected_state_version": version,
             "precondition_evidence_ids": step["preconditions"], "resolution_id": resolution_id,
             "authority_capability_id": capability, "not_before_s": watermark,
             "expires_at_s": watermark + config.get("validity_s", 1),

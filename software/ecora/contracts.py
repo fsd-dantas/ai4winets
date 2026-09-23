@@ -17,6 +17,21 @@ from .schema import RECORD_TYPES, STAGES, schema_document
 # cell stops admitting UEs. Beyond it the model is not the cell a scenario means.
 MAX_COMPETING_UES = 35
 
+# The actuator each operator writes, as it is named in a command's read and write sets and
+# in the observed state versions. One table, so no builder can name an actuator differently.
+ACTUATOR_FIELDS = {"select_path": "selected_path", "set_ami_pacing": "pacing_profile"}
+
+
+def observed_version(proposal, target, operator):
+    """The version the proposal's controller observed the actuator at, or None.
+
+    None means no version was observed, and then no command may be written: a write that
+    cannot name the state it was decided against cannot be checked for staleness, and the
+    action contract says to abstain rather than assume.
+    """
+    versions = proposal.get("state_versions") or {}
+    return versions.get(f"{target}/{ACTUATOR_FIELDS[operator]}")
+
 
 class ContractError(ValueError):
     """An input cannot cross a declared boundary without losing contract integrity."""
@@ -112,7 +127,7 @@ def _observation(o, watermark):
     units = {"queue_occupancy": {"byte", "packet"}, "offered_load": {"bit/s"},
              "goodput": {"bit/s"}, "packet_generated": {"event"}, "packet_delivered": {"event"},
              "scada_response": {"s"}, "packet_drop": {"event"}, "path_state": {"id"}, "pacing_profile": {"id"},
-             "path_probe": {"s"}, "claim_state": {"event"}, "control_message": {"byte"},
+             "path_probe": {"s"}, "actuator_version": {"count"}, "claim_state": {"event"}, "control_message": {"byte"},
              "link_measurement": {"dBm"}}
     require(o["metric"] in units, "signal not in versioned telemetry catalog")
     require(o["unit"] in units[o["metric"]], "metric/unit mismatch")

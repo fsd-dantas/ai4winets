@@ -12,7 +12,10 @@ CAPABILITIES = {("site-1", "queue_occupancy"): "observe.ami.queue",
                 ("site-1", "path_state"): "observe.shared.path",
                 ("site-1", "pacing_profile"): "observe.ami.pacing",
                 ("site-1/lte", "path_probe"): "observe.probe.lte",
-                ("site-1/alternative", "path_probe"): "observe.probe.alternative"}
+                ("site-1/alternative", "path_probe"): "observe.probe.alternative",
+                ("site-1", "scada_response"): "observe.scada.response",
+                ("site-1/selected_path", "actuator_version"): "observe.shared.path_version",
+                ("site-1/pacing_profile", "actuator_version"): "observe.ami.pacing_version"}
 PERIOD = 0.5
 EPOCHS = 4
 BRANCH = 2
@@ -135,7 +138,8 @@ class ContinuationTests(unittest.TestCase):
         output = Record.from_dict(other.messages(substituted.data["dataset_id"])[0].data["payload"])
         self.assertEqual(output.data["observations"], [])
         self.assertEqual(output.data["omitted_metrics"],
-                         ["pacing_profile", "path_probe", "path_state", "queue_occupancy"])
+                         ["actuator_version", "pacing_profile", "path_probe", "path_state",
+                          "queue_occupancy", "scada_response"])
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 [
   {
-    "content_hash": "450b34c6b8ccb71bace9bd1f4f43ad1131a328b1267e22e84992e499f19f2c1f",
+    "content_hash": "6873296c531d860ee7a3dffe5da36370e4c9b5046ad5e10b85aafe6f5275451a",
     "data": {
       "access_policy_version": "v1",
       "analysis_version": "fixture-1",
@@ -59,7 +59,7 @@
           ]
         }
       },
-      "capability_manifest_hash": "e317b03bdd47d99f786e9463b80982c75da942a12037da3e2097a8586982fcdb",
+      "capability_manifest_hash": "32768f8090848e3d5baf9857d42aa839a3c2ca01a3b458bd2825d5dfcd6a2380",
       "compute_budget_s": 60,
       "frozen": true,
       "parameter_set_hash": "ffbc2dfc402782325da71132100e74ff511d1585dd80e4ea196ed4bcace3fef2",
@@ -82,6 +82,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -109,6 +111,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -138,6 +142,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -165,6 +171,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -193,6 +201,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -220,6 +230,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -247,6 +259,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -279,6 +293,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -306,6 +322,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -335,6 +353,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -362,6 +382,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -390,6 +412,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -417,6 +441,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -444,6 +470,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -476,6 +504,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -503,6 +533,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -535,6 +567,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -570,6 +604,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -603,6 +639,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -630,6 +668,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -657,6 +697,8 @@
                 "observe.shared.path",
                 "observe.ami.pacing",
                 "observe.scada.response",
+                "observe.shared.path_version",
+                "observe.ami.pacing_version",
                 "actuate.ami.pacing",
                 "actuate.shared.path",
                 "observe.probe.lte",
@@ -783,7 +825,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "e317b03bdd47d99f786e9463b80982c75da942a12037da3e2097a8586982fcdb",
+    "content_hash": "32768f8090848e3d5baf9857d42aa839a3c2ca01a3b458bd2825d5dfcd6a2380",
     "data": {
       "adapter_id": "fixture",
       "adapter_version": "1",
@@ -831,6 +873,28 @@
           "service": "scada",
           "target": "site-1",
           "unit": "s"
+        },
+        {
+          "capability_id": "observe.shared.path_version",
+          "evidence_refs": [
+            "fixture:observation"
+          ],
+          "kind": "observe",
+          "name": "actuator_version",
+          "service": "shared",
+          "target": "site-1/selected_path",
+          "unit": "count"
+        },
+        {
+          "capability_id": "observe.ami.pacing_version",
+          "evidence_refs": [
+            "fixture:observation"
+          ],
+          "kind": "observe",
+          "name": "actuator_version",
+          "service": "ami",
+          "target": "site-1/pacing_profile",
+          "unit": "count"
         },
         {
           "capability_id": "actuate.ami.pacing",
@@ -919,6 +983,39 @@
           "service": "shared",
           "target": "site-1",
           "unit": "count"
+        },
+        {
+          "capability_id": "truth.shared.path_version",
+          "evidence_refs": [
+            "fixture:truth"
+          ],
+          "kind": "truth",
+          "name": "actuator_version",
+          "service": "shared",
+          "target": "site-1/selected_path",
+          "unit": "count"
+        },
+        {
+          "capability_id": "truth.ami.pacing_version",
+          "evidence_refs": [
+            "fixture:truth"
+          ],
+          "kind": "truth",
+          "name": "actuator_version",
+          "service": "ami",
+          "target": "site-1/pacing_profile",
+          "unit": "count"
+        },
+        {
+          "capability_id": "truth.scada.response",
+          "evidence_refs": [
+            "fixture:truth"
+          ],
+          "kind": "truth",
+          "name": "scada_response",
+          "service": "scada",
+          "target": "site-1",
+          "unit": "s"
         },
         {
           "capability_id": "truth.probe.lte",
@@ -1090,7 +1187,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "6c28d0b51f51ccfe6916e0d48e0755a0cfd35060b5ca5abfaef63bec8c116828",
+    "content_hash": "149b025f3c4f7f17023a36eee30bb1a8e244337634db6845207694cdc66223da",
     "data": {
       "action_costs": {
         "select_path": 2
@@ -1103,6 +1200,9 @@
       "known_predicates": [],
       "memory_budget_bytes": 1024,
       "operator_catalog_version": "v1",
+      "state_versions": {
+        "site-1/selected_path": 0
+      },
       "time_budget_s": 2,
       "unknown_predicates": [
         "reachable"
@@ -1112,7 +1212,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "4d1c983633a3e2bed4f5244bfc3f06893e49578a951ea150c480aa28edf546a4",
+    "content_hash": "5a392b59d38a1d757c4218e255ce60a4648fd1a90bd32fddac10175a0b4e3d91",
     "data": {
       "agent_id": "agent:site-1:ami",
       "assumptions": [],
@@ -1122,6 +1222,9 @@
       "proposal_id": "proposal:fixture",
       "service": "ami",
       "site_id": "site-1",
+      "state_versions": {
+        "site-1/selected_path": 0
+      },
       "steps": [],
       "valid_until_s": 1
     },

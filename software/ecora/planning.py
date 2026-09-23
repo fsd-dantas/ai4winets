@@ -166,6 +166,7 @@ class PlannerProvider:
             return ProviderResult((), {}, {"search": self.search}, "no_op",
                                   {"code": "no_problem", "detail": "No planning problem was supplied."})
         data = problem.data
+        self._versions = dict(data.get("state_versions", {}))
         known = frozenset(data["known_predicates"])
         unknown = frozenset(data["unknown_predicates"])
         operators = catalog(config["sites"], config["costs"])
@@ -219,8 +220,7 @@ class PlannerProvider:
         return self._proposal(agent, config, watermark, tuple(by_id[step] for step in plan),
                               cost, "achieved_in_model" if achieved else "unmet", reference)
 
-    @staticmethod
-    def _proposal(agent, config, watermark, operators, cost, status, reference):
+    def _proposal(self, agent, config, watermark, operators, cost, status, reference):
         steps = [{"operator": operator.action, "target": operator.target,
                   "arguments": dict(operator.arguments),
                   "preconditions": sorted(operator.preconditions),
@@ -237,7 +237,10 @@ class PlannerProvider:
             "service": agent["service"], "steps": steps, "assumptions": [],
             "estimated_cost": sum(step["cost"] for step in steps),
             "valid_until_s": watermark + config.get("validity_s", 1),
-            "goal_status": status, "certificate_ref": reference})
+            "goal_status": status, "certificate_ref": reference,
+            # The actuator versions the problem was observed at, carried to the command so
+            # a write names the state it was decided against.
+            "state_versions": dict(getattr(self, "_versions", {}))})
 
 
 def planner_binding(registry, capability_ids, configuration, search="uniform_cost"):

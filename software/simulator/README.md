@@ -10,7 +10,10 @@ are the register's nominal ones.**
 `unknown_profile`, `unsupported_operator`). A switch affects datagrams released afterwards;
 those already sent keep their leg, and an AMI release interval already being counted
 completes at its old rate. Every answer carries the actuators' readback (selected path,
-pacing, path version), which receipts cite as the resulting state.
+pacing, path and pacing versions), which receipts cite as the resulting state. A command
+must name the version of the actuator it writes, as observed through `actuator_version`;
+one with none is refused `missing_version` and one with an outdated version
+`stale_version`, and neither mutates anything.
 
 `observe` also exports the centre's delivery summary per site, `scada_response`: the mean
 response time of SCADA transactions completed in the window ending 10 ms ago, the

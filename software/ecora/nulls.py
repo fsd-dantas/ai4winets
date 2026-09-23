@@ -11,7 +11,7 @@ comparison it anchors, so a variant belongs to a new provider version.
 
 from functools import partial
 
-from .contracts import Record, digest
+from .contracts import observed_version, Record, digest
 from .registry import ProviderResult
 from .schema import INPUT_TYPES, OPERATORS, OUTPUT_TYPES, STAGES
 
@@ -85,7 +85,8 @@ class NullProvider:
             "service": config.get("service", "ami"), "steps": [step], "assumptions": [],
             "estimated_cost": step["cost"], "valid_until_s": watermark + config.get("validity_s", 1),
             # No search was performed, so no goal may be claimed achieved.
-            "goal_status": "unmet", "certificate_ref": None})
+            "goal_status": "unmet", "certificate_ref": None,
+            "state_versions": dict(problem.data.get("state_versions", {})) if problem else {}})
         return ProviderResult((proposal,), {}, {"policy": "first_feasible", "operator": step["operator"]})
 
     def _command(self, proposal, config, watermark, resolution_id):
@@ -100,13 +101,18 @@ class NullProvider:
         if not capability or not step["preconditions"]:
             return None
         scope, service, field = _SCOPES[step["operator"]]
+        # The version the controller observed; without one there is nothing to check a
+        # stale write against, so no command is written.
+        version = observed_version(proposal.data, step["target"], step["operator"])
+        if version is None:
+            return None
         return Record("ActionCommand", {
             "command_id": f"command:{proposal.data['proposal_id']}", "operator": step["operator"],
             "catalog_version": "v1", "target": step["target"], "scope": scope, "service": service,
             "issuer": proposal.data["agent_id"], "arguments": step["arguments"],
             "argument_units": {}, "read_set": [f'{step["target"]}/{field}'],
             "write_set": [f'{step["target"]}/{field}'],
-            "resource_footprint": [f'{step["target"]}/{service}'], "expected_state_version": 0,
+            "resource_footprint": [f'{step["target"]}/{service}'], "expected_state_version": version,
             "precondition_evidence_ids": step["preconditions"], "resolution_id": resolution_id,
             "authority_capability_id": capability, "not_before_s": watermark,
             "expires_at_s": watermark + config.get("validity_s", 1),

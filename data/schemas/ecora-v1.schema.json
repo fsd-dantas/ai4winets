@@ -1609,6 +1609,9 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
           "type": "string"
         },
+        "state_versions": {
+          "type": "object"
+        },
         "steps": {
           "items": {
             "$ref": "#/$defs/PlanStep"
@@ -1632,7 +1635,8 @@
         "estimated_cost",
         "valid_until_s",
         "goal_status",
-        "certificate_ref"
+        "certificate_ref",
+        "state_versions"
       ],
       "type": "object"
     },
@@ -1787,6 +1791,9 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
           "type": "string"
         },
+        "state_versions": {
+          "type": "object"
+        },
         "time_budget_s": {
           "exclusiveMinimum": 0,
           "type": "number"
@@ -1810,7 +1817,8 @@
         "expansion_budget",
         "time_budget_s",
         "memory_budget_bytes",
-        "horizon_steps"
+        "horizon_steps",
+        "state_versions"
       ],
       "type": "object"
     },

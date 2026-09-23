@@ -100,13 +100,18 @@
       "truth.shared.path_state",
       "truth.ami.pacing_profile",
       "truth.probe.lte",
-      "truth.probe.alternative"
+      "truth.probe.alternative",
+      "truth.scada.response",
+      "truth.shared.path_version",
+      "truth.ami.pacing_version"
     ],
     "telemetry": {
       "reads": [
         "truth.ami.queue_occupancy",
         "truth.shared.path_state",
-        "truth.ami.pacing_profile"
+        "truth.ami.pacing_profile",
+        "truth.shared.path_version",
+        "truth.ami.pacing_version"
       ]
     }
   },
@@ -187,18 +192,40 @@
         "service": "shared",
         "subject": "site-1/alternative",
         "unit": "s"
+      },
+      {
+        "capability_id": "observe.scada.response",
+        "metric": "scada_response",
+        "service": "scada",
+        "subject": "site-1",
+        "unit": "s"
+      },
+      {
+        "capability_id": "observe.shared.path_version",
+        "metric": "actuator_version",
+        "service": "shared",
+        "subject": "site-1/selected_path",
+        "unit": "count"
+      },
+      {
+        "capability_id": "observe.ami.pacing_version",
+        "metric": "actuator_version",
+        "service": "ami",
+        "subject": "site-1/pacing_profile",
+        "unit": "count"
       }
     ],
     "max_observation_age_s": 0.5,
     "neighbourhood": {
       "services": [
         "ami",
+        "scada",
         "shared"
       ],
       "subject": "site-1"
     }
   },
-  "revision": "1",
+  "revision": "2",
   "rules": {
     "activation_budget": 200,
     "rules": [
@@ -337,6 +364,40 @@
           "on_alternative_path"
         ],
         "rule_id": "settled_on_alternative"
+      },
+      {
+        "concludes": "scada_overdue",
+        "condition": {
+          "metric": "scada_response",
+          "op": "ge",
+          "value": 0.25
+        },
+        "contradicts": [
+          "scada_timely"
+        ],
+        "explanation": "The centre reports SCADA transactions completing at or past their 0.25 s deadline on average.",
+        "priority": 10,
+        "requires": [
+          "scada_response"
+        ],
+        "rule_id": "overdue_scada"
+      },
+      {
+        "concludes": "scada_timely",
+        "condition": {
+          "metric": "scada_response",
+          "op": "lt",
+          "value": 0.25
+        },
+        "contradicts": [
+          "scada_overdue"
+        ],
+        "explanation": "The centre reports SCADA transactions completing within their deadline on average.",
+        "priority": 10,
+        "requires": [
+          "scada_response"
+        ],
+        "rule_id": "timely_scada"
       }
     ]
   },

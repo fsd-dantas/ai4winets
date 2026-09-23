@@ -28,7 +28,6 @@ ECoRA stage and not a change to ECoRA's contracts.
 | --- | --- |
 | This page | Problem, research questions, claims, system model and protocol |
 | [Architecture](architecture.md) | Bounded contexts, agent lifecycle, DFS/UTIL/VALUE protocol, invariants and decisions |
-| [Development backlog](development-backlog.md) | Milestones, items, gates and critical path |
 | [Package](../../software/dcop_channel_assignment/README.md) | Implemented modules, commands and verification |
 | [Curitiba inputs](../../data/geography/curitiba-metropolitan/README.md) | Sourced municipal boundaries and their provenance |
 | [Protocol replay](visualization.html) | Offline replay of actual DFS/UTIL messages on the 14-region map |
@@ -153,7 +152,7 @@ While the mobile cell is a region of a planar partition, four channels still alw
 A mobile cell that overlaps existing coverage would add edges that can make the graph
 nonplanar, and then four channels may not suffice. That case is outside the core; it is
 where the K5 validation instance stops being a test fixture and becomes a real outcome, and
-the [backlog](development-backlog.md#optional-successor-studies) keeps it as a successor.
+it is kept as an optional successor study.
 
 ## Why DPOP
 
@@ -255,7 +254,7 @@ core milestones close, with its own frozen protocol:
   and separator widths recorded rather than inferred from stratum labels; cost seeds nested
   within maps in the analysis; 95% intervals with the estimator frozen after the pilot.
 
-The [backlog](development-backlog.md#d5--deferred-comparative-study) holds its items.
+It is deferred and is not part of the core study.
 
 ## Delivery and reproducibility
 

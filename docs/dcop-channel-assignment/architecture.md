@@ -3,8 +3,7 @@
 **Status: DFS and UTIL implemented; VALUE, evaluation, demonstration and mobile-cell
 epochs planned. Revision: 0.2. Date: 2026-09-23.**
 
-[Study design](README.md) · [Development backlog](development-backlog.md) ·
-[Package](../../software/dcop_channel_assignment/README.md)
+[Study design](README.md) · [Package](../../software/dcop_channel_assignment/README.md)
 
 This page describes how the system is built: who owns which model, what an agent can see,
 which messages cross which boundary, and the decisions that shape it. Each element is

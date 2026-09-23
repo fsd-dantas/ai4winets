@@ -55,8 +55,7 @@ invalid inputs, local visibility, immutable inputs, serialization and order inde
 They do not establish DPOP correctness because its protocol is not implemented yet.
 
 Table joins/projection and UTIL propagation are implemented. Next: VALUE reconstruction
-(CA-10). See the [architecture](../../docs/dcop-channel-assignment/architecture.md) and the
-[development backlog](../../docs/dcop-channel-assignment/development-backlog.md).
+(CA-10). See the [architecture](../../docs/dcop-channel-assignment/architecture.md).
 
 The optional [Curitiba map package](../../data/geography/curitiba-metropolitan/README.md)
 contains source provenance, reproduction commands and the geographic validation results.

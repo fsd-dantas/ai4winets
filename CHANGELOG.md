@@ -65,15 +65,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
-- **A simulation fidelity contract and checklist.** `docs/ECoRA/simulation-fidelity.md`
+- **A simulation abstraction framework for every study** in `research/simulation/`. It
   states the rule that a model must keep every mechanism that could reverse the conclusion
-  it serves, declares each mechanism class as included, abstracted, assumed negligible or
-  out of scope, and records those choices for the ns-3 world: a single closed cell with
-  Friis path loss and no fading, proportional-fair scheduling, and UDP flows. It also says
-  which claims each omission rules out. `docs/ECoRA/simulation-checklist.md` sets three gates, for a
-  scenario entering the set, a study freezing and a claim leaving the repository, and marks
-  each item as enforced, partly in place or planned. The per-scenario declaration is
-  planned; nothing in the scenarios changes yet.
+  it serves, and asks each study to declare every model class (spatial world, RF and
+  channel, network and traffic, decision and control, compute, energy, security,
+  cyber-physical coupling) as included, abstracted, assumed negligible or out of scope.
+  It maps each kind of claim to the abstractions it needs, sets assurance requirements
+  from verification to reproducibility, and gives a three-gate checklist for a
+  configuration, a study freeze and a claim. ECoRA and the DPOP study each declare
+  against it, including where they fall short, and the main README presents it. This
+  replaces the ECoRA-only fidelity and checklist pages, whose content is now ECoRA's
+  declaration.
 - **Downward DPOP VALUE reconstruction** (CA-10): the root chooses from its conditional
   choices, and each parent sends each child exactly the child's separator assignment, so
   every agent chooses its own channel once. `agents.solve` runs all three phases and checks

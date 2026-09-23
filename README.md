@@ -51,6 +51,7 @@ would make, and the risk of over-scoping it within a doctoral timeframe.
 ```text
 .
 ├── research/                  # Research framing, questions, methodology, and roadmap
+│   └── simulation/            # Simulation abstraction framework and checklist, for every study
 ├── literature/                # Literature reviews, critical analyses, evidence synthesis
 ├── experiments/               # Studies, their arms, and run artifacts; indexed below
 ├── scenarios/                 # Declared scenario definitions, versioned and frozen per study
@@ -70,6 +71,7 @@ would make, and the risk of over-scoping it within a doctoral timeframe.
 ### Core Documentation
 
 - [Research question and scope](research/research-questions.md) — the question under study, the comparisons that address it, and the boundary of what its evidence can claim.
+- [Simulation abstraction framework](research/simulation/README.md) — how every simulation study here declares what its model includes, abstracts or leaves out, how much fidelity each kind of claim needs, and the checklist a configuration, a study and a claim pass.
 - [Literature](literature/) — references, citation conventions, and provenance notes for every borrowed   formulation. This directory holds engagement with other people's work, always cited.
 - [System contracts](system/) — normative interfaces, telemetry and action contracts; executable validation
   and audited provider boundaries are in the [contract package](software/README.md).
@@ -98,6 +100,22 @@ Every experiment here is an evidence-bearing artifact, and the repository is exp
 No result is generalised beyond its observed model, scenario set, telemetry coverage, action space, software version, and reproducibility evidence. Unavailable telemetry is never presented as observed evidence, and a planned capability is never described in language implying it was measured.
 
 An experiment that reports a result publishes what a reader needs to regenerate it: source and dependency versions, scenario definitions and configuration files, input-data origin, licence and transformations, random seeds and replication count, execution commands, hardware and operating-system constraints, raw or versioned result artifacts, metric definitions and analysis scripts, and the limitations that bound the claim.
+
+### Simulation fidelity
+
+A simulation result holds only within the conditions its model represents, so every simulation study in this repository declares its model against one shared [simulation abstraction framework](research/simulation/README.md), whatever its subject. The governing rule: **the minimum acceptable fidelity is the lowest at which a justified perturbation of the omitted detail cannot plausibly reverse the conclusion.**
+
+- **Declared abstractions.** Each model class — spatial world, RF and channel, network and traffic, decision and control, compute, energy, security, cyber-physical coupling — is declared `included`, `abstracted`, `assumed_negligible` or `out_of_scope`, with a rationale. `out_of_scope` names the claims a result cannot support.
+- **Claim-to-fidelity mapping.** Coverage, capacity, tail-latency, resilience, decision-method and algorithmic claims each list the abstractions that must be credible before the claim is made.
+- **Assurance.** Verification, validation, calibration, sensitivity, statistics and reproducibility requirements, including the rule that agreement between two implementations of one model is verification, not validation.
+- **A three-gate [checklist](research/simulation/checklist.md)** for a configuration entering a study, a study freezing and a claim leaving the repository.
+
+| Study track | Declaration | World |
+| --- | --- | --- |
+| ECoRA | [Simulation declaration](docs/ECoRA/simulation-declaration.md) | ns-3 LTE single closed cell and an abstract alternative leg; finite reference model for exact references |
+| Distributed channel assignment | [Simulation declaration](docs/dcop-channel-assignment/simulation-declaration.md) | Map-bounded constraint problem over a reliable logical transport; radio out of scope |
+
+Each declaration states its status against every checklist item — in place, partial, planned or not applicable — so gaps are visible rather than waived.
 
 Three things are deliberately not restated here. Metric definitions and the rule that a comparison holds its conditions fixed belong to the framework a study is designed under — for ECoRA, the [study freeze contract](docs/ECoRA/methodology.md) and its [metrics and denominators](docs/ECoRA/experiments.md#metrics-and-denominators), where they bind rather than advise. The working conventions are in [CONTRIBUTING.md](CONTRIBUTING.md).
 

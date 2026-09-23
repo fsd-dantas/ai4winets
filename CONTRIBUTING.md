@@ -39,7 +39,8 @@ action space, software version and reproducibility evidence.
 Each experiment lives in `experiments/NNN-name/` with a `README.md` that states:
 
 1. Objective, research question and hypothesis.
-2. System model, scenario, assumptions, and fault or threat conditions.
+2. System model, scenario, assumptions, and fault or threat conditions, with the study's simulation declaration
+   against [`research/simulation/`](research/simulation/README.md).
 3. Software versions, configuration, inputs and execution procedure.
 4. Metrics, results, limitations and reproducibility status.
 5. The scope of the claim the observed evidence supports.
@@ -65,7 +66,8 @@ stated outputs, and read the limitations before relying on a result.
 
 ## Where material belongs
 
-- `research/` — research framing, methodology, questions, ontology and roadmap.
+- `research/` — research framing, methodology, questions, ontology and roadmap. `research/simulation/` holds the
+  simulation abstraction framework and checklist every simulation study declares against.
 - `literature/` — **references**: literature reviews, critical analyses and evidence synthesis drawn from
   other people's work, with full citation.
 - The project **wiki** — **own findings**: theory notes, derivations and study material produced by the

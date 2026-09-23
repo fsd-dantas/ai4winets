@@ -7,6 +7,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Changed
 
+- **The shared bottleneck is demonstrated and measured** (B21). `python -m ecora
+  bottleneck-pilot` sweeps the egress capacity with AMI at normal and throttled pacing, in
+  both worlds and with no controller, and both now instrument every queue per class:
+  arrivals, departures, drops, queueing delay and occupancy. Between 56 and 80 kbit/s in the
+  simulator, SCADA misses every deadline with AMI competing and meets every one with AMI
+  throttled, and the difference is waiting at the egress; both worlds agree that full
+  service starts at 96 kbit/s. The pilot also shows S5 is overload rather than contention:
+  it is kept as a deliberate overload case with a corrected note, and a new member,
+  `s9-contended-egress`, brings contention at the egress into the scenario set. The LTE
+  calibration now records the hash of the leg's construction, so its validity no longer
+  depends on unrelated simulator changes.
 - **The LTE leg is calibrated in the simulator, and degraded LTE means a busy cell at its
   edge** (ADR-30, scenario revision 3). Measured over 567 points, path loss alone makes the
   leg fine or silent for this workload and cell load alone leaves a site plenty; a leg that

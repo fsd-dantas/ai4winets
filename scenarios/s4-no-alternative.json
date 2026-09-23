@@ -91,7 +91,7 @@
       "window_s": 10
     }
   ],
-  "revision": "3",
+  "revision": "4",
   "scenario_id": "scenario:s4-no-alternative",
   "synthetic": true,
   "topology": {
@@ -116,7 +116,7 @@
         "kind": "lte",
         "leg_id": "lte",
         "logical": {
-          "calibration": "b1ba7de3affeafb7be689a96c25207b2311f50b299592383b0b7cfaa73a584cd",
+          "calibration": "28d874c0cde6672cbfae103fd5b25328e7f339a9c82f715260ff2fb0058e6833",
           "capacity_bps": 17317478.4,
           "delay_s": 0.01,
           "rate_table": [

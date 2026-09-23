@@ -68,7 +68,15 @@ topology without both legs the model reasons over.
 | `s2-silent-primary.json` | the serving leg stops carrying bytes entirely (radio loss past the cliff) | 1.0 s |
 | `s3-transient-primary.json` | as S1, and the load leaves, so a controller can be observed reverting | 1.0 s, recovery at 5.0 s |
 | `s4-no-alternative.json` | as S1 while the alternative carries nothing, leaving pacing as the only lever | 1.0 s |
-| `s5-narrow-egress.json` | the shared egress is narrower than the offered load, so the services contend with no disturbance at all | ~4 s, as the queue builds |
+| `s5-narrow-egress.json` | deliberate overload: the shared egress is narrower than SCADA's own load, so no pacing decision can relieve it | from the start |
+| `s9-contended-egress.json` | contention at the shared egress: SCADA alone fits, SCADA with AMI at normal pacing does not, and throttling AMI restores it | from the start |
+
+S6, S7 and S8 are reserved by the parameter register for delayed summaries, initial
+configurations and the interacting-goal microbenchmark, so the egress contention case is
+S9. Contention in the set is at two places: at the LTE leg in S1, S3 and S4, where a
+cell-edge site's services compete for its small share, and at the shared egress in S9. In
+all four, throttling AMI restores SCADA in both worlds; in S5 it does not, which is what
+makes S5 overload rather than contention (B21).
 
 **Visible from** is when the condition starts to show in delivery, and therefore how long a
 run has to be for the scenario to mean anything. A run shorter than that observes the

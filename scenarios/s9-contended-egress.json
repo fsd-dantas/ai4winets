@@ -1,27 +1,5 @@
 {
-  "disturbances": [
-    {
-      "at_s": 0.0,
-      "extra_loss_db": 48,
-      "kind": "radio_loss",
-      "leg": "lte",
-      "site": "site-1"
-    },
-    {
-      "at_s": 1.0,
-      "competing_ues": 5,
-      "kind": "cell_load",
-      "leg": "lte",
-      "site": "site-1"
-    },
-    {
-      "at_s": 5.0,
-      "competing_ues": 0,
-      "kind": "cell_load",
-      "leg": "lte",
-      "site": "site-1"
-    }
-  ],
+  "disturbances": [],
   "flows": [
     {
       "deadline_s": 0.25,
@@ -53,7 +31,7 @@
     }
   ],
   "initial_state": {
-    "note": "As S1, but the competing load leaves at 5 s, so a controller can be observed reverting."
+    "note": "Both legs are unimpaired and the shared egress sits in the contended band: SCADA alone fits, SCADA with AMI at normal pacing does not. SCADA misses its deadlines while AMI competes for the one queue both cross, and meets them when AMI is throttled."
   },
   "parameter_set_hash": "f9e2335725ca652e580c52d30c577ebad2e1ae2e18c6dfab94e2bec4f7ffc48a",
   "required_capability_ids": [
@@ -91,12 +69,12 @@
       "window_s": 10
     }
   ],
-  "revision": "4",
-  "scenario_id": "scenario:s3-transient-primary",
+  "revision": "1",
+  "scenario_id": "scenario:s9-contended-egress",
   "synthetic": true,
   "topology": {
     "egress": {
-      "capacity_bps": 256000,
+      "capacity_bps": 64000,
       "delay_s": 0.001,
       "kind": "point_to_point",
       "leg_id": "egress",

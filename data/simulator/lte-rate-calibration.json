@@ -1,7 +1,8 @@
 {
  "calibrate_source_sha256": "3bdec8b66c8ffb69a2e73870844e87900907793a7ce8b06baf993604f07dca4e",
  "calibration_version": "lte-rate-calibration-v1",
- "dataset_hash": "b1ba7de3affeafb7be689a96c25207b2311f50b299592383b0b7cfaa73a584cd",
+ "dataset_hash": "28d874c0cde6672cbfae103fd5b25328e7f339a9c82f715260ff2fb0058e6833",
+ "lte_leg_sha256": "20d67aa009fe73240c249047b431715d89960ffa70b7bdcb331a06bb9f1fd74c",
  "measured_leg": {
   "queue_limit_bytes": 65536,
   "radio": {
@@ -8031,8 +8032,8 @@
   }
  ],
  "scenario_id": "scenario:s0-nominal",
- "scenario_revision": "2",
- "simulator_build_id": "e0f6e35ca200ac3376b2f1d44fb61795ea84842b999793892740f1946b3b8bd9",
+ "scenario_revision": "3",
+ "simulator_build_id": "fd6b8b4a3005bcf28182157c456fca01dc4e55ab306307e3a9987ec02c0edcdc",
  "spread": [
   {
    "competitors": 0,

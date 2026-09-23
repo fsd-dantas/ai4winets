@@ -48,6 +48,7 @@ COMPETITORS = [1, 2, 3, 4, 5, 6, 8, 10, 15, 20, 25, 30, MAX_COMPETING_UES]
 DIRECTIONS = ("up", "down")
 RUNS = (1, 2, 3)
 WORKERS = 8
+LAUNCH_ATTEMPTS = 3
 
 
 def calibrate_command():
@@ -67,8 +68,15 @@ def measure_point(scenario, loss_db, direction, run, competitors=0, command=None
     command = (command or calibrate_command()) + [
         "--scenario=-", f"--loss={loss_db}", f"--direction={direction}", f"--run={run}",
         f"--competitors={competitors}"]
-    completed = subprocess.run(command, input=json.dumps(scenario).encode(),
-                               capture_output=True, timeout=600)
+    # A launch that produced nothing at all, neither a result nor an error, is a transport
+    # failure (seen through wsl.exe under concurrent launches) and is retried a bounded
+    # number of times. A run that produced output is never retried: repeating a measurement
+    # until it looks right would be choosing the result.
+    for _ in range(LAUNCH_ATTEMPTS):
+        completed = subprocess.run(command, input=json.dumps(scenario).encode(),
+                                   capture_output=True, timeout=600)
+        if completed.returncode == 0 or completed.stdout or completed.stderr:
+            break
     require(completed.returncode == 0,
             f"calibration failed at {loss_db} dB, {competitors} competitors, {direction}: "
             f"{completed.stderr.decode('utf-8', 'replace').strip()[:200]}")
@@ -154,8 +162,15 @@ def lte_leg(scenario):
     return next(leg for leg in data["topology"]["legs"] if leg["kind"] == "lte")
 
 
-def dataset(scenario, points, build_id, model_hash, calibrate_source_sha256):
-    """The calibration as a record: what was measured, with what, and what it implies."""
+def dataset(scenario, points, build_id, model_hash, calibrate_source_sha256, lte_leg_sha256):
+    """The calibration as a record: what was measured, with what, and what it implies.
+
+    Its validity rests on the code that built the measured leg, not on the whole simulator:
+    the ns-3 model, the shared LTE construction and the calibration program. Those three
+    are recorded by hash; the simulator build it ran under is kept as provenance, so an
+    unrelated change to the simulator does not invalidate a measurement of a leg it did
+    not touch.
+    """
     data = scenario.data if isinstance(scenario, Record) else scenario
     leg = lte_leg(data)
     ids = {point.pop("build_id") for point in points}
@@ -165,6 +180,7 @@ def dataset(scenario, points, build_id, model_hash, calibrate_source_sha256):
             "scenario_id": data["scenario_id"], "scenario_revision": data["revision"],
             "simulator_build_id": build_id, "model_hash": model_hash,
             "calibrate_source_sha256": calibrate_source_sha256,
+            "lte_leg_sha256": lte_leg_sha256,
             "method": {"measure": "saturation goodput of application payload",
                        "window_s": points[0]["window_s"], "payload_bytes": points[0]["payload_bytes"],
                        "offered_bps": {d: next(p["offered_bps"] for p in points if p["direction"] == d)

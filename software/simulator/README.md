@@ -49,6 +49,12 @@ calibration program [src/ecora-calibrate/](src/ecora-calibrate/ecora-calibrate.c
 is calibrated is the leg that runs. `python -m ecora calibrate-lte` measures it and
 `--apply` writes the measured rate table into every scenario.
 
+The `cohorts` response also carries `queues`: every device queue on the egress and the
+alternative leg, instrumented per class from its own enqueue, dequeue and drop traces, with
+occupancy over time. The LTE leg's queue is the RLC buffer inside the stack, which exposes
+no such trace, and is reported as not instrumented. `python -m ecora bottleneck-pilot` uses
+this to measure the shared egress in both worlds.
+
 A rate disturbance of zero on the alternative leg is realised as a receive error rate of 1
 at both ends, because a point-to-point device cannot run at zero. Drops are attributed from
 point-to-point queue and PHY drops, IPv4 drops and LTE RLC drops. A datagram discarded where

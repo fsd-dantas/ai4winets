@@ -52,12 +52,18 @@ class CommittedCalibrationTests(unittest.TestCase):
     def setUpClass(cls):
         cls.dataset = calibration.verify(calibration.load())
 
-    def test_it_was_measured_with_the_manifests_build(self):
+    def test_the_code_that_built_the_measured_leg_is_unchanged(self):
+        """Valid while the model, the leg's construction and the measurement are the same.
+
+        The simulator's build identity is provenance, not a condition: instrumenting the
+        simulator elsewhere does not change the leg that was measured.
+        """
         manifest = ns3build.load()
-        self.assertEqual(self.dataset["simulator_build_id"], manifest["simulator_build_id"])
         self.assertEqual(self.dataset["model_hash"], manifest["model_hash"])
+        self.assertEqual(self.dataset["lte_leg_sha256"], manifest["sources"]["ecora-sim/lte-leg.h"])
         self.assertEqual(self.dataset["calibrate_source_sha256"],
                          manifest["sources"]["ecora-calibrate/ecora-calibrate.cc"])
+        self.assertRegex(self.dataset["simulator_build_id"], r"^[0-9a-f]{64}$")
 
     def test_a_tampered_point_breaks_it(self):
         altered = copy.deepcopy(self.dataset)

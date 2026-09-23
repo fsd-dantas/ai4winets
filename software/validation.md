@@ -577,6 +577,54 @@ The arbitration study's `degraded_primary` threshold was re-set from 30 ms to 25
 the calibrated leg's 20 ms unimpaired and 27.5 ms degraded probe round trip; at 30 ms the
 rule could no longer fire, which is the unreachable-mechanism shape recorded in the backlog.
 
+## Shared bottleneck
+
+`python -m ecora bottleneck-pilot` demonstrates and measures the contention v1-scope places
+at the shared egress, in both worlds, uncontrolled, and writes the grid to
+`data/simulator/bottleneck-pilot.json`. The workload is fixed at the nominal scenario with
+AMI every 100 ms, so the two classes offer comparable load. The egress capacity is swept and
+each capacity runs twice: AMI released at the normal pacing profile, and throttled to the
+minimum. Both worlds instrument the egress independently of their ledgers: per class,
+arrivals, departures, drops and queueing delay (arrival to start of transmission), and the
+queue's occupancy over time. One definitional difference is stated rather than hidden: ns-3
+removes the datagram on the wire from the queue, and the finite world counts it until its
+service ends. The LTE leg's queue in ns-3 is the RLC buffer, which exposes no trace, so it
+is reported as not instrumented.
+
+SCADA transactions on time out of 56, finite world / simulator:
+
+| Egress | AMI normal | AMI throttled | SCADA mean wait at the egress, AMI normal / throttled |
+| --- | --- | --- | --- |
+| 48 kbit/s | 0 / 0 | 56 / 5 | 1.63 / 0.02 s; 1.87 / 0.19 s |
+| 64 kbit/s | 0 / 0 | 56 / 56 | 0.87 / 0.003 s; 1.20 / 0.005 s |
+| 80 kbit/s | 53 / 0 | 56 / 56 | 0.09 / 0.002 s; 0.52 / 0.003 s |
+| 96 kbit/s and above | 56 / 56 | 56 / 56 | under 1 ms |
+
+What it establishes:
+
+- **The bottleneck is shared, and it is the egress.** In the contended band, 56 to
+  80 kbit/s in the simulator and 48 to 80 in the finite world, SCADA fails every deadline
+  with AMI at normal pacing and meets every one with AMI throttled. The difference appears
+  as SCADA's wait at the egress, one to two orders of magnitude longer with AMI competing,
+  while the finite world's LTE leg never holds more than one datagram.
+- **Both worlds agree where full service starts:** 96 kbit/s with AMI at normal. They
+  differ on SCADA alone, 48 against 56 kbit/s, by the envelope and header bytes the finite
+  world does not count.
+- **Pacing is the lever that relieves it.** Throttling AMI never made SCADA worse at any
+  capacity in either world.
+- **S5 is overload, not contention.** Its egress, 44 kbit/s, is below what SCADA needs on
+  its own in both worlds, so no pacing decision can save it: throttled, the finite world
+  reaches 24 of 56 and the simulator none. It is kept as deliberate overload and its note
+  now says so.
+- **S9 adds contention at the egress to the set.** A 64 kbit/s egress with AMI every
+  100 ms and both legs unimpaired: SCADA 0 of 56 on time at normal pacing and 56 of 56
+  throttled, in both worlds, with SCADA's egress wait falling from 0.87 s (finite) and
+  1.20 s (simulator) to a few milliseconds. With S1, S3 and S4, where the site's services
+  contend for its LTE share, the set now holds contention at both places v1-scope names.
+
+A light workload below the contended band never queues, which is why the pilot fixes AMI at
+100 ms: a capacity label is only meaningful against the demand it was measured under.
+
 ## Simulator adapter
 
 `ecora.simulator` drives the simulator from Windows through WSL. For every scenario the

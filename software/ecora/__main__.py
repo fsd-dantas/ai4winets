@@ -364,6 +364,8 @@ def main(argv=None):
                      help="the scenario whose LTE leg is measured")
     lte.add_argument("--apply", action="store_true",
                      help="write the measured interpretation into every scenario under scenarios/")
+    commands.add_parser("bottleneck-pilot",
+                        help="measure the shared egress bottleneck in both worlds")
     args = parser.parse_args(argv)
     try:
         if args.command in {"schema", "fixtures"}:
@@ -413,7 +415,8 @@ def main(argv=None):
             points = calibration.measure(spec.data)
             built = calibration.dataset(
                 spec.data, points, manifest["simulator_build_id"], manifest["model_hash"],
-                manifest["sources"]["ecora-calibrate/ecora-calibrate.cc"])
+                manifest["sources"]["ecora-calibrate/ecora-calibrate.cc"],
+                manifest["sources"]["ecora-sim/lte-leg.h"])
             path = calibration.write(built)
             table = built["table"]
             print(f"{len(points)} points in {time.perf_counter() - started:.0f} s -> {path}")
@@ -432,6 +435,37 @@ def main(argv=None):
                     scenario_path.write_text(json.dumps(updated, indent=2, sort_keys=True) + "\n",
                                              encoding="utf-8", newline="\n")
                     print(f"  applied to {scenario_path.name} -> revision {updated['revision']}")
+        elif args.command == "bottleneck-pilot":
+            from . import bottleneck, ns3build
+            manifest = ns3build.verify(ns3build.load())
+            base = _scenario("s0-nominal")
+            started = time.perf_counter()
+            results = bottleneck.pilot(base)
+            built = bottleneck.dataset(base, results, manifest["simulator_build_id"],
+                                       manifest["model_hash"])
+            path = bottleneck.write(built)
+            print(f"ECoRA -- shared bottleneck pilot, {time.perf_counter() - started:.0f} s -> {path}")
+            print(f"  nominal scenario, AMI every {bottleneck.AMI_PERIOD_S} s; egress capacity "
+                  f"and AMI pacing varied; no controller\n")
+            print(f"  {'world':<10}{'egress':>8}  {'pacing':<9}{'SCADA on time':>14}"
+                  f"{'SCADA wait mean/max s':>24}{'AMI wait mean s':>17}{'occupancy mean B':>18}")
+            for world, result in results.items():
+                for cell in result["cells"]:
+                    outcome = cell["outcome"]
+                    scada = outcome["services"]["scada"]
+                    up = outcome["egress"]["up"]["by_service"]
+                    wait = up.get("scada", {})
+                    ami = up.get("ami", {})
+                    fmt = lambda v: "   n/a" if v is None else f"{v:6.3f}"
+                    print(f"  {world:<10}{cell['capacity_bps'] // 1000:>6}k  {cell['pacing']:<9}"
+                          f"{scada['on_time']:>6}/{scada['generated']:<7}"
+                          f"{fmt(wait.get('delay_mean_s')):>12} /{fmt(wait.get('delay_max_s')):>7}"
+                          f"{fmt(ami.get('delay_mean_s')):>17}"
+                          f"{outcome['egress']['up']['occupancy_mean_bytes']:>18.0f}")
+                label = result["labels"]
+                print(f"  {world:<10}attainable (SCADA >= {label['service_target']}): "
+                      f"{label['attainable_capacity_bps']}; contended band: "
+                      f"{label['contended_capacities_bps']}\n")
         elif args.command == "verify":
             if not (args.directory / "journal.jsonl").is_file():
                 raise ContractError("no existing artifact journal at this path")

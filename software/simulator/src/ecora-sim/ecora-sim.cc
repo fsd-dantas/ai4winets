@@ -38,7 +38,9 @@
 #include <cstdint>
 #include <cstdio>
 #include <deque>
+#include <functional>
 #include <iostream>
+#include <memory>
 #include <map>
 #include <optional>
 #include <set>
@@ -133,6 +135,118 @@ class ObligationTag : public Tag
     {
         os << "obligation=" << id << " kind=" << int(kind);
     }
+};
+
+// Independent instrumentation of one device queue: per service, what arrived, what began
+// transmission, what was dropped and how long each waited, and the byte occupancy over time.
+// It reads the queue's own traces and the identity on each datagram, and nothing else.
+class QueueProbe
+{
+  public:
+    using Classify = std::function<std::string(Ptr<const Packet>)>;
+
+    QueueProbe(Ptr<Queue<Packet>> queue, uint64_t capacityBps, Classify classify)
+        : m_queue(queue),
+          m_capacityBps(capacityBps),
+          m_classify(std::move(classify))
+    {
+        queue->TraceConnectWithoutContext("Enqueue", MakeCallback(&QueueProbe::Enqueued, this));
+        queue->TraceConnectWithoutContext("Dequeue", MakeCallback(&QueueProbe::Dequeued, this));
+        queue->TraceConnectWithoutContext("Drop", MakeCallback(&QueueProbe::Dropped, this));
+    }
+
+    json Report() const
+    {
+        double now = Simulator::Now().GetSeconds();
+        double area = m_area + m_bytes * (now - m_changed);
+        json services = json::object();
+        for (const auto& [service, s] : m_services)
+        {
+            services[service] = {{"arrivals", s.arrivals},
+                                 {"departures", s.departures},
+                                 {"drops", s.drops},
+                                 {"bytes_arrived", s.bytes},
+                                 {"delay_mean_s", s.departures ? json(s.delay / s.departures) : json()},
+                                 {"delay_max_s", s.departures ? json(s.delayMax) : json()}};
+        }
+        QueueSizeValue limit;
+        m_queue->GetAttribute("MaxSize", limit);
+        return {{"instrumented", true},
+                {"capacity_bps", m_capacityBps},
+                {"queue_limit_bytes", limit.Get().GetValue()},
+                {"occupancy_mean_bytes", now > 0 ? area / now : 0.0},
+                {"occupancy_peak_bytes", m_peak},
+                {"held_bytes", m_bytes},
+                {"by_service", services}};
+    }
+
+  private:
+    struct Stats
+    {
+        uint64_t arrivals = 0, departures = 0, drops = 0, bytes = 0;
+        double delay = 0, delayMax = 0;
+    };
+
+    void Occupy(int64_t delta)
+    {
+        double now = Simulator::Now().GetSeconds();
+        m_area += m_bytes * (now - m_changed);
+        m_changed = now;
+        m_bytes += delta;
+        m_peak = std::max(m_peak, m_bytes);
+    }
+
+    void Enqueued(Ptr<const Packet> packet)
+    {
+        Stats& s = m_services[m_classify(packet)];
+        ++s.arrivals;
+        s.bytes += packet->GetSize();
+        m_entered[packet->GetUid()] = Simulator::Now().GetSeconds();
+        Occupy(packet->GetSize());
+    }
+
+    void Dequeued(Ptr<const Packet> packet)
+    {
+        Stats& s = m_services[m_classify(packet)];
+        auto entered = m_entered.find(packet->GetUid());
+        if (entered != m_entered.end())
+        {
+            double waited = Simulator::Now().GetSeconds() - entered->second;
+            ++s.departures;
+            s.delay += waited;
+            s.delayMax = std::max(s.delayMax, waited);
+            m_entered.erase(entered);
+        }
+        Occupy(-int64_t(packet->GetSize()));
+    }
+
+    void Dropped(Ptr<const Packet> packet)
+    {
+        // A tail drop never entered the queue: it counts as an arrival and a drop.
+        Stats& s = m_services[m_classify(packet)];
+        auto entered = m_entered.find(packet->GetUid());
+        if (entered != m_entered.end())
+        {
+            m_entered.erase(entered);
+            Occupy(-int64_t(packet->GetSize()));
+        }
+        else
+        {
+            ++s.arrivals;
+            s.bytes += packet->GetSize();
+        }
+        ++s.drops;
+    }
+
+    Ptr<Queue<Packet>> m_queue;
+    uint64_t m_capacityBps;
+    Classify m_classify;
+    std::map<std::string, Stats> m_services;
+    std::map<uint64_t, double> m_entered;
+    int64_t m_bytes = 0;
+    int64_t m_peak = 0;
+    double m_area = 0;
+    double m_changed = 0;
 };
 
 struct Obligation
@@ -246,6 +360,9 @@ class World
     Ptr<Socket> m_backgroundReceive;
     Ipv4Address m_backgroundAddress;
     uint64_t m_backgroundDrops = 0;
+
+    void Instrument();
+    std::vector<std::pair<std::string, std::unique_ptr<QueueProbe>>> m_probes;
 };
 
 double
@@ -366,6 +483,7 @@ World::Configure(const json& request)
     BuildEgress(topology.at("egress"));
     BuildBackground();
     Route();
+    Instrument();
     Schedule();
     m_configured = true;
     return Resolved();
@@ -613,6 +731,41 @@ World::Route()
         MakeBoundCallback(+[](World* world, uint64_t, uint16_t, uint16_t, uint8_t) {
             Simulator::ScheduleNow(&World::WatchBearers, world);
         }, this));
+}
+
+void
+World::Instrument()
+{
+    // A datagram's class comes from the identity it carries: the obligation's service.
+    auto classify = [this](Ptr<const Packet> packet) -> std::string {
+        ObligationTag tag;
+        if (!packet->PeekPacketTag(tag))
+        {
+            return "untagged";
+        }
+        if (tag.id == 0)
+        {
+            return "background";
+        }
+        auto found = m_ledger.find(tag.id);
+        return found == m_ledger.end() ? "unknown" : found->second.service;
+    };
+    auto probe = [&](const std::string& name, Ptr<PointToPointNetDevice> device) {
+        DataRateValue rate;
+        device->GetAttribute("DataRate", rate);
+        m_probes.emplace_back(name,
+                              std::make_unique<QueueProbe>(device->GetQueue(),
+                                                           rate.Get().GetBitRate(),
+                                                           classify));
+    };
+    // Toward the application is up, as it is for the legs.
+    probe("egress/up", m_egressCentral);
+    probe("egress/down", m_egressApplication);
+    for (auto& site : m_sites)
+    {
+        probe(site.name + "/alternative/up", site.altGateway);
+        probe(site.name + "/alternative/down", site.altCentral);
+    }
 }
 
 void
@@ -1101,7 +1254,25 @@ World::Cohorts(const json& request)
         cohort["censored"] = censored;
         result.push_back(cohort);
     }
+    json queues = json::object();
+    for (const auto& [name, probe] : m_probes)
+    {
+        queues[name] = probe->Report();
+    }
+    for (const auto& site : m_sites)
+    {
+        // The LTE leg's queue is the RLC transmission buffer inside the stack, which
+        // exposes no enqueue or dequeue trace. It is reported as not instrumented rather
+        // than estimated.
+        for (const char* direction : {"up", "down"})
+        {
+            queues[site.name + "/lte/" + direction] = {
+                {"instrumented", false},
+                {"reason", "the RLC transmission buffer exposes no queue trace"}};
+        }
+    }
     return {{"cohorts", result},
+            {"queues", queues},
             {"accounting",
              {{"untraced_drops", m_untracedDrops},
               {"background_drops", m_backgroundDrops},

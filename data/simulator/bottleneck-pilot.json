@@ -1,0 +1,3783 @@
+{
+ "base_scenario_hash": "8b42e6fff404ed3468f7e9986adc4f5f14e323680d6c03c63e2c9669c80ff5be",
+ "base_scenario_id": "scenario:s0-nominal",
+ "base_scenario_revision": "3",
+ "dataset_hash": "ce2a961e17b1159ca6811996c65d9774f2c59b2f8998cf8d47edb29bc7618938",
+ "design": {
+  "capacities_bps": [
+   48000,
+   56000,
+   64000,
+   72000,
+   80000,
+   96000,
+   128000,
+   256000
+  ],
+  "fixed": "nominal scenario, AMI every 0.1 s, no controller",
+  "horizon_s": 8.0,
+  "occupancy_difference": "ns-3 excludes the datagram on the wire; the finite world includes it",
+  "pacings": [
+   "normal",
+   "minimum"
+  ],
+  "queueing_delay": "arrival to start of transmission",
+  "varied": "egress capacity and AMI pacing profile",
+  "window": {
+   "end_s": 7.0,
+   "start_s": 1.5
+  }
+ },
+ "model_hash": "64b9a0f7904de5eab8bc6a7ce6a41c1abf965659c6f3a5d78b9d09f5bb58cd76",
+ "pilot_version": "bottleneck-pilot-v1",
+ "results": {
+  "finite": {
+   "cells": [
+    {
+     "capacity_bps": 48000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 48000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 27.306666666667038,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 48000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 3.305392464344016,
+          "delay_mean_s": 1.6800591310106687,
+          "departures": 47,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 3.250666666666681,
+          "delay_mean_s": 1.6253333333333353,
+          "departures": 47,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 48000,
+        "held_bytes": 34304,
+        "occupancy_mean_bytes": 17383.696315239282,
+        "occupancy_peak_bytes": 34816,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 48000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 2.4220061969299422,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 31,
+        "on_time_ratio": 0.5535714285714286,
+        "pending": 25
+       },
+       "scada": {
+        "generated": 56,
+        "late": 32,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 24
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 48000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 48000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 27.306666666667038,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 48000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 3584,
+          "delay_max_s": 0.01872579767733562,
+          "delay_mean_s": 0.018725797677332765,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.07066666666666777,
+          "delay_mean_s": 0.018083333333333867,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 48000,
+        "held_bytes": 512,
+        "occupancy_mean_bytes": 574.258235436036,
+        "occupancy_peak_bytes": 1024,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 48000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 8,
+          "bytes_arrived": 4096,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 8,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 512,
+        "occupancy_mean_bytes": 1.316965869580656,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    },
+    {
+     "capacity_bps": 56000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 56000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 23.405714285714716,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 56000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 2.492630559582085,
+          "delay_mean_s": 1.2660591310106621,
+          "departures": 54,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 2.4994285714285596,
+          "delay_mean_s": 1.249714285714281,
+          "departures": 55,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 56000,
+        "held_bytes": 26624,
+        "occupancy_mean_bytes": 13421.837667899963,
+        "occupancy_peak_bytes": 26624,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 56000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 2.4220061969299422,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 39,
+        "on_time_ratio": 0.6964285714285714,
+        "pending": 17
+       },
+       "scada": {
+        "generated": 56,
+        "late": 39,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 17
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 56000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 56000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 23.405714285714716,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 56000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 3584,
+          "delay_max_s": 0.0034877024392399036,
+          "delay_mean_s": 0.003487702439237176,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.04628571428571471,
+          "delay_mean_s": 0.005749999999999961,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 56000,
+        "held_bytes": 512,
+        "occupancy_mean_bytes": 437.38356876936444,
+        "occupancy_peak_bytes": 1024,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 56000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 8,
+          "bytes_arrived": 4096,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 8,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 512,
+        "occupancy_mean_bytes": 1.3169658695806559,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    },
+    {
+     "capacity_bps": 64000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 64000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 20.480000000000217,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 64000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 1.7360591310106797,
+          "delay_mean_s": 0.8820591310106707,
+          "departures": 62,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 1.7360000000000122,
+          "delay_mean_s": 0.8680000000000037,
+          "departures": 63,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 64000,
+        "held_bytes": 18432,
+        "occupancy_mean_bytes": 9455.749561531778,
+        "occupancy_peak_bytes": 18944,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 64000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 2.4220061969299422,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 47,
+        "on_time_ratio": 0.8392857142857143,
+        "pending": 9
+       },
+       "scada": {
+        "generated": 56,
+        "late": 47,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 9
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 64000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 64000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 20.480000000000217,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 64000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 3584,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.03594086898934101,
+          "delay_mean_s": 0.0031448260365667642,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 64000,
+        "held_bytes": 512,
+        "occupancy_mean_bytes": 372.3065873838093,
+        "occupancy_peak_bytes": 1024,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 64000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 8,
+          "bytes_arrived": 4096,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 8,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 512,
+        "occupancy_mean_bytes": 1.3169658695806559,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    },
+    {
+     "capacity_bps": 72000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 72000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 18.20444444444455,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 72000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.9698369087884346,
+          "delay_mean_s": 0.4945035754551101,
+          "departures": 70,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.9506666666666561,
+          "delay_mean_s": 0.4753333333333317,
+          "departures": 70,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 72000,
+        "held_bytes": 10752,
+        "occupancy_mean_bytes": 5487.649390382932,
+        "occupancy_peak_bytes": 10752,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 72000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 2.4220061969299422,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 54,
+        "on_time_ratio": 0.9642857142857143,
+        "pending": 2
+       },
+       "scada": {
+        "generated": 56,
+        "late": 55,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 1
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 72000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 72000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 18.20444444444455,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 72000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 3584,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.03060753565600738,
+          "delay_mean_s": 0.002678159369900085,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 72000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 330.469509307221,
+        "occupancy_peak_bytes": 1024,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 72000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 8,
+          "bytes_arrived": 4096,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 8,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 512,
+        "occupancy_mean_bytes": 1.3169658695806559,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    },
+    {
+     "capacity_bps": 80000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 80000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 16.3840000000004,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 80000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.19685913101065822,
+          "delay_mean_s": 0.10445913101066516,
+          "departures": 78,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.1847999999999903,
+          "delay_mean_s": 0.09239999999999782,
+          "departures": 78,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 80000,
+        "held_bytes": 2560,
+        "occupancy_mean_bytes": 1516.8801411575303,
+        "occupancy_peak_bytes": 2560,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 80000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 2.4220061969299413,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       },
+       "scada": {
+        "generated": 56,
+        "late": 3,
+        "lost": 0,
+        "on_time": 53,
+        "on_time_ratio": 0.9464285714285714,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 80000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 80000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 16.3840000000004,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 80000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 3584,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.026340868989340294,
+          "delay_mean_s": 0.002304826036566729,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 80000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 296.8823093072209,
+        "occupancy_peak_bytes": 1024,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 80000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 8,
+          "bytes_arrived": 4096,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 8,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 512,
+        "occupancy_mean_bytes": 1.316965869580655,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    },
+    {
+     "capacity_bps": 96000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 96000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 13.653333333333395,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 96000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0013924643440006435,
+          "delay_mean_s": 0.0013924643440004715,
+          "departures": 80,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 96000,
+        "held_bytes": 512,
+        "occupancy_mean_bytes": 442.86516218453545,
+        "occupancy_peak_bytes": 1024,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 96000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 2.4220061969299422,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 96000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 96000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 13.653333333333395,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 96000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 3584,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.019940868989341,
+          "delay_mean_s": 0.0017448260365667601,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 96000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 246.5015093072213,
+        "occupancy_peak_bytes": 1024,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 96000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 8,
+          "bytes_arrived": 4096,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 8,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 512,
+        "occupancy_mean_bytes": 1.3169658695806559,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    },
+    {
+     "capacity_bps": 128000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 128000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 10.240000000000206,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 128000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 128000,
+        "held_bytes": 512,
+        "occupancy_mean_bytes": 327.28086246127026,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 128000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 2.4220061969299422,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 128000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 128000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 10.240000000000206,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 128000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 3584,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.011940868989340991,
+          "delay_mean_s": 0.0010448260365667622,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 128000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 183.52550930722197,
+        "occupancy_peak_bytes": 1024,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 128000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 8,
+          "bytes_arrived": 4096,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 8,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 512,
+        "occupancy_mean_bytes": 1.3169658695806559,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    },
+    {
+     "capacity_bps": 256000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 256000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 5.1199999999999175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 256000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 256000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 163.84000000000015,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 256000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413174,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 2.4220061969299422,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 256000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 81,
+          "bytes_arrived": 10368,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 81,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 256000,
+        "held_bytes": 128,
+        "occupancy_mean_bytes": 5.1199999999999175,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 256000
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 3584,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 256000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 89.08800000000008,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 256000
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 1000000
+       },
+       "site-1/lte/down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 10240,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 0,
+        "occupancy_mean_bytes": 0.07568769365413174,
+        "occupancy_peak_bytes": 128,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       },
+       "site-1/lte/up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 8,
+          "bytes_arrived": 4096,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 8,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 40960,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 17317478.4,
+        "held_bytes": 512,
+        "occupancy_mean_bytes": 1.3169658695806559,
+        "occupancy_peak_bytes": 512,
+        "queue_limit_bytes": 65536,
+        "rate_bps": 17317478.4
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    }
+   ],
+   "labels": {
+    "attainable_capacity_bps": {
+     "minimum": 48000,
+     "normal": 96000
+    },
+    "contended_capacities_bps": [
+     48000,
+     56000,
+     64000,
+     72000,
+     80000
+    ],
+    "service_target": 0.99
+   }
+  },
+  "simulated": {
+   "cells": [
+    {
+     "capacity_bps": 48000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 48000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 3.814333361,
+          "delay_mean_s": 1.942000014,
+          "departures": 42,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 3.744666694,
+          "delay_mean_s": 1.8723333470000003,
+          "departures": 42,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 48000,
+        "held_bytes": 43624,
+        "instrumented": true,
+        "occupancy_mean_bytes": 21778.985334557496,
+        "occupancy_peak_bytes": 44198,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 26,
+        "on_time_ratio": 0.4642857142857143,
+        "pending": 30
+       },
+       "scada": {
+        "generated": 56,
+        "late": 27,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 29
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 48000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 48000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 4018,
+          "delay_max_s": 0.3476666890000004,
+          "delay_mean_s": 0.19066667800000014,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 0.40533335599999987,
+          "delay_mean_s": 0.19114474764473685,
+          "departures": 76,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 48000,
+        "held_bytes": 2296,
+        "instrumented": true,
+        "occupancy_mean_bytes": 1195.19468746825,
+        "occupancy_peak_bytes": 2870,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 51,
+        "lost": 0,
+        "on_time": 5,
+        "on_time_ratio": 0.08928571428571429,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    },
+    {
+     "capacity_bps": 56000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 56000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 3.0619999999999994,
+          "delay_mean_s": 1.5579999999999992,
+          "departures": 48,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 3.0740000000000007,
+          "delay_mean_s": 1.5379591836734687,
+          "departures": 49,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 56000,
+        "held_bytes": 36162,
+        "instrumented": true,
+        "occupancy_mean_bytes": 17838.811122692,
+        "occupancy_peak_bytes": 36162,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 33,
+        "on_time_ratio": 0.5892857142857143,
+        "pending": 23
+       },
+       "scada": {
+        "generated": 56,
+        "late": 33,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 23
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 56000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 56000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 4018,
+          "delay_max_s": 0.016000000000000014,
+          "delay_mean_s": 0.016000000000000014,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 0.06400000000000006,
+          "delay_mean_s": 0.012950000000000022,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 56000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 82.36900000000013,
+        "occupancy_peak_bytes": 574,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    },
+    {
+     "capacity_bps": 64000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 64000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 2.3927499999999995,
+          "delay_mean_s": 1.2182499999999998,
+          "departures": 55,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 2.3984999999999994,
+          "delay_mean_s": 1.2021428571428572,
+          "departures": 56,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 64000,
+        "held_bytes": 28126,
+        "instrumented": true,
+        "occupancy_mean_bytes": 13910.025546816001,
+        "occupancy_peak_bytes": 28126,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 40,
+        "on_time_ratio": 0.7142857142857143,
+        "pending": 16
+       },
+       "scada": {
+        "generated": 56,
+        "late": 40,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 16
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 64000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 64000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 4018,
+          "delay_max_s": 0.0017500000000003624,
+          "delay_mean_s": 0.0017500000000002039,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 0.043500000000000094,
+          "delay_mean_s": 0.005140624999999991,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 64000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 30.386125000000053,
+        "occupancy_peak_bytes": 574,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    },
+    {
+     "capacity_bps": 72000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 72000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 1.7166666940000006,
+          "delay_mean_s": 0.8762222359999999,
+          "departures": 62,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 1.716444472,
+          "delay_mean_s": 0.8620952518730159,
+          "departures": 63,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 72000,
+        "held_bytes": 20090,
+        "instrumented": true,
+        "occupancy_mean_bytes": 9970.067025065,
+        "occupancy_peak_bytes": 20090,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 47,
+        "on_time_ratio": 0.8392857142857143,
+        "pending": 9
+       },
+       "scada": {
+        "generated": 56,
+        "late": 47,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 9
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 72000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 72000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 4018,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 0.03577777800000015,
+          "delay_mean_s": 0.0031305555749999965,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 72000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 17.96938900049998,
+        "occupancy_peak_bytes": 574,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    },
+    {
+     "capacity_bps": 80000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 80000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 1.0338000000000003,
+          "delay_mean_s": 0.5306,
+          "departures": 69,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 1.0292000000000003,
+          "delay_mean_s": 0.5184857142857144,
+          "departures": 70,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 80000,
+        "held_bytes": 12054,
+        "instrumented": true,
+        "occupancy_mean_bytes": 6010.419657564,
+        "occupancy_peak_bytes": 12054,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 54,
+        "on_time_ratio": 0.9642857142857143,
+        "pending": 2
+       },
+       "scada": {
+        "generated": 56,
+        "late": 54,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 2
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 80000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 80000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 4018,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 0.03140000000000054,
+          "delay_mean_s": 0.0027475000000000195,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 80000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 15.770650000000106,
+        "occupancy_peak_bytes": 574,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    },
+    {
+     "capacity_bps": 96000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 96000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 0.005833333000000107,
+          "delay_mean_s": 0.0057604163374999975,
+          "departures": 80,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 79,
+          "bytes_arrived": 45346,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 79,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 96000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 33.06478977725001,
+        "occupancy_peak_bytes": 574,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 96000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 96000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 4018,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 79,
+          "bytes_arrived": 45346,
+          "delay_max_s": 0.025833333000000014,
+          "delay_mean_s": 0.0022890295063290925,
+          "departures": 79,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 96000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 12.974791499249879,
+        "occupancy_peak_bytes": 574,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    },
+    {
+     "capacity_bps": 128000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 128000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 79,
+          "bytes_arrived": 45346,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 79,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 128000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 574,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 128000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 128000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 4018,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 79,
+          "bytes_arrived": 45346,
+          "delay_max_s": 0.017875000000000085,
+          "delay_mean_s": 0.0015838607594936673,
+          "departures": 79,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 128000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 8.97771874999998,
+        "occupancy_peak_bytes": 574,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    },
+    {
+     "capacity_bps": 256000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 256000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 80,
+          "bytes_arrived": 45920,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 79,
+          "bytes_arrived": 45346,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 79,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 256000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 574,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "normal"
+    },
+    {
+     "capacity_bps": 256000,
+     "outcome": {
+      "egress": {
+       "down": {
+        "by_service": {
+         "scada": {
+          "arrivals": 80,
+          "bytes_arrived": 15200,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 80,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 256000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 190,
+        "queue_limit_bytes": 65536
+       },
+       "up": {
+        "by_service": {
+         "ami": {
+          "arrivals": 7,
+          "bytes_arrived": 4018,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 7,
+          "drops": 0
+         },
+         "scada": {
+          "arrivals": 79,
+          "bytes_arrived": 45346,
+          "delay_max_s": 0.005937500000000151,
+          "delay_mean_s": 0.0005261075949367054,
+          "departures": 79,
+          "drops": 0
+         }
+        },
+        "capacity_bps": 256000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 2.9821093749999803,
+        "occupancy_peak_bytes": 574,
+        "queue_limit_bytes": 65536
+       }
+      },
+      "legs": {
+       "site-1/alternative/down": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/alternative/up": {
+        "by_service": {},
+        "capacity_bps": 1000000,
+        "held_bytes": 0,
+        "instrumented": true,
+        "occupancy_mean_bytes": 0.0,
+        "occupancy_peak_bytes": 0,
+        "queue_limit_bytes": 65536
+       },
+       "site-1/lte/down": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       },
+       "site-1/lte/up": {
+        "instrumented": false,
+        "reason": "the RLC transmission buffer exposes no queue trace"
+       }
+      },
+      "services": {
+       "ami": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 0,
+        "on_time_ratio": 0.0,
+        "pending": 56
+       },
+       "scada": {
+        "generated": 56,
+        "late": 0,
+        "lost": 0,
+        "on_time": 56,
+        "on_time_ratio": 1.0,
+        "pending": 0
+       }
+      }
+     },
+     "pacing": "minimum"
+    }
+   ],
+   "labels": {
+    "attainable_capacity_bps": {
+     "minimum": 56000,
+     "normal": 96000
+    },
+    "contended_capacities_bps": [
+     56000,
+     64000,
+     72000,
+     80000
+    ],
+    "service_target": 0.99
+   }
+  }
+ },
+ "simulator_build_id": "fd6b8b4a3005bcf28182157c456fca01dc4e55ab306307e3a9987ec02c0edcdc"
+}

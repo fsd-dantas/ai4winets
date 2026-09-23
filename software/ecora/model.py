@@ -70,6 +70,41 @@ class _Queue:
     busy: bool = False
     served_bytes: int = 0
     dropped: int = 0
+    # Instrumentation, kept by the queue itself so it is independent of any ledger: per
+    # service, what arrived, what began transmission, what was dropped, and how long each
+    # waited; and the byte occupancy integrated over time.
+    by_service: dict = field(default_factory=dict)
+    arrived_at: dict = field(default_factory=dict)
+    area_byte_s: float = 0.0
+    changed_s: float = 0.0
+    peak_bytes: int = 0
+
+    def service_stats(self, service):
+        return self.by_service.setdefault(service, {
+            "arrivals": 0, "departures": 0, "drops": 0, "bytes_arrived": 0,
+            "delay_total_s": 0.0, "delay_max_s": 0.0})
+
+    def occupy(self, delta, now):
+        self.area_byte_s += self.occupied_bytes * (now - self.changed_s)
+        self.changed_s = now
+        self.occupied_bytes += delta
+        self.peak_bytes = max(self.peak_bytes, self.occupied_bytes)
+
+    def report(self, now):
+        area = self.area_byte_s + self.occupied_bytes * (now - self.changed_s)
+        services = {}
+        for service, stats in sorted(self.by_service.items()):
+            departed = stats["departures"]
+            services[service] = {
+                "arrivals": stats["arrivals"], "departures": departed, "drops": stats["drops"],
+                "bytes_arrived": stats["bytes_arrived"],
+                "delay_mean_s": stats["delay_total_s"] / departed if departed else None,
+                "delay_max_s": stats["delay_max_s"] if departed else None}
+        return {"capacity_bps": self.link.capacity_bps, "rate_bps": self.rate_bps,
+                "queue_limit_bytes": self.link.queue_limit_bytes,
+                "occupancy_mean_bytes": area / now if now > 0 else 0.0,
+                "occupancy_peak_bytes": self.peak_bytes, "held_bytes": self.occupied_bytes,
+                "by_service": services}
 
 
 @dataclass(frozen=True)
@@ -269,12 +304,17 @@ class FiniteModel:
     def _arrive(self, packet, hop):
         key = packet.route[hop]
         queue = self._queues[key]
+        stats = queue.service_stats(packet.service)
+        stats["arrivals"] += 1
+        stats["bytes_arrived"] += packet.size_bytes
         if queue.occupied_bytes + packet.size_bytes > queue.link.queue_limit_bytes:
             queue.dropped += 1
+            stats["drops"] += 1
             self.dropped.append((self._obligations[packet.obligation_id], self.now,
                                  "queue_overflow"))
             return
-        queue.occupied_bytes += packet.size_bytes
+        queue.occupy(packet.size_bytes, self.now)
+        queue.arrived_at[packet.packet_id] = self.now
         queue.pending.append((packet, hop))
         if not queue.busy:
             self._start_service(key)
@@ -291,13 +331,19 @@ class FiniteModel:
             queue.busy = False
             return
         queue.busy = True
+        # Queueing delay ends where transmission starts, as it does at an ns-3 device.
+        stats = queue.service_stats(packet.service)
+        waited = self.now - queue.arrived_at.pop(packet.packet_id)
+        stats["departures"] += 1
+        stats["delay_total_s"] += waited
+        stats["delay_max_s"] = max(stats["delay_max_s"], waited)
         self._schedule(self.now + (packet.size_bytes * 8) / rate, "serviced",
                        {"key": key, "packet_id": packet.packet_id})
 
     def _on_serviced(self, data):
         queue = self._queues[data["key"]]
         packet, hop = queue.pending.popleft()
-        queue.occupied_bytes -= packet.size_bytes
+        queue.occupy(-packet.size_bytes, self.now)
         queue.served_bytes += packet.size_bytes
         arrival = self.now + queue.link.delay_s
         if hop + 1 < len(packet.route):
@@ -434,6 +480,16 @@ class FiniteModel:
                 "held_ami": {site: len(pending) for site, pending in self._ami_pending.items()},
                 "generated": len(self.generated), "delivered": len(self.delivered),
                 "dropped": len(self.dropped)}
+
+    def queues(self):
+        """Every queue's instrumentation, named `egress/<direction>` or `<site>/<leg>/<direction>`.
+
+        Evaluator evidence, like the cohorts: it describes where traffic waited, and no
+        controller reads it.
+        """
+        return {("egress/" + direction if site == "egress" else f"{site}/{leg}/{direction}"):
+                queue.report(self.now)
+                for (site, leg, direction), queue in sorted(self._queues.items())}
 
     def cohorts(self, cohort_specs):
         """Measured counts for the study's frozen cohort specifications."""

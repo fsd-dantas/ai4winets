@@ -185,6 +185,10 @@ class Ns3World:
     def accounting(self, cohort_specs=()):
         return self.client.request("cohorts", cohort_specs=list(cohort_specs))["accounting"]
 
+    def queues(self):
+        """Every instrumented queue, named as the finite world names them."""
+        return self.client.request("cohorts", cohort_specs=[])["queues"]
+
     def observations(self, *, capability_ids, window_s=1.0):
         return self.client.request("observe", window_s=window_s,
                                    capability_ids=sorted(set(capability_ids.values())))

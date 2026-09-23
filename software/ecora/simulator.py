@@ -189,9 +189,24 @@ class Ns3World:
         """Every instrumented queue, named as the finite world names them."""
         return self.client.request("cohorts", cohort_specs=[])["queues"]
 
+    @staticmethod
+    def observation_id(subject, metric, at_s):
+        """The same identity scheme the finite world uses, so evidence is cited alike."""
+        from .model import FiniteModel
+        return FiniteModel.observation_id(subject, metric, at_s)
+
     def observations(self, *, capability_ids, window_s=1.0):
-        return self.client.request("observe", window_s=window_s,
-                                   capability_ids=sorted(set(capability_ids.values())))
+        """The signals these grants permit, as the simulator measured them now.
+
+        Grants go over the wire as (subject, metric, capability) and the simulator exports
+        only what they name. Identities are assigned here with the shared scheme, from the
+        adapter's own clock, which is the time the simulator last reported reaching.
+        """
+        grants = [{"subject": subject, "metric": metric, "capability_id": capability}
+                  for (subject, metric), capability in capability_ids.items()]
+        exported = self.client.request("observe", grants=grants, window_s=window_s)["observations"]
+        return [{"observation_id": self.observation_id(o["subject"], o["metric"], self.now), **o}
+                for o in exported]
 
     def apply(self, command):
         data = command.data if isinstance(command, Record) else command

@@ -2,10 +2,11 @@
 
 **Status: normative specification, partly implemented. The finite reference world satisfies
 this interface in-process. The ns-3 simulator process and its Python adapter
-(`ecora.simulator`) implement `configure`, `advance` and `cohorts` across the process
-boundary; `observe`, `apply`, `truth` and `fork` are refused by the simulator with a reason
-until their items land. Of the acceptance list below, item 1 is demonstrated; the rest are
-not.**
+(`ecora.simulator`) implement `configure`, `advance`, `observe` and `cohorts` across the
+process boundary; `apply`, `truth` and `fork` are refused by the simulator with a reason
+until their items land. Of the acceptance list below, item 1 is demonstrated and item 3
+in part: a probe returned through `observe` carries the capability of the leg it probed,
+and a `truth` request is refused, but only because truth is not yet served at all.**
 
 This document settles how a simulator becomes a world the pipeline can drive. It exists
 because the decision that unblocks simulator integration is architectural rather than

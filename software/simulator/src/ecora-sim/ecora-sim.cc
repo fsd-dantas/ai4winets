@@ -62,6 +62,16 @@ const std::map<std::string, double> PACING_BPS = {{"normal", 64000},
 const uint32_t ENVELOPE_BYTES = 32;
 const uint16_t SITE_PORT = 5000;
 const uint16_t CENTRAL_PORT = 6000;
+// Path probes, from the v1 parameter register: each site probes each leg every 0.2 s with a
+// 32-byte datagram that the central gateway echoes back over the same leg. A probe not
+// answered within 0.15 s is lost, and an acknowledgement is evidence for 0.5 s. Probes are
+// real traffic: they use each leg in both directions and consume its service.
+const uint16_t PROBE_PORT = 5100;
+const double PROBE_PERIOD_S = 0.2;
+const uint32_t PROBE_BYTES = 32;
+const double PROBE_TIMEOUT_S = 0.15;
+const double PROBE_VALIDITY_S = 0.5;
+const double PROBE_START_S = 0.2;
 const char* INTERNAL_RATE = "100Mbps";
 const double INTERNAL_DELAY_S = 0.001;
 
@@ -92,7 +102,8 @@ enum Kind : uint8_t
 {
     REQUEST = 1,
     RESPONSE = 2,
-    READING = 3
+    READING = 3,
+    PROBE = 4
 };
 
 class ObligationTag : public Tag
@@ -281,6 +292,29 @@ struct Site
     std::deque<uint64_t> held;
     bool releasing = false;
     double extraLossDb = 0;
+
+    // Path probes, per leg: the socket, what is outstanding, and the latest acknowledgement.
+    struct Probe
+    {
+        Ptr<Socket> socket;
+        Address echo;
+        std::map<uint64_t, double> outstanding;
+        double sentS = -1;
+        double completedS = -1;
+        double rttS = -1;
+        uint64_t sent = 0, answered = 0, timedOut = 0;
+    };
+
+    std::map<std::string, Probe> probes;
+
+    // The UE's RLC transmission buffer, derived from the flows into and out of it: SDUs the
+    // PDCP handed down, SDUs the RLC dropped, and PDUs the RLC handed to the MAC less
+    // their fixed header. ns-3 keeps the buffer size private, so this is the observable
+    // equivalent of what a UE reports in its buffer status.
+    uint64_t rlcAcceptedBytes = 0;
+    uint64_t rlcDroppedBytes = 0;
+    uint64_t rlcTransmittedBytes = 0;
+    uint64_t rlcPdus = 0;
 };
 
 // -- the world ---------------------------------------------------------------------------
@@ -291,6 +325,7 @@ class World
     json Configure(const json& request);
     json Advance(const json& request);
     json Cohorts(const json& request);
+    json Observe(const json& request);
 
   private:
     void BuildLte(const json& leg);
@@ -363,6 +398,20 @@ class World
 
     void Instrument();
     std::vector<std::pair<std::string, std::unique_ptr<QueueProbe>>> m_probes;
+
+    void StartProbes();
+    void SendProbe(Site* site, std::string leg);
+    void ProbeAnswered(Ptr<Socket> socket);
+    void EchoProbe(Ptr<Socket> socket);
+    json Observation(const Site& site,
+                     const std::string& subject,
+                     const std::string& metric,
+                     const std::string& capability,
+                     double windowS) const;
+    Ptr<Socket> m_probeEcho;
+    uint64_t m_probeSequence = 0;
+    uint64_t m_probeDrops = 0;
+    std::set<void*> m_watchedFlows;
 };
 
 double
@@ -484,6 +533,7 @@ World::Configure(const json& request)
     BuildBackground();
     Route();
     Instrument();
+    StartProbes();
     Schedule();
     m_configured = true;
     return Resolved();
@@ -747,6 +797,10 @@ World::Instrument()
         {
             return "background";
         }
+        if (tag.kind == PROBE)
+        {
+            return "probe";
+        }
         auto found = m_ledger.find(tag.id);
         return found == m_ledger.end() ? "unknown" : found->second.service;
     };
@@ -769,8 +823,288 @@ World::Instrument()
 }
 
 void
+World::StartProbes()
+{
+    Ipv4StaticRoutingHelper helper;
+    Ptr<Ipv4> central = m_centralGateway->GetObject<Ipv4>();
+    Ipv4Address centralCore =
+        central->GetAddress(central->GetInterfaceForPrefix("10.1.0.0", "255.255.255.252"), 0)
+            .GetLocal();
+    // The central gateway echoes each probe to its sender, so the answer returns over the
+    // leg it arrived on: the sender's address belongs to that leg.
+    m_probeEcho = Socket::CreateSocket(m_centralGateway, UdpSocketFactory::GetTypeId());
+    m_probeEcho->Bind(InetSocketAddress(Ipv4Address::GetAny(), PROBE_PORT));
+    m_probeEcho->SetRecvCallback(MakeCallback(&World::EchoProbe, this));
+    for (auto& site : m_sites)
+    {
+        Ptr<Ipv4> gateway = site.gateway->GetObject<Ipv4>();
+        uint32_t lteInterface = gateway->GetInterfaceForDevice(site.lteDevice);
+        // The central gateway's core address is reached over the LTE leg.
+        helper.GetStaticRouting(gateway)->AddNetworkRouteTo(
+            "10.1.0.0", "255.255.255.252", m_epc->GetUeDefaultGatewayAddress(), lteInterface);
+        Ipv4Address altCentral =
+            central->GetAddress(central->GetInterfaceForDevice(site.altCentral), 0).GetLocal();
+        for (const auto& [leg, device, echo] :
+             {std::tuple<std::string, Ptr<NetDevice>, Ipv4Address>{"lte", site.lteDevice, centralCore},
+              std::tuple<std::string, Ptr<NetDevice>, Ipv4Address>{"alternative",
+                                                                   site.altGateway,
+                                                                   altCentral}})
+        {
+            Site::Probe& probe = site.probes[leg];
+            probe.socket = Socket::CreateSocket(site.gateway, UdpSocketFactory::GetTypeId());
+            probe.socket->Bind();
+            probe.socket->BindToNetDevice(device);
+            probe.socket->SetRecvCallback(MakeCallback(&World::ProbeAnswered, this));
+            probe.echo = InetSocketAddress(echo, PROBE_PORT);
+            Simulator::Schedule(Seconds(PROBE_START_S), &World::SendProbe, this, &site, leg);
+        }
+    }
+}
+
+void
+World::SendProbe(Site* site, std::string leg)
+{
+    Site::Probe& probe = site->probes[leg];
+    uint64_t sequence = ++m_probeSequence;
+    uint8_t body[PROBE_BYTES] = {'P', 'R', 'O', 'B'};
+    for (int i = 0; i < 8; ++i)
+    {
+        body[8 + i] = static_cast<uint8_t>(sequence >> (56 - 8 * i));
+    }
+    Ptr<Packet> packet = Create<Packet>(body, PROBE_BYTES);
+    ObligationTag tag;
+    tag.id = sequence;
+    tag.kind = PROBE;
+    packet->AddPacketTag(tag);
+    probe.outstanding[sequence] = Now();
+    probe.sentS = Now();
+    ++probe.sent;
+    probe.socket->SendTo(packet, 0, probe.echo);
+    Simulator::Schedule(Seconds(PROBE_PERIOD_S), &World::SendProbe, this, site, leg);
+}
+
+void
+World::EchoProbe(Ptr<Socket> socket)
+{
+    Address from;
+    Ptr<Packet> packet;
+    while ((packet = socket->RecvFrom(from)))
+    {
+        socket->SendTo(packet, 0, from);
+    }
+}
+
+void
+World::ProbeAnswered(Ptr<Socket> socket)
+{
+    Ptr<Packet> packet;
+    while ((packet = socket->Recv()))
+    {
+        uint8_t body[PROBE_BYTES];
+        if (packet->GetSize() < PROBE_BYTES)
+        {
+            continue;
+        }
+        packet->CopyData(body, PROBE_BYTES);
+        uint64_t sequence = 0;
+        for (int i = 0; i < 8; ++i)
+        {
+            sequence = (sequence << 8) | body[8 + i];
+        }
+        for (auto& site : m_sites)
+        {
+            for (auto& [leg, probe] : site.probes)
+            {
+                if (probe.socket != socket)
+                {
+                    continue;
+                }
+                auto sent = probe.outstanding.find(sequence);
+                if (sent == probe.outstanding.end())
+                {
+                    continue;
+                }
+                double rtt = Now() - sent->second;
+                // An answer after the timeout is a lost probe, not a slow one: the timeout
+                // is part of the probe's definition, as it is in the finite world.
+                if (rtt <= PROBE_TIMEOUT_S)
+                {
+                    probe.completedS = Now();
+                    probe.rttS = rtt;
+                    ++probe.answered;
+                }
+                else
+                {
+                    ++probe.timedOut;
+                }
+                probe.outstanding.erase(sent);
+            }
+        }
+    }
+}
+
+json
+World::Observation(const Site& site,
+                   const std::string& subject,
+                   const std::string& metric,
+                   const std::string& capability,
+                   double windowS) const
+{
+    double now = Now();
+    json observation = {{"subject", subject},
+                        {"metric", metric},
+                        {"quality", "observed"},
+                        {"missing_reason", nullptr},
+                        {"event_time_s", now},
+                        {"available_at_s", now},
+                        {"window", {{"start_s", std::max(0.0, now - windowS)}, {"end_s", now}}},
+                        {"source", "ns3.simulator"},
+                        {"sampling_policy", "instantaneous"},
+                        {"valid_min", nullptr},
+                        {"valid_max", nullptr},
+                        {"evidence_kind", "measured"},
+                        {"capability_id", capability},
+                        {"source_observation_ids", json::array()},
+                        {"formula", nullptr},
+                        {"privileged_source_refs", json::array()}};
+    if (metric == "path_state" || metric == "pacing_profile")
+    {
+        observation["service"] = metric == "path_state" ? "shared" : "ami";
+        observation["unit"] = "id";
+        observation["value"] = metric == "path_state" ? site.path : site.pacing;
+        observation["assumptions"] = {"Gateway actuator readback in the ns-3 model."};
+    }
+    else if (metric == "queue_occupancy")
+    {
+        observation["service"] = "ami";
+        observation["unit"] = "byte";
+        if (site.path == "alternative")
+        {
+            observation["value"] = site.altGateway->GetQueue()->GetNBytes();
+            observation["assumptions"] = {
+                "Bytes held by the alternative leg's device queue, excluding the datagram "
+                "on the wire."};
+        }
+        else
+        {
+            int64_t held = int64_t(site.rlcAcceptedBytes) - int64_t(site.rlcDroppedBytes) -
+                           (int64_t(site.rlcTransmittedBytes) - 2 * int64_t(site.rlcPdus));
+            observation["value"] = std::max<int64_t>(0, held);
+            observation["evidence_kind"] = "derived";
+            observation["formula"] = "SDU bytes into RLC - SDU bytes dropped by RLC - "
+                                     "(PDU bytes to MAC - 2 bytes per PDU header)";
+            observation["assumptions"] = {
+                "The UE's RLC transmission buffer, derived from the flows into and out of it; "
+                "ns-3 keeps the buffer size private. Understates by 1.5 bytes per additional "
+                "SDU segment boundary in a PDU."};
+        }
+    }
+    else if (metric == "path_probe")
+    {
+        std::string leg = subject.substr(subject.find('/') + 1);
+        const Site::Probe& probe = site.probes.at(leg);
+        observation["service"] = "shared";
+        observation["unit"] = "s";
+        observation["sampling_policy"] = "latest_acknowledged_probe";
+        observation["assumptions"] = {
+            "Round trip of a 32-byte probe echoed by the central gateway over this leg; "
+            "evidence for 0.5 s after its acknowledgement."};
+        if (probe.completedS >= 0 && now - probe.completedS <= PROBE_VALIDITY_S)
+        {
+            double sent = probe.completedS - probe.rttS;
+            observation["value"] = probe.rttS;
+            observation["event_time_s"] = probe.completedS;
+            observation["available_at_s"] = probe.completedS;
+            observation["window"] = {{"start_s", sent}, {"end_s", probe.completedS}};
+        }
+        else
+        {
+            observation["value"] = nullptr;
+            observation["quality"] = "missing";
+            observation["missing_reason"] = {
+                {"code", "probe_timeout"},
+                {"detail", "No probe on this leg was acknowledged within its validity."}};
+        }
+    }
+    else
+    {
+        throw Refusal("unsupported_signal", "this simulator does not export " + metric);
+    }
+    return observation;
+}
+
+json
+World::Observe(const json& request)
+{
+    Require(m_configured, "not_configured", "configure before observing");
+    double windowS = request.at("window_s");
+    json observations = json::array();
+    // Only what a grant names is exported. A grant for a subject the world does not hold
+    // is refused rather than answered with nothing.
+    for (const auto& grant : request.at("grants"))
+    {
+        std::string subject = grant.at("subject");
+        std::string siteName = subject.substr(0, subject.find('/'));
+        const Site* site = nullptr;
+        for (const auto& candidate : m_sites)
+        {
+            if (candidate.name == siteName)
+            {
+                site = &candidate;
+            }
+        }
+        Require(site != nullptr, "unknown_subject", "no site " + siteName + " in this world");
+        if (subject.find('/') != std::string::npos)
+        {
+            std::string leg = subject.substr(subject.find('/') + 1);
+            Require(site->probes.count(leg), "unknown_subject", "no leg " + leg + " at " + siteName);
+        }
+        observations.push_back(
+            Observation(*site, subject, grant.at("metric"), grant.at("capability_id"), windowS));
+    }
+    return {{"observations", observations}};
+}
+
+void
 World::WatchBearers()
 {
+    // Per site, the flows into and out of the UE's own data-bearer RLC, for the derived
+    // local queue. Competitors' bearers and the eNB's are not a site's queue.
+    for (auto& site : m_sites)
+    {
+        std::string base = "/NodeList/" + std::to_string(site.gateway->GetId()) +
+                           "/DeviceList/*/LteUeRrc/DataRadioBearerMap/*/";
+        Config::MatchContainer pdcps = Config::LookupMatches(base + "LtePdcp");
+        for (uint32_t i = 0; i < pdcps.GetN(); ++i)
+        {
+            if (m_watchedFlows.insert(PeekPointer(pdcps.Get(i))).second)
+            {
+                pdcps.Get(i)->TraceConnectWithoutContext(
+                    "TxPDU",
+                    MakeBoundCallback(+[](Site* s, uint16_t, uint8_t, uint32_t size) {
+                        s->rlcAcceptedBytes += size;
+                    }, &site));
+            }
+        }
+        Config::MatchContainer rlcs = Config::LookupMatches(base + "LteRlc");
+        for (uint32_t i = 0; i < rlcs.GetN(); ++i)
+        {
+            if (m_watchedFlows.insert(PeekPointer(rlcs.Get(i))).second)
+            {
+                rlcs.Get(i)->TraceConnectWithoutContext(
+                    "TxPDU",
+                    MakeBoundCallback(+[](Site* s, uint16_t, uint8_t, uint32_t size) {
+                        s->rlcTransmittedBytes += size;
+                        ++s->rlcPdus;
+                    }, &site));
+                rlcs.Get(i)->TraceConnectWithoutContext(
+                    "TxDrop",
+                    MakeBoundCallback(+[](Site* s, Ptr<const Packet> packet) {
+                        s->rlcDroppedBytes += packet->GetSize();
+                    }, &site));
+            }
+        }
+    }
     for (const char* path : {"/NodeList/*/DeviceList/*/LteUeRrc/DataRadioBearerMap/*/LteRlc",
                              "/NodeList/*/DeviceList/*/LteEnbRrc/UeMap/*/DataRadioBearerMap/*/LteRlc"})
     {
@@ -988,6 +1322,13 @@ World::Dropped(Ptr<const Packet> packet, const std::string& where)
         ++m_backgroundDrops;
         return;
     }
+    if (packet->PeekPacketTag(tag) && tag.kind == PROBE)
+    {
+        // A lost probe is evidence about the leg, reported through its timeout, and never
+        // an obligation lost.
+        ++m_probeDrops;
+        return;
+    }
     if (!packet->PeekPacketTag(tag) || !m_ledger.count(tag.id))
     {
         // Something was discarded whose obligation cannot be named from the packet. It is
@@ -1193,7 +1534,13 @@ World::Resolved() const
               {"direction", "up"},
               {"traffic_sink", "background node beside the EPC; never the study's egress"}}},
             {"disturbances_scheduled", m_scenario.at("disturbances").size()},
-            {"unsupported_requests", {"observe", "apply", "truth", "fork"}}};
+            {"unsupported_requests", {"apply", "truth", "fork"}},
+            {"probes",
+             {{"period_s", PROBE_PERIOD_S},
+              {"payload_bytes", PROBE_BYTES},
+              {"timeout_s", PROBE_TIMEOUT_S},
+              {"validity_s", PROBE_VALIDITY_S},
+              {"echo", "central gateway, over the probed leg"}}}};
 }
 
 json
@@ -1276,6 +1623,7 @@ World::Cohorts(const json& request)
             {"accounting",
              {{"untraced_drops", m_untracedDrops},
               {"background_drops", m_backgroundDrops},
+              {"probe_drops", m_probeDrops},
               {"competing_ues_now", m_competingNow},
               {"duplicate_deliveries", m_duplicates},
               {"disturbances_applied", m_disturbanceLog}}}};
@@ -1340,6 +1688,10 @@ main(int argc, char* argv[])
             else if (kind == "cohorts")
             {
                 result = world.Cohorts(request);
+            }
+            else if (kind == "observe")
+            {
+                result = world.Observe(request);
             }
             else if (kind == "shutdown")
             {

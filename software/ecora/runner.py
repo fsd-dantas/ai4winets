@@ -309,7 +309,11 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
     planner, coordination = study.planner, study.eco
     oracle, oracle_reads = study.oracle["telemetry"], study.oracle["diagnosis_reads"]
     assembly = assembly or study.assembly
-    if scenario is not None:
+    if scenario is not None and hasattr(model, "resolved"):
+        # A simulated world reports what it built; it is held to the scenario the same way.
+        from .simulator import verify_simulated
+        verify_simulated(model.resolved, scenario)
+    elif scenario is not None:
         verify_world(model, scenario)
     else:
         # A derived scenario states what the world is, not what a study needs of it: the

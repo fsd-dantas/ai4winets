@@ -49,6 +49,17 @@ calibration program [src/ecora-calibrate/](src/ecora-calibrate/ecora-calibrate.c
 is calibrated is the leg that runs. `python -m ecora calibrate-lte` measures it and
 `--apply` writes the measured rate table into every scenario.
 
+`observe` exports the finite world's signal catalogue from the simulator, for exactly the
+(subject, metric, capability) grants it is sent, and refuses a signal or subject it does not
+hold. Path and pacing are the gateway's actuator readback. Each site probes each leg every
+0.2 s with a 32-byte datagram the central gateway echoes over the same leg; the latest
+acknowledgement within 0.5 s is the observation, and a leg with none is reported missing
+with `probe_timeout`. Probes are real traffic and wait in the same queues as the site's
+data. The site's queue is measured from the device queue on the alternative leg; on LTE it
+is derived from the flows into and out of the UE's RLC buffer, which ns-3 keeps private,
+and is labelled `derived` with its formula. The adapter assigns observation identities with
+the finite world's scheme, so evidence from either world is cited the same way.
+
 The `cohorts` response also carries `queues`: every device queue on the egress and the
 alternative leg, instrumented per class from its own enqueue, dequeue and drop traces, with
 occupancy over time. The LTE leg's queue is the RLC buffer inside the stack, which exposes

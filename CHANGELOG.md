@@ -7,6 +7,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Changed
 
+- **The decision pipeline runs over the simulator's evidence** (B22). The simulator
+  answers `observe` with the finite world's signal catalogue, for exactly the grants it is
+  sent: gateway readback of path and pacing, real echo probes on each leg, and the site's
+  queue, measured on the alternative leg and derived from the RLC's flows on LTE, where
+  ns-3 keeps the buffer private. Every batch passes the same telemetry contract, diagnoses
+  from each world's own evidence agree away from transitions, and an action the simulator
+  cannot yet apply is recorded as rejected rather than stopping the run. Two findings are
+  recorded for follow-up: the finite world's probe is idealised, neither queueing nor
+  lagging as evidence, and no site signal yet reveals contention at the shared egress.
 - **The shared bottleneck is demonstrated and measured** (B21). `python -m ecora
   bottleneck-pilot` sweeps the egress capacity with AMI at normal and throttled pacing, in
   both worlds and with no controller, and both now instrument every queue per class:

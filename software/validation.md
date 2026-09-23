@@ -625,6 +625,38 @@ What it establishes:
 A light workload below the contended band never queues, which is why the pilot fixes AMI at
 100 ms: a capacity label is only meaningful against the demand it was measured under.
 
+## Simulator observations
+
+`observe` makes the decision pipeline run over the simulator unchanged. Batches from every
+scenario at several instants pass the same telemetry contract as the finite world's, only
+granted signals are exported, and an unheld signal or subject is refused with its code. On
+S2 every treatment completes over ns-3 evidence; the diagnosing treatments conclude what the
+finite world concludes before its switch, the planner decides to switch, and the action
+stage records the simulator's refusal of `apply` as `rejected` rather than stopping the run.
+
+The two worlds' evidence at the same instants, uncontrolled:
+
+| Signal | Finite world | Simulator |
+| --- | --- | --- |
+| Path state, pacing | as declared | identical |
+| LTE probe, unimpaired | 20.0 ms | 17.0 ms |
+| Alternative probe | 20.5 ms | 21.0 ms |
+| Site queue, S1 at 2 s and 4 s | 2048, 5632 bytes | ~2932, ~8580 bytes (derived) |
+| LTE probe, S1 degraded | 27.5 ms | missing: timed out behind the backlog |
+| LTE probe, S2 in the 0.5 s after the leg goes silent | missing at once | last acknowledgement still valid |
+
+With the same rules over each world's own evidence, diagnoses agree exactly away from a
+transition. Two differences are findings, recorded for follow-up rather than resolved here:
+
+- **The finite world's probe is idealised.** It is computed from the leg's rate, so it
+  neither waits behind queued traffic nor lags as evidence. The simulator's probe does
+  both, which is what a real probe does: on a backlogged degraded leg it times out, and
+  after a leg goes silent it stays valid for up to 0.5 s. The simulator's site queue is
+  larger for the envelope, header and probe bytes the finite world does not count.
+- **No site signal shows contention at the shared egress.** In S9 the site's queue is
+  empty in both worlds; the backlog is central. The v1 catalogue's remote delivery
+  summaries are the signal that would reveal it, and neither world exports them yet.
+
 ## Simulator adapter
 
 `ecora.simulator` drives the simulator from Windows through WSL. For every scenario the

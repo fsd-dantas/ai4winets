@@ -54,6 +54,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **A simulation fidelity contract and checklist.** `docs/ECoRA/simulation-fidelity.md`
+  states the rule that a model must keep every mechanism that could reverse the conclusion
+  it serves, declares each mechanism class as included, abstracted, assumed negligible or
+  out of scope, and records those choices for the ns-3 world: a single closed cell with
+  Friis path loss and no fading, proportional-fair scheduling, and UDP flows. It also says
+  which claims each omission rules out. `docs/ECoRA/simulation-checklist.md` sets three gates, for a
+  scenario entering the set, a study freezing and a claim leaving the repository, and marks
+  each item as enforced, partly in place or planned. The per-scenario declaration is
+  planned; nothing in the scenarios changes yet.
 - **Interactive Curitiba DPOP replay**: a self-contained HTML view generated from the
   actual DFS/UTIL integration trace, with municipal highlights, step/play controls and
   conditional cost tables. Protocol activity colors are distinguished from future channel assignments.

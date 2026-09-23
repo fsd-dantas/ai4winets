@@ -60,6 +60,7 @@ Every method here is a **baseline**, not a presumed solution. Future controllers
 | [Decision methods](decision-methods.md) | Single expert, rule experts, STRIPS, GPS, A* and eco-problem solving |
 | [Methodology](methodology.md) | Nested time scales, study-level freeze, research revision and cross-version comparison |
 | [Experiments and ablation](experiments.md) | Scenario family, hypotheses, comparisons, metrics and validity criteria |
+| [Simulation fidelity](simulation-fidelity.md) / [Simulation checklist](simulation-checklist.md) | How much fidelity a claim needs, the abstraction registry of each world, and the gates a scenario, study and claim pass |
 | [Evidence and decisions](evidence-and-decisions.md) | Evidence policy, capability boundaries, architectural decisions and implementation sequence |
 
 Diagrams are embedded as Mermaid for review. The overview also has canonical SVG exports in light and dark themes under `docs/assets/img/`.

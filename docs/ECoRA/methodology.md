@@ -58,6 +58,8 @@ Use the [declared factorial and confirmatory design](experiments.md#declared-fac
 
 A frozen set can describe stochastic workloads and scheduled disturbances. Freezing the set means freezing their definitions and generation policies, not forcing all runs to have identical packet trajectories. Paired treatments use the same exogenous inputs where possible. Authorised controller actions may change runtime state, but cannot rewrite the workload obligations against which they are evaluated.
 
+Each member also declares which mechanisms it includes, abstracts, assumes negligible or leaves out of scope; [Simulation fidelity](simulation-fidelity.md) defines that registry, and the [simulation checklist](simulation-checklist.md) lists what a scenario, a study and a claim must satisfy at each gate.
+
 Any change to membership, a member definition, or benchmark scoring creates a new scenario-set version. Protocol-only changes require a new study manifest even if the scenario set remains the same. No change is applied retrospectively to completed evidence. Errors invalidate or qualify the affected comparison; corrections produce a separately versioned study rather than silently repairing its baseline.
 
 ## Claims and comparisons

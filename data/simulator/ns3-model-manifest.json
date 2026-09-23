@@ -1,0 +1,1662 @@
+{
+ "archive_sha256": "0dc88d6a4fbee6e8fd1b446e281fd564f394d4ccf8f7ef55d77a604488e25f01",
+ "attributes": {
+  "ns3::A2A4RsrqHandoverAlgorithm": {
+   "NeighbourCellOffset": "1",
+   "ServingCellThreshold": "30"
+  },
+  "ns3::A3RsrpHandoverAlgorithm": {
+   "Hysteresis": "3",
+   "TimeToTrigger": "+2.56e+08ns"
+  },
+  "ns3::AlohaNoackMacHeader": {},
+  "ns3::AlohaNoackNetDevice": {
+   "Address": "12:34:56:78:90:12",
+   "Mtu": "1500",
+   "Phy": "null",
+   "Queue": "null"
+  },
+  "ns3::AlwaysLosChannelConditionModel": {},
+  "ns3::AntennaModel": {},
+  "ns3::Application": {
+   "StartTime": "+0ns",
+   "StopTime": "+0ns"
+  },
+  "ns3::ApplicationPacketProbe": {},
+  "ns3::ArpCache": {
+   "AliveTimeout": "+1.2e+11ns",
+   "DeadTimeout": "+1e+11ns",
+   "MaxRetries": "3",
+   "PendingQueueSize": "3",
+   "WaitReplyTimeout": "+1e+09ns"
+  },
+  "ns3::ArpHeader": {},
+  "ns3::ArpL3Protocol": {
+   "CacheList": "",
+   "RequestJitter": "ns3::UniformRandomVariable[Min=0.0|Max=10.0]"
+  },
+  "ns3::Asn1Header": {},
+  "ns3::BernoulliRandomVariable": {
+   "Probability": "0.5"
+  },
+  "ns3::BinaryErrorModel": {},
+  "ns3::BinomialRandomVariable": {
+   "Probability": "0.5",
+   "Trials": "10"
+  },
+  "ns3::BulkSendApplication": {
+   "EnableSeqTsSizeHeader": "false",
+   "MaxBytes": "0",
+   "Protocol": "ns3::TcpSocketFactory",
+   "SendSize": "512"
+  },
+  "ns3::BurstErrorModel": {
+   "BurstSize": "ns3::UniformRandomVariable[Min=1|Max=4]",
+   "BurstStart": "ns3::UniformRandomVariable[Min=0.0|Max=1.0]",
+   "ErrorRate": "0"
+  },
+  "ns3::CalendarScheduler": {
+   "Reverse": "false"
+  },
+  "ns3::CcHelper": {
+   "DlBandwidth": "25",
+   "DlEarfcn": "0",
+   "NumberOfComponentCarriers": "1",
+   "UlBandwidth": "25",
+   "UlEarfcn": "0"
+  },
+  "ns3::Channel": {
+   "Id": "0"
+  },
+  "ns3::ChannelCondition": {},
+  "ns3::ChannelConditionModel": {},
+  "ns3::ChannelListPriv": {
+   "ChannelList": ""
+  },
+  "ns3::Chunk": {},
+  "ns3::CircularApertureAntennaModel": {
+   "AntennaCircularApertureRadius": "0.5",
+   "AntennaMaxGainDb": "1",
+   "AntennaMinGainDb": "-100",
+   "ForceGainBounds": "true",
+   "OperatingFrequency": "2e+09"
+  },
+  "ns3::CoDelQueueDisc": {
+   "CeThreshold": "+9.22337e+18ns",
+   "Interval": "100ms",
+   "MaxSize": "1500000B",
+   "MinBytes": "1500",
+   "Target": "5ms",
+   "UseEcn": "false",
+   "UseL4s": "false"
+  },
+  "ns3::CobaltQueueDisc": {
+   "BlueThreshold": "+4e+08ns",
+   "CeThreshold": "+9.22337e+18ns",
+   "Decrement": "0.000244141",
+   "Increment": "0.00390625",
+   "Interval": "100ms",
+   "MaxSize": "1500000B",
+   "Pdrop": "0",
+   "Target": "5ms",
+   "UseEcn": "false",
+   "UseL4s": "false"
+  },
+  "ns3::ComponentCarrier": {
+   "CsgId": "0",
+   "CsgIndication": "false",
+   "DlBandwidth": "25",
+   "DlEarfcn": "100",
+   "PrimaryCarrier": "false",
+   "UlBandwidth": "25",
+   "UlEarfcn": "18100"
+  },
+  "ns3::ComponentCarrierBaseStation": {},
+  "ns3::ComponentCarrierEnb": {
+   "FfMacScheduler": "null",
+   "LteEnbMac": "null",
+   "LteEnbPhy": "null",
+   "LteFfrAlgorithm": "null"
+  },
+  "ns3::ComponentCarrierUe": {
+   "LteUeMac": "null",
+   "LteUePhy": "null"
+  },
+  "ns3::ConstantRandomVariable": {
+   "Constant": "0"
+  },
+  "ns3::ConstantSpectrumPropagationLossModel": {
+   "Loss": "1"
+  },
+  "ns3::ConstantSpeedPropagationDelayModel": {
+   "Speed": "2.99792e+08"
+  },
+  "ns3::CosineAntennaModel": {
+   "HorizontalBeamwidth": "120",
+   "MaxGain": "0",
+   "Orientation": "0",
+   "VerticalBeamwidth": "360"
+  },
+  "ns3::Cost231PropagationLossModel": {
+   "BSAntennaHeight": "50",
+   "Frequency": "2.3e+09",
+   "Lambda": "0.130435",
+   "MinDistance": "0.5",
+   "SSAntennaHeight": "3"
+  },
+  "ns3::CqaFfMacScheduler": {
+   "CqaMetric": "CqaFf",
+   "CqiTimerThreshold": "1000",
+   "HarqEnabled": "true",
+   "UlGrantMcs": "0"
+  },
+  "ns3::DefaultSimulatorImpl": {},
+  "ns3::DeterministicRandomVariable": {},
+  "ns3::DeviceNameTag": {},
+  "ns3::DropTailQueue<Packet>": {
+   "MaxSize": "100p"
+  },
+  "ns3::DropTailQueue<QueueDiscItem>": {
+   "MaxSize": "100p"
+  },
+  "ns3::DynamicQueueLimits": {
+   "HoldTime": "1s",
+   "MaxLimit": "1879048192",
+   "MinLimit": "0"
+  },
+  "ns3::EmpiricalRandomVariable": {
+   "Interpolate": "false"
+  },
+  "ns3::EpcHelper": {},
+  "ns3::EpcMmeApplication": {},
+  "ns3::EpcSgwApplication": {},
+  "ns3::EpcUeNas": {},
+  "ns3::EpcX2": {},
+  "ns3::EpcX2HandoverCancelHeader": {},
+  "ns3::EpcX2HandoverPreparationFailureHeader": {},
+  "ns3::EpcX2HandoverRequestAckHeader": {},
+  "ns3::EpcX2HandoverRequestHeader": {},
+  "ns3::EpcX2Header": {},
+  "ns3::EpcX2LoadInformationHeader": {},
+  "ns3::EpcX2ResourceStatusUpdateHeader": {},
+  "ns3::EpcX2SnStatusTransferHeader": {},
+  "ns3::EpcX2UeContextReleaseHeader": {},
+  "ns3::EpsBearer": {
+   "Release": "11"
+  },
+  "ns3::EpsBearerTag": {
+   "bid": "0",
+   "rnti": "0"
+  },
+  "ns3::ErlangRandomVariable": {
+   "K": "1",
+   "Lambda": "1"
+  },
+  "ns3::ErrorChannel": {},
+  "ns3::ErrorModel": {
+   "IsEnabled": "true"
+  },
+  "ns3::EthernetHeader": {},
+  "ns3::EthernetTrailer": {},
+  "ns3::ExponentialRandomVariable": {
+   "Bound": "0",
+   "Mean": "1"
+  },
+  "ns3::FdBetFfMacScheduler": {
+   "CqiTimerThreshold": "1000",
+   "HarqEnabled": "true",
+   "UlGrantMcs": "0"
+  },
+  "ns3::FdMtFfMacScheduler": {
+   "CqiTimerThreshold": "1000",
+   "HarqEnabled": "true",
+   "UlGrantMcs": "0"
+  },
+  "ns3::FdTbfqFfMacScheduler": {
+   "CqiTimerThreshold": "1000",
+   "CreditLimit": "625000",
+   "CreditableThreshold": "0",
+   "DebtLimit": "-625000",
+   "HarqEnabled": "true",
+   "TokenPoolSize": "1",
+   "UlGrantMcs": "0"
+  },
+  "ns3::FfMacScheduler": {
+   "UlCqiFilter": "SRS_UL_CQI"
+  },
+  "ns3::FifoQueueDisc": {
+   "MaxSize": "1000p"
+  },
+  "ns3::FixedRssLossModel": {
+   "Rss": "-150"
+  },
+  "ns3::FlowIdTag": {},
+  "ns3::FqCoDelFlow": {},
+  "ns3::FqCoDelQueueDisc": {
+   "CeThreshold": "+9.22337e+18ns",
+   "DropBatchSize": "64",
+   "EnableSetAssociativeHash": "false",
+   "Flows": "1024",
+   "Interval": "100ms",
+   "MaxSize": "10240p",
+   "Perturbation": "0",
+   "SetWays": "8",
+   "Target": "5ms",
+   "UseEcn": "true",
+   "UseL4s": "false"
+  },
+  "ns3::FqCobaltFlow": {},
+  "ns3::FqCobaltQueueDisc": {
+   "BlueThreshold": "+4e+08ns",
+   "CeThreshold": "+9.22337e+18ns",
+   "Decrement": "0.000244141",
+   "DropBatchSize": "64",
+   "EnableSetAssociativeHash": "false",
+   "Flows": "1024",
+   "Increment": "0.00390625",
+   "Interval": "100ms",
+   "MaxSize": "10240p",
+   "Pdrop": "0",
+   "Perturbation": "0",
+   "SetWays": "8",
+   "Target": "5ms",
+   "UseEcn": "true",
+   "UseL4s": "false"
+  },
+  "ns3::FqPieFlow": {},
+  "ns3::FqPieQueueDisc": {
+   "A": "0.125",
+   "B": "1.25",
+   "CeThreshold": "+9.22337e+18ns",
+   "DequeueThreshold": "16384",
+   "DropBatchSize": "64",
+   "EnableSetAssociativeHash": "false",
+   "Flows": "1024",
+   "MarkEcnThreshold": "0.1",
+   "MaxBurstAllowance": "+1.5e+08ns",
+   "MaxSize": "10240p",
+   "MeanPktSize": "1000",
+   "Perturbation": "0",
+   "QueueDelayReference": "+1.5e+07ns",
+   "SetWays": "8",
+   "Supdate": "+0ns",
+   "Tupdate": "+1.5e+07ns",
+   "UseCapDropAdjustment": "true",
+   "UseDequeueRateEstimator": "false",
+   "UseDerandomization": "false",
+   "UseEcn": "true",
+   "UseL4s": "false"
+  },
+  "ns3::FriisPropagationLossModel": {
+   "Frequency": "5.15e+09",
+   "MinLoss": "0",
+   "SystemLoss": "1"
+  },
+  "ns3::FriisSpectrumPropagationLossModel": {},
+  "ns3::GammaRandomVariable": {
+   "Alpha": "1",
+   "Beta": "1"
+  },
+  "ns3::GtpcHeader": {},
+  "ns3::GtpuHeader": {},
+  "ns3::HalfDuplexIdealPhy": {
+   "Rate": "1000000bps"
+  },
+  "ns3::Header": {},
+  "ns3::HeapScheduler": {},
+  "ns3::HexagonalWraparoundModel": {},
+  "ns3::Icmpv4DestinationUnreachable": {},
+  "ns3::Icmpv4Echo": {},
+  "ns3::Icmpv4Header": {},
+  "ns3::Icmpv4L4Protocol": {},
+  "ns3::Icmpv4TimeExceeded": {},
+  "ns3::Icmpv6DestinationUnreachable": {},
+  "ns3::Icmpv6Echo": {},
+  "ns3::Icmpv6Header": {},
+  "ns3::Icmpv6L4Protocol": {
+   "DAD": "true",
+   "DadTimeout": "+1e+09ns",
+   "DelayFirstProbe": "+5e+09ns",
+   "MaxMulticastSolicit": "3",
+   "MaxUnicastSolicit": "3",
+   "ReachableTime": "+3e+10ns",
+   "RetransmissionTime": "+1e+09ns",
+   "RsInitialRetransmissionTime": "+4e+09ns",
+   "RsMaxRetransmissionCount": "4",
+   "RsMaxRetransmissionDuration": "+0ns",
+   "RsMaxRetransmissionTime": "+3.6e+12ns",
+   "RsRetransmissionJitter": "ns3::UniformRandomVariable[Min=-0.1|Max=0.1]",
+   "SolicitationJitter": "ns3::UniformRandomVariable[Min=0.0|Max=10.0]"
+  },
+  "ns3::Icmpv6NA": {},
+  "ns3::Icmpv6NS": {},
+  "ns3::Icmpv6OptionHeader": {},
+  "ns3::Icmpv6OptionLinkLayerAddress": {},
+  "ns3::Icmpv6OptionMtu": {},
+  "ns3::Icmpv6OptionPrefixInformation": {},
+  "ns3::Icmpv6OptionRedirected": {},
+  "ns3::Icmpv6ParameterError": {},
+  "ns3::Icmpv6RA": {},
+  "ns3::Icmpv6RS": {},
+  "ns3::Icmpv6Redirection": {},
+  "ns3::Icmpv6TimeExceeded": {},
+  "ns3::Icmpv6TooBig": {},
+  "ns3::IpL4Protocol": {
+   "ProtocolNumber": "0"
+  },
+  "ns3::Ipv4": {
+   "IpForward": "true",
+   "StrongEndSystemModel": "false"
+  },
+  "ns3::Ipv4GlobalRouting": {
+   "RandomEcmpRouting": "false",
+   "RespondToInterfaceEvents": "false"
+  },
+  "ns3::Ipv4Header": {},
+  "ns3::Ipv4Interface": {
+   "ArpCache": "null"
+  },
+  "ns3::Ipv4L3Protocol": {
+   "DefaultTtl": "64",
+   "DuplicateExpire": "+1e+06ns",
+   "EnableDuplicatePacketDetection": "false",
+   "FragmentExpirationTimeout": "+3e+10ns",
+   "InterfaceList": "",
+   "PurgeExpiredPeriod": "+1e+09ns"
+  },
+  "ns3::Ipv4ListRouting": {},
+  "ns3::Ipv4PacketFilter": {},
+  "ns3::Ipv4PacketProbe": {},
+  "ns3::Ipv4RawSocketFactory": {},
+  "ns3::Ipv4RawSocketImpl": {
+   "IcmpFilter": "0",
+   "IpHeaderInclude": "false",
+   "Protocol": "0"
+  },
+  "ns3::Ipv4RoutingProtocol": {},
+  "ns3::Ipv4StaticRouting": {},
+  "ns3::Ipv6": {
+   "IpForward": "false",
+   "MtuDiscover": "true",
+   "StrongEndSystemModel": "true"
+  },
+  "ns3::Ipv6AutoconfiguredPrefix": {},
+  "ns3::Ipv6Extension": {
+   "ExtensionNumber": "0"
+  },
+  "ns3::Ipv6ExtensionAH": {},
+  "ns3::Ipv6ExtensionAHHeader": {},
+  "ns3::Ipv6ExtensionDemux": {
+   "Extensions": ""
+  },
+  "ns3::Ipv6ExtensionDestination": {},
+  "ns3::Ipv6ExtensionDestinationHeader": {},
+  "ns3::Ipv6ExtensionESP": {},
+  "ns3::Ipv6ExtensionESPHeader": {},
+  "ns3::Ipv6ExtensionFragment": {
+   "FragmentExpirationTimeout": "+6e+10ns"
+  },
+  "ns3::Ipv6ExtensionFragmentHeader": {},
+  "ns3::Ipv6ExtensionHeader": {},
+  "ns3::Ipv6ExtensionHopByHop": {},
+  "ns3::Ipv6ExtensionHopByHopHeader": {},
+  "ns3::Ipv6ExtensionLooseRouting": {},
+  "ns3::Ipv6ExtensionLooseRoutingHeader": {},
+  "ns3::Ipv6ExtensionRouting": {},
+  "ns3::Ipv6ExtensionRoutingDemux": {
+   "RoutingExtensions": ""
+  },
+  "ns3::Ipv6ExtensionRoutingHeader": {},
+  "ns3::Ipv6GlobalRouting": {
+   "RandomEcmpRouting": "false",
+   "RespondToInterfaceEvents": "false"
+  },
+  "ns3::Ipv6Header": {},
+  "ns3::Ipv6Interface": {},
+  "ns3::Ipv6L3Protocol": {
+   "DefaultTclass": "0",
+   "DefaultTtl": "64",
+   "InterfaceList": "",
+   "SendIcmpv6Redirect": "true"
+  },
+  "ns3::Ipv6ListRouting": {},
+  "ns3::Ipv6Option": {
+   "OptionNumber": "0"
+  },
+  "ns3::Ipv6OptionDemux": {
+   "Options": ""
+  },
+  "ns3::Ipv6OptionHeader": {},
+  "ns3::Ipv6OptionJumbogram": {},
+  "ns3::Ipv6OptionJumbogramHeader": {},
+  "ns3::Ipv6OptionPad1": {},
+  "ns3::Ipv6OptionPad1Header": {},
+  "ns3::Ipv6OptionPadn": {},
+  "ns3::Ipv6OptionPadnHeader": {},
+  "ns3::Ipv6OptionRouterAlert": {},
+  "ns3::Ipv6OptionRouterAlertHeader": {},
+  "ns3::Ipv6PacketFilter": {},
+  "ns3::Ipv6PacketProbe": {},
+  "ns3::Ipv6PmtuCache": {
+   "CacheExpiryTime": "+6e+11ns"
+  },
+  "ns3::Ipv6RawSocketFactory": {},
+  "ns3::Ipv6RawSocketImpl": {
+   "Protocol": "0"
+  },
+  "ns3::Ipv6RoutingProtocol": {},
+  "ns3::Ipv6StaticRouting": {},
+  "ns3::IsotropicAntennaModel": {
+   "Gain": "0"
+  },
+  "ns3::ItuR1411LosPropagationLossModel": {
+   "Frequency": "2.16e+09"
+  },
+  "ns3::ItuR1411NlosOverRooftopPropagationLossModel": {
+   "BuildingSeparation": "50",
+   "BuildingsExtend": "80",
+   "CitySize": "Large",
+   "Environment": "Urban",
+   "Frequency": "2.16e+09",
+   "RooftopLevel": "20",
+   "StreetsOrientation": "45",
+   "StreetsWidth": "20"
+  },
+  "ns3::JakesProcess": {
+   "DopplerFrequencyHz": "80",
+   "NumberOfOscillators": "20"
+  },
+  "ns3::JakesPropagationLossModel": {},
+  "ns3::Kun2600MhzPropagationLossModel": {},
+  "ns3::LaplacianRandomVariable": {
+   "Bound": "0",
+   "Location": "0",
+   "Scale": "1"
+  },
+  "ns3::LargestExtremeValueRandomVariable": {
+   "Location": "0",
+   "Scale": "1"
+  },
+  "ns3::ListErrorModel": {},
+  "ns3::ListScheduler": {},
+  "ns3::LlcSnapHeader": {},
+  "ns3::LogDistancePropagationLossModel": {
+   "Exponent": "3",
+   "ReferenceDistance": "1",
+   "ReferenceLoss": "46.6777"
+  },
+  "ns3::LogNormalRandomVariable": {
+   "Mu": "0",
+   "Sigma": "1"
+  },
+  "ns3::LoopbackNetDevice": {},
+  "ns3::LteAmc": {
+   "AmcModel": "Vienna",
+   "Ber": "5e-05"
+  },
+  "ns3::LteAnr": {
+   "Threshold": "0"
+  },
+  "ns3::LteEnbComponentCarrierManager": {},
+  "ns3::LteEnbMac": {
+   "ComponentCarrierId": "0",
+   "ConnEstFailCount": "1",
+   "NumberOfRaPreambles": "52",
+   "PreambleTransMax": "50",
+   "RaResponseWindowSize": "3"
+  },
+  "ns3::LteEnbNetDevice": {
+   "CellId": "0",
+   "ComponentCarrierMap": "",
+   "CsgId": "0",
+   "CsgIndication": "false",
+   "DlBandwidth": "25",
+   "DlEarfcn": "100",
+   "LteAnr": "null",
+   "LteEnbComponentCarrierManager": "null",
+   "LteEnbRrc": "null",
+   "LteFfrAlgorithm": "null",
+   "LteHandoverAlgorithm": "null",
+   "UlBandwidth": "25",
+   "UlEarfcn": "18100"
+  },
+  "ns3::LteEnbPhy": {
+   "DlSpectrumPhy": "null",
+   "InterferenceSamplePeriod": "1",
+   "MacToChannelDelay": "2",
+   "NoiseFigure": "5",
+   "TxPower": "30",
+   "UeSinrSamplePeriod": "1",
+   "UlSpectrumPhy": "null"
+  },
+  "ns3::LteEnbRrc": {
+   "AdmitHandoverRequest": "true",
+   "AdmitRrcConnectionRequest": "true",
+   "ConnectionRejectedTimeoutDuration": "+3e+07ns",
+   "ConnectionRequestTimeoutDuration": "+1.5e+07ns",
+   "ConnectionSetupTimeoutDuration": "+1.5e+08ns",
+   "DefaultTransmissionMode": "0",
+   "EpsBearerToRlcMapping": "RlcSmAlways",
+   "HandoverJoiningTimeoutDuration": "+2e+08ns",
+   "HandoverLeavingTimeoutDuration": "+5e+08ns",
+   "NumberOfComponentCarriers": "1",
+   "QRxLevMin": "-70",
+   "RsrpFilterCoefficient": "4",
+   "RsrqFilterCoefficient": "4",
+   "SrsPeriodicity": "40",
+   "SystemInformationPeriodicity": "+8e+07ns",
+   "UeMap": ""
+  },
+  "ns3::LteEnbRrcProtocolIdeal": {},
+  "ns3::LteEnbRrcProtocolReal": {},
+  "ns3::LteFfrAlgorithm": {
+   "EnabledInUplink": "true",
+   "FrCellTypeId": "0"
+  },
+  "ns3::LteFfrDistributedAlgorithm": {
+   "CalculationInterval": "+1e+09ns",
+   "CenterAreaTpc": "1",
+   "CenterPowerOffset": "5",
+   "EdgeAreaTpc": "1",
+   "EdgePowerOffset": "5",
+   "EdgeRbNum": "8",
+   "RsrpDifferenceThreshold": "20",
+   "RsrqThreshold": "20"
+  },
+  "ns3::LteFfrEnhancedAlgorithm": {
+   "CenterAreaPowerOffset": "5",
+   "CenterAreaTpc": "1",
+   "DlCqiThreshold": "15",
+   "DlReuse1SubBandwidth": "4",
+   "DlReuse3SubBandwidth": "4",
+   "DlSubBandOffset": "0",
+   "EdgeAreaPowerOffset": "5",
+   "EdgeAreaTpc": "1",
+   "RsrqThreshold": "26",
+   "UlCqiThreshold": "15",
+   "UlReuse1SubBandwidth": "4",
+   "UlReuse3SubBandwidth": "4",
+   "UlSubBandOffset": "0"
+  },
+  "ns3::LteFfrSoftAlgorithm": {
+   "CenterAreaPowerOffset": "5",
+   "CenterAreaTpc": "1",
+   "CenterRsrqThreshold": "30",
+   "DlCommonSubBandwidth": "6",
+   "DlEdgeSubBandOffset": "0",
+   "DlEdgeSubBandwidth": "0",
+   "EdgeAreaPowerOffset": "5",
+   "EdgeAreaTpc": "1",
+   "EdgeRsrqThreshold": "20",
+   "MediumAreaPowerOffset": "5",
+   "MediumAreaTpc": "1",
+   "UlCommonSubBandwidth": "6",
+   "UlEdgeSubBandOffset": "0",
+   "UlEdgeSubBandwidth": "6"
+  },
+  "ns3::LteFrHardAlgorithm": {
+   "DlSubBandOffset": "0",
+   "DlSubBandwidth": "25",
+   "UlSubBandOffset": "0",
+   "UlSubBandwidth": "25"
+  },
+  "ns3::LteFrNoOpAlgorithm": {},
+  "ns3::LteFrSoftAlgorithm": {
+   "AllowCenterUeUseEdgeSubBand": "true",
+   "CenterAreaTpc": "1",
+   "CenterPowerOffset": "5",
+   "DlEdgeSubBandOffset": "0",
+   "DlEdgeSubBandwidth": "0",
+   "EdgeAreaTpc": "1",
+   "EdgePowerOffset": "5",
+   "RsrqThreshold": "20",
+   "UlEdgeSubBandOffset": "0",
+   "UlEdgeSubBandwidth": "0"
+  },
+  "ns3::LteFrStrictAlgorithm": {
+   "CenterAreaTpc": "1",
+   "CenterPowerOffset": "4",
+   "DlCommonSubBandwidth": "25",
+   "DlEdgeSubBandOffset": "0",
+   "DlEdgeSubBandwidth": "0",
+   "EdgeAreaTpc": "1",
+   "EdgePowerOffset": "5",
+   "RsrqThreshold": "20",
+   "UlCommonSubBandwidth": "25",
+   "UlEdgeSubBandOffset": "0",
+   "UlEdgeSubBandwidth": "0"
+  },
+  "ns3::LteHandoverAlgorithm": {},
+  "ns3::LteHelper": {
+   "AnrEnabled": "true",
+   "EnbComponentCarrierManager": "ns3::NoOpComponentCarrierManager",
+   "FadingModel": "",
+   "FfrAlgorithm": "ns3::LteFrNoOpAlgorithm",
+   "HandoverAlgorithm": "ns3::NoOpHandoverAlgorithm",
+   "NumberOfComponentCarriers": "1",
+   "PathlossModel": "ns3::FriisPropagationLossModel",
+   "Scheduler": "ns3::PfFfMacScheduler",
+   "UeComponentCarrierManager": "ns3::SimpleUeComponentCarrierManager",
+   "UseCa": "false",
+   "UseIdealRrc": "true",
+   "UsePdschForCqiGeneration": "true"
+  },
+  "ns3::LteHexGridEnbTopologyHelper": {
+   "EnableWraparound": "false",
+   "GridWidth": "1",
+   "InterSiteDistance": "500",
+   "MinX": "0",
+   "MinY": "0",
+   "SectorOffset": "0.5",
+   "SiteHeight": "30"
+  },
+  "ns3::LteNetDevice": {
+   "Mtu": "30000"
+  },
+  "ns3::LtePdcp": {},
+  "ns3::LtePdcpHeader": {},
+  "ns3::LtePhy": {},
+  "ns3::LtePhyTag": {},
+  "ns3::LteRadioBearerInfo": {},
+  "ns3::LteRadioBearerTag": {
+   "lcid": "0",
+   "rnti": "0"
+  },
+  "ns3::LteRlc": {},
+  "ns3::LteRlcAm": {
+   "MaxTxBufferSize": "10240",
+   "PollRetransmitTimer": "+2e+07ns",
+   "ReorderingTimer": "+1e+07ns",
+   "ReportBufferStatusTimer": "+2e+07ns",
+   "StatusProhibitTimer": "+1e+07ns",
+   "TxOpportunityForRetxAlwaysBigEnough": "false"
+  },
+  "ns3::LteRlcAmHeader": {},
+  "ns3::LteRlcHeader": {},
+  "ns3::LteRlcSduStatusTag": {},
+  "ns3::LteRlcSm": {},
+  "ns3::LteRlcTm": {
+   "MaxTxBufferSize": "2097152"
+  },
+  "ns3::LteRlcUm": {
+   "DiscardTimerMs": "0",
+   "EnablePdcpDiscarding": "true",
+   "MaxTxBufferSize": "10240",
+   "ReorderingTimer": "+1e+08ns"
+  },
+  "ns3::LteSpectrumPhy": {
+   "CtrlErrorModelEnabled": "true",
+   "DataErrorModelEnabled": "true"
+  },
+  "ns3::LteStatsCalculator": {},
+  "ns3::LteUeComponentCarrierManager": {},
+  "ns3::LteUeMac": {},
+  "ns3::LteUeNetDevice": {
+   "ComponentCarrierMapUe": "",
+   "CsgId": "0",
+   "DlEarfcn": "100",
+   "EpcUeNas": "null",
+   "Imsi": "0",
+   "LteUeComponentCarrierManager": "null",
+   "LteUeRrc": "null"
+  },
+  "ns3::LteUePhy": {
+   "DlSpectrumPhy": "null",
+   "DownlinkCqiPeriodicity": "+1e+06ns",
+   "EnableRlfDetection": "true",
+   "EnableUplinkPowerControl": "true",
+   "NoiseFigure": "9",
+   "NumQinEvalSf": "100",
+   "NumQoutEvalSf": "200",
+   "Qin": "-3.9",
+   "Qout": "-5",
+   "RsrpSinrSamplePeriod": "1",
+   "RsrqUeMeasThreshold": "-1000",
+   "TxMode1Gain": "0",
+   "TxMode2Gain": "4.2",
+   "TxMode3Gain": "-2.8",
+   "TxMode4Gain": "0",
+   "TxMode5Gain": "0",
+   "TxMode6Gain": "0",
+   "TxMode7Gain": "0",
+   "TxPower": "10",
+   "UeMeasurementsFilterPeriod": "+2e+08ns",
+   "UlSpectrumPhy": "null"
+  },
+  "ns3::LteUePowerControl": {
+   "AccumulationEnabled": "true",
+   "Alpha": "1",
+   "ClosedLoop": "true",
+   "Pcmax": "23",
+   "Pcmin": "-40",
+   "PoNominalPusch": "-80",
+   "PoUePusch": "0",
+   "PsrsOffset": "7"
+  },
+  "ns3::LteUeRrc": {
+   "C-RNTI": "0",
+   "CellId": "0",
+   "DataRadioBearerMap": "",
+   "N310": "6",
+   "N311": "2",
+   "Srb0": "null",
+   "Srb1": "null",
+   "T300": "+1e+08ns",
+   "T310": "+1e+09ns"
+  },
+  "ns3::LteUeRrcProtocolIdeal": {},
+  "ns3::LteUeRrcProtocolReal": {},
+  "ns3::MacStatsCalculator": {
+   "DlOutputFilename": "DlMacStats.txt",
+   "UlOutputFilename": "UlMacStats.txt"
+  },
+  "ns3::MapScheduler": {},
+  "ns3::MatrixPropagationLossModel": {
+   "DefaultLoss": "1.79769e+308"
+  },
+  "ns3::MqQueueDisc": {},
+  "ns3::MultiModelSpectrumChannel": {},
+  "ns3::NakagamiPropagationLossModel": {
+   "Distance1": "80",
+   "Distance2": "200",
+   "ErlangRv": "ns3::ErlangRandomVariable",
+   "GammaRv": "ns3::GammaRandomVariable",
+   "m0": "1.5",
+   "m1": "0.75",
+   "m2": "0.75"
+  },
+  "ns3::NdiscCache": {
+   "UnresolvedQueueSize": "3"
+  },
+  "ns3::NetDevice": {},
+  "ns3::NetDeviceQueue": {},
+  "ns3::NetDeviceQueueInterface": {
+   "NTxQueues": "1",
+   "TxQueuesType": "ns3::NetDeviceQueue"
+  },
+  "ns3::NeverLosChannelConditionModel": {},
+  "ns3::NeverLosVehicleChannelConditionModel": {},
+  "ns3::NoBackhaulEpcHelper": {
+   "S11LinkDataRate": "10000000000bps",
+   "S11LinkDelay": "+0ns",
+   "S11LinkMtu": "2000",
+   "S5LinkDataRate": "10000000000bps",
+   "S5LinkDelay": "+0ns",
+   "S5LinkMtu": "2000",
+   "X2LinkDataRate": "10000000000bps",
+   "X2LinkDelay": "+0ns",
+   "X2LinkEnablePcap": "false",
+   "X2LinkMtu": "3000",
+   "X2LinkPcapPrefix": "x2"
+  },
+  "ns3::NoOpComponentCarrierManager": {},
+  "ns3::NoOpHandoverAlgorithm": {},
+  "ns3::Node": {
+   "ApplicationList": "",
+   "DeviceList": "",
+   "Id": "0",
+   "SystemId": "0"
+  },
+  "ns3::NodeListPriv": {
+   "NodeList": ""
+  },
+  "ns3::NonCommunicatingNetDevice": {
+   "Phy": "null"
+  },
+  "ns3::NormalRandomVariable": {
+   "Bound": "1.79769e+308",
+   "Mean": "0",
+   "Variance": "1"
+  },
+  "ns3::Object": {},
+  "ns3::ObjectBase": {},
+  "ns3::OkumuraHataPropagationLossModel": {
+   "CitySize": "Large",
+   "Environment": "Urban",
+   "Frequency": "2.16e+09"
+  },
+  "ns3::OnOffApplication": {
+   "DataRate": "500000bps",
+   "EnableSeqTsSizeHeader": "false",
+   "MaxBytes": "0",
+   "OffTime": "ns3::ConstantRandomVariable[Constant=1.0]",
+   "OnTime": "ns3::ConstantRandomVariable[Constant=1.0]",
+   "PacketSize": "512",
+   "Protocol": "ns3::UdpSocketFactory"
+  },
+  "ns3::PacketBurst": {},
+  "ns3::PacketFilter": {},
+  "ns3::PacketProbe": {},
+  "ns3::PacketSink": {
+   "EnableSeqTsSizeHeader": "false",
+   "Protocol": "ns3::UdpSocketFactory"
+  },
+  "ns3::PacketSocket": {
+   "RcvBufSize": "131072"
+  },
+  "ns3::PacketSocketClient": {
+   "Interval": "+1e+09ns",
+   "MaxPackets": "100",
+   "PacketSize": "1024",
+   "Priority": "0"
+  },
+  "ns3::PacketSocketFactory": {},
+  "ns3::PacketSocketServer": {},
+  "ns3::PacketSocketTag": {},
+  "ns3::ParabolicAntennaModel": {
+   "Beamwidth": "60",
+   "MaxAttenuation": "20",
+   "Orientation": "0"
+  },
+  "ns3::ParetoRandomVariable": {
+   "Bound": "0",
+   "Scale": "1",
+   "Shape": "2"
+  },
+  "ns3::PbbPacket": {},
+  "ns3::PcapFileWrapper": {
+   "CaptureSize": "65535",
+   "NanosecMode": "false"
+  },
+  "ns3::PdcpTag": {},
+  "ns3::PfFfMacScheduler": {
+   "CqiTimerThreshold": "1000",
+   "HarqEnabled": "true",
+   "UlGrantMcs": "0"
+  },
+  "ns3::PfifoFastQueueDisc": {
+   "MaxSize": "1000p"
+  },
+  "ns3::PhasedArrayModel": {
+   "AntennaElement": "object:ns3::IsotropicAntennaModel"
+  },
+  "ns3::PhasedArraySpectrumPropagationLossModel": {},
+  "ns3::PhyRxStatsCalculator": {
+   "DlRxOutputFilename": "DlRxPhyStats.txt",
+   "UlRxOutputFilename": "UlRxPhyStats.txt"
+  },
+  "ns3::PhyStatsCalculator": {
+   "DlRsrpSinrFilename": "DlRsrpSinrStats.txt",
+   "UlInterferenceFilename": "UlInterferenceStats.txt",
+   "UlSinrFilename": "UlSinrStats.txt"
+  },
+  "ns3::PhyTxStatsCalculator": {
+   "DlTxOutputFilename": "DlTxPhyStats.txt",
+   "UlTxOutputFilename": "UlTxPhyStats.txt"
+  },
+  "ns3::PieQueueDisc": {
+   "A": "0.125",
+   "ActiveThreshold": "+9.22337e+18ns",
+   "B": "1.25",
+   "CeThreshold": "+9.22337e+18ns",
+   "DequeueThreshold": "16384",
+   "MarkEcnThreshold": "0.1",
+   "MaxBurstAllowance": "+1.5e+08ns",
+   "MaxSize": "25p",
+   "MeanPktSize": "1000",
+   "QueueDelayReference": "+1.5e+07ns",
+   "Supdate": "+0ns",
+   "Tupdate": "+1.5e+07ns",
+   "UseCapDropAdjustment": "true",
+   "UseDequeueRateEstimator": "false",
+   "UseDerandomization": "false",
+   "UseEcn": "false",
+   "UseL4s": "false"
+  },
+  "ns3::PointToPointChannel": {
+   "Delay": "+0ns"
+  },
+  "ns3::PointToPointEpcHelper": {
+   "S1uLinkDataRate": "10000000000bps",
+   "S1uLinkDelay": "+0ns",
+   "S1uLinkEnablePcap": "false",
+   "S1uLinkMtu": "2000",
+   "S1uLinkPcapPrefix": "s1u"
+  },
+  "ns3::PointToPointNetDevice": {
+   "Address": "ff:ff:ff:ff:ff:ff",
+   "DataRate": "32768bps",
+   "InterframeGap": "+0ns",
+   "Mtu": "1500",
+   "ReceiveErrorModel": "null",
+   "TxQueue": "null"
+  },
+  "ns3::PppHeader": {},
+  "ns3::PrioQueueDisc": {
+   "Priomap": "1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1"
+  },
+  "ns3::PriorityQueueScheduler": {},
+  "ns3::ProbabilisticV2vHighwayChannelConditionModel": {
+   "Density": "Low"
+  },
+  "ns3::ProbabilisticV2vUrbanChannelConditionModel": {
+   "Density": "Low"
+  },
+  "ns3::PropagationDelayModel": {},
+  "ns3::PropagationLossModel": {},
+  "ns3::PssFfMacScheduler": {
+   "CqiTimerThreshold": "1000",
+   "HarqEnabled": "true",
+   "PssFdSchedulerType": "PFsch",
+   "UlGrantMcs": "0",
+   "nMux": "0"
+  },
+  "ns3::Queue<Packet>": {},
+  "ns3::Queue<QueueDiscItem>": {},
+  "ns3::QueueBase": {},
+  "ns3::QueueDisc": {
+   "InternalQueueList": "",
+   "PacketFilterList": "",
+   "QueueDiscClassList": "",
+   "Quota": "64"
+  },
+  "ns3::QueueDiscClass": {
+   "QueueDisc": "null"
+  },
+  "ns3::QueueLimits": {},
+  "ns3::RadioBearerStatsCalculator": {
+   "DlPdcpOutputFilename": "DlPdcpStats.txt",
+   "DlRlcOutputFilename": "DlRlcStats.txt",
+   "EpochDuration": "+2.5e+08ns",
+   "StartTime": "+0ns",
+   "UlPdcpOutputFilename": "UlPdcpStats.txt",
+   "UlRlcOutputFilename": "UlRlcStats.txt"
+  },
+  "ns3::RadioEnvironmentMapHelper": {
+   "Bandwidth": "25",
+   "Channel": "null",
+   "ChannelPath": "/ChannelList/0",
+   "Earfcn": "100",
+   "MaxPointsPerIteration": "20000",
+   "NoisePower": "1.423e-13",
+   "OutputFile": "rem.out",
+   "RbId": "-1",
+   "StopWhenDone": "true",
+   "UseDataChannel": "false",
+   "XMax": "1",
+   "XMin": "0",
+   "XRes": "100",
+   "YMax": "1",
+   "YMin": "0",
+   "YRes": "100",
+   "Z": "0"
+  },
+  "ns3::RadiotapHeader": {},
+  "ns3::RandomPropagationDelayModel": {
+   "Variable": "ns3::UniformRandomVariable"
+  },
+  "ns3::RandomPropagationLossModel": {
+   "Variable": "ns3::ConstantRandomVariable[Constant=1.0]"
+  },
+  "ns3::RandomVariableStream": {
+   "Antithetic": "false",
+   "Stream": "-1"
+  },
+  "ns3::RangePropagationLossModel": {
+   "MaxRange": "250"
+  },
+  "ns3::RateErrorModel": {
+   "ErrorRate": "0",
+   "ErrorUnit": "ERROR_UNIT_BYTE",
+   "RanVar": "ns3::UniformRandomVariable[Min=0.0|Max=1.0]"
+  },
+  "ns3::RealtimeSimulatorImpl": {
+   "HardLimit": "+1e+08ns",
+   "SynchronizationMode": "BestEffort"
+  },
+  "ns3::ReceiveListErrorModel": {},
+  "ns3::RedQueueDisc": {
+   "ARED": "false",
+   "AdaptMaxP": "false",
+   "Alpha": "0.01",
+   "Beta": "0.9",
+   "Bottom": "0",
+   "FengAdaptive": "false",
+   "FengAlpha": "3",
+   "FengBeta": "2",
+   "Gentle": "true",
+   "IdlePktSize": "0",
+   "Interval": "+5e+08ns",
+   "LInterm": "50",
+   "LastSet": "+0ns",
+   "LinkBandwidth": "1500000bps",
+   "LinkDelay": "+2e+07ns",
+   "MaxSize": "25p",
+   "MaxTh": "15",
+   "MeanPktSize": "500",
+   "MinTh": "5",
+   "NLRED": "false",
+   "Ns1Compat": "false",
+   "QW": "0.002",
+   "Rtt": "+1e+08ns",
+   "TargetDelay": "+5e+06ns",
+   "Top": "0.5",
+   "UseEcn": "false",
+   "UseHardDrop": "true",
+   "Wait": "true"
+  },
+  "ns3::RemSpectrumPhy": {},
+  "ns3::Rip": {
+   "GarbageCollectionDelay": "+1.2e+11ns",
+   "LinkDownValue": "16",
+   "MaxTriggeredCooldown": "+5e+09ns",
+   "MinTriggeredCooldown": "+1e+09ns",
+   "SplitHorizon": "PoisonReverse",
+   "StartupDelay": "+1e+09ns",
+   "TimeoutDelay": "+1.8e+11ns",
+   "UnsolicitedRoutingUpdate": "+3e+10ns"
+  },
+  "ns3::RipHeader": {},
+  "ns3::RipNg": {
+   "GarbageCollectionDelay": "+1.2e+11ns",
+   "LinkDownValue": "16",
+   "MaxTriggeredCooldown": "+5e+09ns",
+   "MinTriggeredCooldown": "+1e+09ns",
+   "SplitHorizon": "PoisonReverse",
+   "StartupDelay": "+1e+09ns",
+   "TimeoutDelay": "+1.8e+11ns",
+   "UnsolicitedRoutingUpdate": "+3e+10ns"
+  },
+  "ns3::RipNgHeader": {},
+  "ns3::RipNgRte": {},
+  "ns3::RipRte": {},
+  "ns3::RlcTag": {},
+  "ns3::RrComponentCarrierManager": {},
+  "ns3::RrFfMacScheduler": {
+   "CqiTimerThreshold": "1000",
+   "HarqEnabled": "true",
+   "UlGrantMcs": "0"
+  },
+  "ns3::RtaTigMobileGaming": {
+   "CustomEndPacketSize": "ns3::UniformRandomVariable[Min=500|Max=600]",
+   "CustomInitialPacketSize": "ns3::UniformRandomVariable[Min=0|Max=20]",
+   "CustomPacketArrivalLev": "ns3::LargestExtremeValueRandomVariable[Location=13000|Scale=3700]",
+   "CustomPacketSizeLev": "ns3::LargestExtremeValueRandomVariable[Location=50|Scale=11.0]",
+   "ModelPresets": "Custom",
+   "Protocol": "ns3::UdpSocketFactory"
+  },
+  "ns3::RttEstimator": {
+   "InitialEstimation": "+1e+09ns"
+  },
+  "ns3::RttMeanDeviation": {
+   "Alpha": "0.125",
+   "Beta": "0.25"
+  },
+  "ns3::Scheduler": {},
+  "ns3::SeqTsEchoHeader": {},
+  "ns3::SeqTsHeader": {},
+  "ns3::SeqTsSizeHeader": {},
+  "ns3::SequentialRandomVariable": {
+   "Consecutive": "1",
+   "Increment": "ns3::ConstantRandomVariable[Constant=1]",
+   "Max": "0",
+   "Min": "0"
+  },
+  "ns3::ShannonSpectrumErrorModel": {},
+  "ns3::SimpleChannel": {
+   "Delay": "+0ns"
+  },
+  "ns3::SimpleNetDevice": {
+   "DataRate": "0bps",
+   "PointToPointMode": "false",
+   "ReceiveErrorModel": "null",
+   "TxQueue": "ns3::DropTailQueue<Packet>"
+  },
+  "ns3::SimpleTag": {},
+  "ns3::SimpleUeComponentCarrierManager": {},
+  "ns3::SimulatorImpl": {},
+  "ns3::SingleModelSpectrumChannel": {},
+  "ns3::SinkApplication": {
+   "Local": "00-00:00",
+   "Port": "4294967295"
+  },
+  "ns3::SllHeader": {},
+  "ns3::Socket": {},
+  "ns3::SocketFactory": {},
+  "ns3::SocketIpTtlTag": {},
+  "ns3::SocketIpv6HopLimitTag": {},
+  "ns3::SocketSetDontFragmentTag": {},
+  "ns3::SourceApplication": {
+   "Local": "00-00:00",
+   "Remote": "00-00:00",
+   "Tos": "0"
+  },
+  "ns3::SpectrumAnalyzer": {
+   "NoisePowerSpectralDensity": "4.14e-21",
+   "Resolution": "+1e+06ns"
+  },
+  "ns3::SpectrumChannel": {
+   "MaxLossDb": "1e+09",
+   "PropagationLossModel": "null"
+  },
+  "ns3::SpectrumErrorModel": {},
+  "ns3::SpectrumPhy": {},
+  "ns3::SpectrumPropagationLossModel": {},
+  "ns3::SpectrumTransmitFilter": {},
+  "ns3::Synchronizer": {},
+  "ns3::Tag": {},
+  "ns3::TbfQueueDisc": {
+   "Burst": "125000",
+   "MaxSize": "1000p",
+   "Mtu": "0",
+   "PeakRate": "0bps",
+   "Rate": "1000000bps"
+  },
+  "ns3::TcpBbr": {
+   "AckEpochAckedResetThresh": "4096",
+   "BwWindowLength": "10",
+   "ExtraAckedRttWindowLength": "5",
+   "HighGain": "2.89",
+   "ProbeRttDuration": "+2e+08ns",
+   "RttWindowLength": "+1e+10ns",
+   "Stream": "4"
+  },
+  "ns3::TcpBic": {
+   "Beta": "0.8",
+   "BinarySearchCoefficient": "4",
+   "FastConvergence": "true",
+   "LowWnd": "14",
+   "MaxIncr": "16",
+   "SmoothPart": "5"
+  },
+  "ns3::TcpClassicRecovery": {},
+  "ns3::TcpCongestionOps": {},
+  "ns3::TcpCubic": {
+   "Beta": "0.7",
+   "BetaEcn": "0.85",
+   "C": "0.4",
+   "CntClamp": "20",
+   "CubicDelta": "+1e+07ns",
+   "FastConvergence": "true",
+   "HyStart": "true",
+   "HyStartAckDelta": "+2e+06ns",
+   "HyStartDelayMax": "+1e+09ns",
+   "HyStartDelayMin": "+4e+06ns",
+   "HyStartDetect": "BOTH",
+   "HyStartLowWindow": "16",
+   "HyStartMinSamples": "8",
+   "TcpFriendliness": "true"
+  },
+  "ns3::TcpDctcp": {
+   "DctcpAlphaOnInit": "1",
+   "DctcpShiftG": "0.0625",
+   "UseEct0": "true"
+  },
+  "ns3::TcpHeader": {},
+  "ns3::TcpHighSpeed": {},
+  "ns3::TcpHtcp": {
+   "DefaultBackoff": "0.5",
+   "DeltaL": "+1e+09ns",
+   "ThroughputRatio": "0.2"
+  },
+  "ns3::TcpHybla": {
+   "RRTT": "+5e+07ns"
+  },
+  "ns3::TcpIllinois": {
+   "AlphaBase": "1",
+   "AlphaMax": "10",
+   "AlphaMin": "0.3",
+   "BetaBase": "0.5",
+   "BetaMax": "0.5",
+   "BetaMin": "0.125",
+   "Theta": "5",
+   "WinThresh": "15"
+  },
+  "ns3::TcpL4Protocol": {
+   "RecoveryType": "ns3::TcpPrrRecovery",
+   "RttEstimatorType": "ns3::RttMeanDeviation",
+   "SocketList": "",
+   "SocketType": "ns3::TcpCubic"
+  },
+  "ns3::TcpLedbat": {
+   "AllowedIncrease": "1",
+   "BaseHistoryLen": "10",
+   "Gain": "1",
+   "MinCwnd": "2",
+   "NoiseFilterLen": "4",
+   "SSParam": "yes",
+   "TargetDelay": "+1e+08ns"
+  },
+  "ns3::TcpLinuxReno": {
+   "BetaEcn": "0.7",
+   "BetaLoss": "0.5"
+  },
+  "ns3::TcpLp": {},
+  "ns3::TcpNewReno": {
+   "BetaEcn": "0.7",
+   "BetaLoss": "0.5"
+  },
+  "ns3::TcpOption": {},
+  "ns3::TcpOptionEnd": {},
+  "ns3::TcpOptionMSS": {},
+  "ns3::TcpOptionNOP": {},
+  "ns3::TcpOptionSack": {},
+  "ns3::TcpOptionSackPermitted": {},
+  "ns3::TcpOptionTS": {},
+  "ns3::TcpOptionUnknown": {},
+  "ns3::TcpOptionWinScale": {},
+  "ns3::TcpPrrRecovery": {},
+  "ns3::TcpRateLinux": {},
+  "ns3::TcpRateOps": {},
+  "ns3::TcpRecoveryOps": {},
+  "ns3::TcpRxBuffer": {},
+  "ns3::TcpScalable": {
+   "AIFactor": "50",
+   "MDFactor": "0.125"
+  },
+  "ns3::TcpSocket": {
+   "ConnCount": "6",
+   "ConnTimeout": "+3e+09ns",
+   "DataRetries": "6",
+   "DelAckCount": "2",
+   "DelAckTimeout": "+2e+08ns",
+   "InitialCwnd": "10",
+   "InitialSlowStartThreshold": "4294967295",
+   "PersistTimeout": "+6e+09ns",
+   "RcvBufSize": "131072",
+   "SegmentSize": "536",
+   "SndBufSize": "131072",
+   "TcpNoDelay": "true"
+  },
+  "ns3::TcpSocketBase": {
+   "ClockGranularity": "+1e+06ns",
+   "CongestionOps": "null",
+   "Fack": "false",
+   "IcmpCallback": "0",
+   "IcmpCallback6": "0",
+   "LimitedTransmit": "true",
+   "MaxSegLifetime": "120",
+   "MaxWindowSize": "65535",
+   "MinRto": "+1e+09ns",
+   "ReTxThreshold": "3",
+   "RecoveryOps": "null",
+   "RxBuffer": "null",
+   "Sack": "true",
+   "Timestamp": "true",
+   "TxBuffer": "null",
+   "UseAbe": "false",
+   "UseEcn": "Off",
+   "WindowScaling": "true"
+  },
+  "ns3::TcpSocketFactory": {},
+  "ns3::TcpSocketState": {
+   "EnablePacing": "false",
+   "MaxPacingRate": "4000000000bps",
+   "PaceInitialWindow": "false",
+   "PacingCaRatio": "120",
+   "PacingSsRatio": "200"
+  },
+  "ns3::TcpTxBuffer": {},
+  "ns3::TcpVegas": {
+   "Alpha": "2",
+   "Beta": "4",
+   "Gamma": "1"
+  },
+  "ns3::TcpVeno": {
+   "Beta": "3"
+  },
+  "ns3::TcpWestwoodPlus": {
+   "FilterType": "Tustin"
+  },
+  "ns3::TcpYeah": {
+   "Alpha": "80",
+   "Delta": "3",
+   "Epsilon": "1",
+   "Gamma": "1",
+   "Phy": "8",
+   "Rho": "16",
+   "StcpAiFactor": "100",
+   "Zeta": "50"
+  },
+  "ns3::TdBetFfMacScheduler": {
+   "CqiTimerThreshold": "1000",
+   "HarqEnabled": "true",
+   "UlGrantMcs": "0"
+  },
+  "ns3::TdMtFfMacScheduler": {
+   "CqiTimerThreshold": "1000",
+   "HarqEnabled": "true",
+   "UlGrantMcs": "0"
+  },
+  "ns3::TdTbfqFfMacScheduler": {
+   "CqiTimerThreshold": "1000",
+   "CreditLimit": "625000",
+   "CreditableThreshold": "0",
+   "DebtLimit": "-625000",
+   "HarqEnabled": "true",
+   "TokenPoolSize": "1",
+   "UlGrantMcs": "0"
+  },
+  "ns3::TgaxVideoTraffic": {
+   "CustomFrameSizeScale": "6950",
+   "CustomFrameSizeShape": "0.8099",
+   "CustomVideoBitRate": "2000000bps",
+   "LatencyScale": "0",
+   "LatencyShape": "0.2463",
+   "Protocol": "ns3::TcpSocketFactory",
+   "TrafficModelClassIdentifier": "Custom"
+  },
+  "ns3::TgaxVirtualDesktop": {
+   "CustomInitialPacketArrival": "ns3::UniformRandomVariable[Min=0|Max=20000000]",
+   "CustomInterPacketArrivals": "ns3::ExponentialRandomVariable[Mean=60226900]",
+   "CustomParametersPacketSize": "41.0 3.2;1478.3 11.6",
+   "ModelPresets": "Custom",
+   "Protocol": "ns3::TcpSocketFactory"
+  },
+  "ns3::TgaxVoipTraffic": {
+   "ActivePacketPayloadSize": "33",
+   "BoundDelayJitter": "+8e+07ns",
+   "MeanActiveStateDuration": "+1.25e+09ns",
+   "MeanInactiveStateDuration": "+1.25e+09ns",
+   "Protocol": "ns3::PacketSocketFactory",
+   "ScaleDelayJitter": "+5.11e+06ns",
+   "SilenceEncoderInterval": "+1.6e+08ns",
+   "SilencePacketPayloadSize": "7",
+   "SilenceToVoiceProbability": "0.016",
+   "VoiceEncoderInterval": "+2e+07ns",
+   "VoiceToSilenceProbability": "0.016"
+  },
+  "ns3::ThreeGppAntennaModel": {
+   "RadiationPattern": "Outdoor"
+  },
+  "ns3::ThreeGppChannelConditionModel": {
+   "LinkO2iConditionToAntennaHeight": "false",
+   "O2iLowLossThreshold": "1",
+   "O2iThreshold": "0",
+   "UpdatePeriod": "+0ns"
+  },
+  "ns3::ThreeGppChannelModel": {
+   "Blockage": "false",
+   "BlockerSpeed": "1",
+   "ChannelConditionModel": "null",
+   "Frequency": "5e+08",
+   "NumNonselfBlocking": "4",
+   "PortraitMode": "true",
+   "Scenario": "UMa",
+   "UpdatePeriod": "+0ns",
+   "vScatt": "0"
+  },
+  "ns3::ThreeGppHttpClient": {
+   "RemoteServerAddress": "00-00:00",
+   "RemoteServerPort": "80",
+   "Variables": "null"
+  },
+  "ns3::ThreeGppHttpHeader": {},
+  "ns3::ThreeGppHttpServer": {
+   "LocalAddress": "00-00:00",
+   "LocalPort": "80",
+   "Mtu": "0",
+   "Tos": "0",
+   "Variables": "null"
+  },
+  "ns3::ThreeGppHttpVariables": {
+   "EmbeddedObjectGenerationDelay": "+0ns",
+   "EmbeddedObjectSizeMax": "2000000",
+   "EmbeddedObjectSizeMean": "7758",
+   "EmbeddedObjectSizeMin": "50",
+   "EmbeddedObjectSizeStdDev": "126168",
+   "HighMtuProbability": "0.76",
+   "HighMtuSize": "1460",
+   "LowMtuSize": "536",
+   "MainObjectGenerationDelay": "+0ns",
+   "MainObjectSizeMax": "2000000",
+   "MainObjectSizeMean": "10710",
+   "MainObjectSizeMin": "100",
+   "MainObjectSizeStdDev": "25032",
+   "NumOfEmbeddedObjectsMax": "55",
+   "NumOfEmbeddedObjectsScale": "2",
+   "NumOfEmbeddedObjectsShape": "1.1",
+   "ParsingTimeMean": "+1.3e+08ns",
+   "ReadingTimeMean": "+3e+10ns",
+   "RequestSize": "328"
+  },
+  "ns3::ThreeGppIndoorMixedOfficeChannelConditionModel": {},
+  "ns3::ThreeGppIndoorOfficePropagationLossModel": {},
+  "ns3::ThreeGppIndoorOpenOfficeChannelConditionModel": {},
+  "ns3::ThreeGppNTNDenseUrbanChannelConditionModel": {},
+  "ns3::ThreeGppNTNDenseUrbanPropagationLossModel": {},
+  "ns3::ThreeGppNTNRuralChannelConditionModel": {},
+  "ns3::ThreeGppNTNRuralPropagationLossModel": {},
+  "ns3::ThreeGppNTNSuburbanChannelConditionModel": {},
+  "ns3::ThreeGppNTNSuburbanPropagationLossModel": {},
+  "ns3::ThreeGppNTNUrbanChannelConditionModel": {},
+  "ns3::ThreeGppNTNUrbanPropagationLossModel": {},
+  "ns3::ThreeGppPropagationLossModel": {
+   "BuildingPenetrationLossesEnabled": "true",
+   "ChannelConditionModel": "null",
+   "EnforceParameterRanges": "false",
+   "Frequency": "5e+08",
+   "MeanVehicularLoss": "9",
+   "ShadowingEnabled": "true"
+  },
+  "ns3::ThreeGppRmaChannelConditionModel": {},
+  "ns3::ThreeGppRmaPropagationLossModel": {
+   "AvgBuildingHeight": "5",
+   "AvgStreetWidth": "20"
+  },
+  "ns3::ThreeGppSpectrumPropagationLossModel": {
+   "ChannelModel": "ns3::ThreeGppChannelModel"
+  },
+  "ns3::ThreeGppUmaChannelConditionModel": {},
+  "ns3::ThreeGppUmaPropagationLossModel": {},
+  "ns3::ThreeGppUmiStreetCanyonChannelConditionModel": {},
+  "ns3::ThreeGppUmiStreetCanyonPropagationLossModel": {},
+  "ns3::ThreeGppV2vHighwayPropagationLossModel": {},
+  "ns3::ThreeGppV2vUrbanPropagationLossModel": {
+   "PercType3Vehicles": "0"
+  },
+  "ns3::ThreeLogDistancePropagationLossModel": {
+   "Distance0": "1",
+   "Distance1": "200",
+   "Distance2": "500",
+   "Exponent0": "1.9",
+   "Exponent1": "3.8",
+   "Exponent2": "3.8",
+   "ReferenceLoss": "46.6777"
+  },
+  "ns3::TimestampTag": {},
+  "ns3::TraceFadingLossModel": {
+   "RbNum": "100",
+   "RngStreamSetSize": "200000",
+   "SamplesNum": "10000",
+   "TraceFilename": "",
+   "TraceLength": "+1e+10ns",
+   "WindowSize": "+5e+08ns"
+  },
+  "ns3::TrafficControlLayer": {
+   "RootQueueDiscList": ""
+  },
+  "ns3::Trailer": {},
+  "ns3::TriangularRandomVariable": {
+   "Max": "1",
+   "Mean": "0.5",
+   "Min": "0"
+  },
+  "ns3::TtaFfMacScheduler": {
+   "CqiTimerThreshold": "1000",
+   "HarqEnabled": "true",
+   "UlGrantMcs": "0"
+  },
+  "ns3::TvSpectrumTransmitter": {
+   "Antenna": "ns3::IsotropicAntennaModel",
+   "BasePsd": "20",
+   "ChannelBandwidth": "6e+06",
+   "StartFrequency": "5e+08",
+   "StartingTime": "+0ns",
+   "TransmitDuration": "+2e+08ns",
+   "TvType": "8vsb"
+  },
+  "ns3::TwoRayGroundPropagationLossModel": {
+   "Frequency": "5.15e+09",
+   "HeightAboveZ": "0",
+   "MinDistance": "0.5",
+   "SystemLoss": "1"
+  },
+  "ns3::TwoRaySpectrumPropagationLossModel": {
+   "ChannelConditionModel": "null",
+   "Frequency": "5e+08",
+   "Scenario": "RMa"
+  },
+  "ns3::UdpClient": {
+   "Interval": "+1e+09ns",
+   "MaxPackets": "100",
+   "PacketSize": "1024",
+   "RemoteAddress": "00-00:00",
+   "RemotePort": "100"
+  },
+  "ns3::UdpEchoClient": {
+   "Interval": "+1e+09ns",
+   "MaxPackets": "100",
+   "PacketSize": "100",
+   "RemoteAddress": "00-00:00",
+   "RemotePort": "0"
+  },
+  "ns3::UdpEchoServer": {
+   "Tos": "0"
+  },
+  "ns3::UdpHeader": {},
+  "ns3::UdpL4Protocol": {
+   "SocketList": ""
+  },
+  "ns3::UdpServer": {
+   "PacketWindowSize": "32"
+  },
+  "ns3::UdpSocket": {
+   "IpMulticastIf": "-1",
+   "IpMulticastLoop": "false",
+   "IpMulticastTtl": "0",
+   "IpTtl": "0",
+   "MtuDiscover": "false",
+   "RcvBufSize": "131072"
+  },
+  "ns3::UdpSocketFactory": {},
+  "ns3::UdpSocketImpl": {
+   "IcmpCallback": "0",
+   "IcmpCallback6": "0"
+  },
+  "ns3::UdpTraceClient": {
+   "MaxPacketSize": "1024",
+   "RemoteAddress": "00-00:00",
+   "RemotePort": "100",
+   "TraceFilename": "",
+   "TraceLoop": "true"
+  },
+  "ns3::UeManager": {
+   "C-RNTI": "0",
+   "DataRadioBearerMap": "",
+   "Srb0": "null",
+   "Srb1": "null"
+  },
+  "ns3::UniformPlanarArray": {
+   "AntennaHorizontalSpacing": "0.5",
+   "AntennaVerticalSpacing": "0.5",
+   "BearingAngle": "0",
+   "DowntiltAngle": "0",
+   "IsDualPolarized": "false",
+   "NumColumns": "4",
+   "NumHorizontalPorts": "1",
+   "NumRows": "4",
+   "NumVerticalPorts": "1",
+   "PolSlantAngle": "0"
+  },
+  "ns3::UniformRandomVariable": {
+   "Max": "1",
+   "Min": "0"
+  },
+  "ns3::WallClockSynchronizer": {},
+  "ns3::WaveformGenerator": {
+   "DutyCycle": "0.5",
+   "Period": "+1e+09ns"
+  },
+  "ns3::WeibullRandomVariable": {
+   "Bound": "0",
+   "Scale": "1",
+   "Shape": "1"
+  },
+  "ns3::WraparoundModel": {},
+  "ns3::ZetaRandomVariable": {
+   "Alpha": "3.14"
+  },
+  "ns3::ZipfRandomVariable": {
+   "Alpha": "0",
+   "N": "1"
+  }
+ },
+ "build": {
+  "archive_sha256": "0dc88d6a4fbee6e8fd1b446e281fd564f394d4ccf8f7ef55d77a604488e25f01",
+  "asserts": "ON",
+  "build_profile": "release",
+  "cmake": "cmake version 3.28.3",
+  "cmake_build_type": "release",
+  "cmake_defines": [
+   "-DNS3_NATIVE_OPTIMIZATIONS=OFF"
+  ],
+  "configure_flags": [
+   "--disable-examples",
+   "--disable-tests",
+   "--disable-python-bindings",
+   "--enable-asserts",
+   "--disable-logs",
+   "--disable-werror"
+  ],
+  "cxx_compiler": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "cxx_flags_release": "-O3 -DNDEBUG",
+  "enabled_modules": [
+   "core",
+   "network",
+   "internet",
+   "point-to-point",
+   "lte",
+   "applications",
+   "traffic-control",
+   "flow-monitor"
+  ],
+  "generator": "Ninja",
+  "logs": "OFF",
+  "machine": "x86_64",
+  "native_optimizations": "OFF",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "release": "3.48",
+  "resolved_modules": [
+   "antenna",
+   "applications",
+   "bridge",
+   "buildings",
+   "config-store",
+   "core",
+   "csma",
+   "fd-net-device",
+   "flow-monitor",
+   "internet",
+   "lte",
+   "mobility",
+   "network",
+   "point-to-point",
+   "propagation",
+   "spectrum",
+   "stats",
+   "traffic-control",
+   "virtual-net-device"
+  ]
+ },
+ "build_hash": "b099c286ea506b706652a18e12fd4472278167339664326d4e00a4558ed14390",
+ "declaration_hash": "b794d33f868e970eb1c6fa4b11cbb3d2933f960b2130bfce242d857e0a6988c8",
+ "globals": {
+  "ChecksumEnabled": "false",
+  "RngRun": "1",
+  "RngSeed": "1",
+  "SchedulerType": "ns3::MapScheduler",
+  "SimulatorImplementationType": "ns3::DefaultSimulatorImpl"
+ },
+ "manifest_version": "ns3-model-manifest-v1",
+ "model_hash": "64b9a0f7904de5eab8bc6a7ce6a41c1abf965659c6f3a5d78b9d09f5bb58cd76",
+ "registry": {
+  "attributes": 1067,
+  "digest": "c481ecbd2f16d04e33913bf426171b68ef72a54d49bc992fbc2fc709afa19cc1",
+  "types": 504
+ },
+ "release": "3.48",
+ "sources": {
+  "ecora-attributes.cc": "de640a471213795e0598864e1b302b6755266e8498729eee89ffb6191797995c"
+ }
+}

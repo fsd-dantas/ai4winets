@@ -7,6 +7,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **A reproducible ns-3 build and model manifest** in `software/simulator/`. ns-3 is
+  pinned at 3.48 by archive checksum (ADR-28 records the move from the nominal 3.45), built
+  under a declared profile without host-specific code generation, and every registered
+  attribute default is exported and hashed into `data/simulator/ns3-model-manifest.json`.
+  `model_hash` identifies the model and `build_hash` the build that produced it. A second
+  build from scratch reproduced the dump byte for byte, after one pointer default that
+  serialised as a process address was replaced by the type it points to.
 - **Run reports in four separate sections** in `software/ecora/report.py` and
   `python -m ecora report`: service outcomes, coordination stability, missing evidence and
   privileged-information results. Read only from the artifact store, so a report is

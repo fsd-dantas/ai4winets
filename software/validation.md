@@ -479,6 +479,27 @@ These are findings about this rule inventory, this finite model and these states
 not establish that the observation contract is sufficient in general, and the privileged
 rows are references rather than deployable evidence.
 
+## ns-3 build and model manifest
+
+`software/simulator/build-ns3.sh` builds ns-3 3.48 (ADR-28) under the declaration in
+`software/simulator/ns3-build.json`. It was exercised on Ubuntu 24.04 under WSL2 with GCC
+13.3.0, CMake 3.28.3 and Ninja, `release` profile (`-O3 -DNDEBUG`, native optimisation
+off, asserts on, logs off). Configure resolved the eight declared modules into nineteen.
+
+Reproducibility was checked rather than assumed. Two independently obtained copies of the
+archive had the same SHA-256. A second build into a separate root, downloading and
+extracting afresh, produced a byte-identical attribute dump (504 types, 1067 attributes)
+and identical build facts. Both builds ran on the same host, so this establishes that the
+procedure reproduces, not that another host would. The first dump was *not* reproducible: one
+pointer-valued default, `PhasedArrayModel::AntennaElement`, serialised as a process
+address. The exporter now records the pointed-to type, and three consecutive runs agree.
+
+Refusals were exercised: a truncated archive is refused with its actual checksum, and a
+source tree the script did not extract is refused before anything is built. The
+committed manifest's `model_hash` is `64b9a0f7904d...`; tests re-derive both hashes, check
+the manifest against the current declaration and exporter source, and require the RLC,
+HARQ and selected-component settings v1 scope names.
+
 `python -m ecora demo .ecora-runs/example` runs the same invocation sequence for two
 frozen treatment bindings. Both produce valid DiagnosisRecord payloads with different
 synthetic fixture labels. Each treatment yields three committed datasets, three messages

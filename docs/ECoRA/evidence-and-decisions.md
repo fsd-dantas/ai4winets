@@ -75,6 +75,7 @@ Status is scoped to this design, not a judgement that a technology is impossible
 | ADR-25 | Exclude failure labels from ordinary controller inputs | Proposed/Null use availability-gated operational evidence; truth access belongs to logged privileged references and independent evaluation |
 | ADR-26 | Restrict exact optimisation to finite declared problems | Configuration planning, proposal-subset resolution and a supplemental information-ambiguity problem have explicit objectives, horizons and certificates, not global packet-service bounds |
 | ADR-27 | Select initial parameters and a bounded local execution envelope | [Initial values](experiments.md#initial-v1-values) are synthetic and uncalibrated; pilots establish feasibility before study freeze |
+| ADR-28 | Pin ns-3 3.48 in place of the nominal 3.45 | The nominal value was never tied to a 3.45-specific feature, and no run had been made against it. The pin is the archive's SHA-256 in `software/simulator/ns3-build.json`, and every inherited default is exported in the model manifest, so the change is recorded as data rather than asserted. Results are scoped to 3.48; the LTE components selected in [v1 scope](v1-scope.md#wireless-backhaul-model) are unchanged |
 
 These are proposed architecture decisions, not claims of implementation acceptance.
 

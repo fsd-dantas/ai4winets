@@ -350,6 +350,13 @@ def main(argv=None):
     enough.add_argument("--epochs", type=int, default=4)
     enough.add_argument("--scenario", default="s1-degraded-primary")
     enough.add_argument("--study", default=DEFAULT_STUDY)
+    manifest = commands.add_parser(
+        "simulator-manifest", help="assemble the ns-3 model manifest from a build's dumps")
+    manifest.add_argument("--attributes", type=Path, required=True,
+                          help="ns3-attributes.json written by software/simulator/build-ns3.sh")
+    manifest.add_argument("--facts", type=Path, required=True,
+                          help="build-facts.json written by the same build")
+    manifest.add_argument("--output", type=Path)
     args = parser.parse_args(argv)
     try:
         if args.command in {"schema", "fixtures"}:
@@ -381,6 +388,14 @@ def main(argv=None):
                     f"sufficiency directory is not empty: {args.directory}")
             sufficiency_study(args.directory, args.epochs, scenario=args.scenario,
                               study=args.study)
+        elif args.command == "simulator-manifest":
+            from . import ns3build
+            built = ns3build.assemble(json.loads(args.attributes.read_text(encoding="utf-8")),
+                                      json.loads(args.facts.read_text(encoding="utf-8")))
+            path = ns3build.write(built, args.output or ns3build.MANIFEST)
+            print(f"ns-3 {built['release']}  model {built['model_hash'][:12]}  "
+                  f"build {built['build_hash'][:12]}  {built['registry']['types']} types, "
+                  f"{built['registry']['attributes']} attributes -> {path}")
         elif args.command == "verify":
             if not (args.directory / "journal.jsonl").is_file():
                 raise ContractError("no existing artifact journal at this path")

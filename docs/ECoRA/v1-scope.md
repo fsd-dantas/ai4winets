@@ -68,14 +68,16 @@ use UE-side adapters and aggregate their service traffic toward an eNB/EPC and t
 gateway. This application of an LTE link does not model wireless eNB-to-EPC S1 backhaul.
 The EPC's internal links remain wired model support, not the alternative radio path.
 
-Select ns-3 release 3.45, `LteHelper`, `PointToPointEpcHelper`, a stationary single-cell
+Select ns-3 release 3.48, `LteHelper`, `PointToPointEpcHelper`, a stationary single-cell
 topology, `PfFfMacScheduler`, `FriisSpectrumPropagationLossModel`, no fading, no mobility,
 no handover and no carrier aggregation. Both service classes share the default non-GBR
 bearer per UE; no class-specific LTE scheduler tuning is a controller action. Export all
 resolved attributes, including RLC/HARQ settings inherited from the pinned release, in
 the build/run manifest. Selection follows the documented helper and configuration APIs,
-not an assertion that this repository already exercises them.
-See [ns-3 LTE user documentation](https://www.nsnam.org/docs/release/3.45/models/html/lte-user.html).
+not an assertion that this repository already exercises them. The release is pinned by
+archive checksum in `software/simulator/ns3-build.json`, and the inherited defaults are
+exported to `data/simulator/ns3-model-manifest.json` (ADR-28 records the move from 3.45).
+See [ns-3 LTE user documentation](https://www.nsnam.org/docs/release/3.48/models/html/lte-user.html).
 
 Select `PointToPointHelper` with a finite DropTail queue, configured rate, propagation
 delay and packet-unit `RateErrorModel` for the alternative leg. It is a transport surrogate

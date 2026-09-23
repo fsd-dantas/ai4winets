@@ -151,7 +151,7 @@ scenario-specific interventions override the baseline only in a versioned scenar
 | Group | Selected initial values |
 | --- | --- |
 | Topology | `site_count=2`; one SCADA responder and one AMI generator per site; one central application, one eNB; synthetic stationary site coordinates `(100,0,0)` and `(200,0,0)` m relative to eNB `(0,0,0)`; `initial_path=lte` |
-| LTE | `ns3_release=3.45`; `dl_bandwidth_rb=25`; `ul_bandwidth_rb=25`; `dl_earfcn=100`; `ul_earfcn=18100`; `enb_tx_dbm=30`; `ue_tx_dbm=23`; `enb_noise_figure_db=5`; `ue_noise_figure_db=9`; release-pinned remaining defaults exported in the manifest |
+| LTE | `ns3_release=3.48` (ADR-28; was 3.45); `dl_bandwidth_rb=25`; `ul_bandwidth_rb=25`; `dl_earfcn=100`; `ul_earfcn=18100`; `enb_tx_dbm=30`; `ue_tx_dbm=23`; `enb_noise_figure_db=5`; `ue_noise_figure_db=9`; release-pinned remaining defaults exported in the manifest |
 | Transport | `alternative_capacity_bps=1000000` per direction/site; `alternative_delay_s=0.010`; baseline packet loss probability `0`; `shared_egress_capacity_bps=256000` per direction; `shared_egress_delay_s=0.001`; internal/field-stub wired links `100000000` bits/s and `0.001` s; `queue_limit_bytes=65536` for each application release and configured point-to-point queue |
 | Forwarding | `envelope_bytes=32` in addition to UDP/IP headers; `gateway_processing_delay_s=0.001` per gateway; no payload fragmentation in the nominal workload |
 | SCADA | `scada_period_s=0.100` per site; `request_bytes=128`; `response_bytes=512`; `scada_processing_delay_s=0.001`; `scada_deadline_s=0.250`; fixed phase offsets distributed evenly across the period by site ID |

@@ -1,0 +1,15 @@
+{
+  "release": "3.48",
+  "archive": "ns-allinone-3.48.tar.bz2",
+  "url": "https://www.nsnam.org/releases/ns-allinone-3.48.tar.bz2",
+  "sha256": "0dc88d6a4fbee6e8fd1b446e281fd564f394d4ccf8f7ef55d77a604488e25f01",
+  "source_dir": "ns-allinone-3.48/ns-3.48",
+  "build_profile": "release",
+  "modules": ["core", "network", "internet", "point-to-point", "lte", "applications", "traffic-control", "flow-monitor"],
+  "configure_flags": ["--disable-examples", "--disable-tests", "--disable-python-bindings", "--enable-asserts", "--disable-logs", "--disable-werror"],
+  "cmake_defines": {"NS3_NATIVE_OPTIMIZATIONS": "OFF"},
+  "programs": ["ecora-attributes"],
+  "manifest_groups": ["", "Lte", "PointToPoint", "Internet", "TrafficControl", "Applications", "Network", "Spectrum", "Propagation", "Antenna", "Core"],
+  "manifest_groups_note": "The empty group is the types ns-3 registers without a group name, among them LteHelper, LteEnbNetDevice, LteUeNetDevice and UeManager, which hold defaults v1 inherits. A type with no attributes is still listed, with none, so its absence from a scenario's settings is visibly not an omission.",
+  "note": "Release, archive and checksum are pinned. Profile release is -O3 without host-specific code generation, so the build does not depend on the CPU it was compiled on. Asserts stay on so a misused model fails rather than runs; logging is off because it costs time on every event. Python bindings are off because the adapter boundary is a separate process, not an import."
+}

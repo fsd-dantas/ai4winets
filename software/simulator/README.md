@@ -1,8 +1,18 @@
 # ns-3 build, model manifest and simulator process
 
-**Status: implemented build, manifest and simulator process answering `configure`,
-`advance` and `cohorts`. `observe`, `apply`, `truth` and `fork` are refused with a reason
-until their items land. No Python adapter drives it yet, and no ns-3 value is calibrated.**
+**Status: implemented build, manifest, simulator process and Python adapter, answering
+`configure`, `advance` and `cohorts`. `observe`, `apply`, `truth` and `fork` are refused
+with a reason until their items land. No ns-3 value is calibrated.**
+
+## Driving it from Python
+
+`ecora.simulator.Ns3World.start(scenario)` starts the process, directly on Linux and
+through `wsl.exe` on Windows (override with `ECORA_SIMULATOR`, or `ECORA_NS3_ROOT` for the
+build's location). The adapter refuses any response whose build identity differs from the
+committed manifest's, any response to a different request, and treats a closed output as a
+crash rather than an answer. The simulator's refusals are raised with their codes.
+`verify_simulated(world.resolved, scenario)` is acceptance 1 of the adapter contract. The
+tests that need a real build skip, and say so, on a host without one.
 
 ## The simulator process
 

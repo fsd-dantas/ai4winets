@@ -529,6 +529,22 @@ harsher in ns-3 because the envelope and UDP/IP headers add bytes the finite wor
 count. The one pending S0 transaction is the one sent before the UE attached, which the
 UE discards silently and which is therefore not attributed as a loss.
 
+## Simulator adapter
+
+`ecora.simulator` drives the simulator from Windows through WSL. For every scenario the
+same file built the finite world, which `verify_world` accepted, and the simulated one,
+whose `configure` report `verify_simulated` accepted field by field. Across the process
+boundary, two runs under one seed returned identical cohorts, every cohort's generated
+count equalled delivered on time, late, lost and pending combined, a backwards clock and an
+unbuilt request were refused with their codes, and the world answered the next request
+normally afterwards. The first start on a host costs about 5 s while WSL starts; later ones
+take about 0.15 s per scenario including eight simulated seconds.
+
+The protocol rules are tested against an in-memory stub as well, so they are exercised on
+hosts with no build: a response from another build, a response to another request and a
+silent process are each refused. On a host without a build the five tests that need one
+skip with that reason.
+
 `python -m ecora demo .ecora-runs/example` runs the same invocation sequence for two
 frozen treatment bindings. Both produce valid DiagnosisRecord payloads with different
 synthetic fixture labels. Each treatment yields three committed datasets, three messages

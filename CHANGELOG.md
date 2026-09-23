@@ -18,6 +18,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **The simulator adapter** in `software/ecora/simulator.py`. It starts the simulator
+  (through WSL on Windows), speaks the framed protocol with the records' canonical
+  encoding, and refuses any response from another build, to another request, or that never
+  arrives. `verify_simulated` makes acceptance 1 of the adapter contract executable: every
+  scenario now builds both worlds, and each reports holding what the scenario declares.
 - **The ns-3 simulator process** in `software/simulator/src/ecora-sim/`. It builds the v1
   topology from a scenario (the LTE leg with an EPC, the point-to-point alternative leg and
   the shared egress, each queue a declared DropTail FIFO) and runs SCADA as a

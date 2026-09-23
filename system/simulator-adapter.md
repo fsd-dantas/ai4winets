@@ -1,8 +1,11 @@
 # Simulator adapter contract
 
-**Status: normative specification; no implementation. The finite reference world satisfies
-this interface in-process; the ns-3 adapter that must satisfy it across a process boundary
-is designed here and not built.**
+**Status: normative specification, partly implemented. The finite reference world satisfies
+this interface in-process. The ns-3 simulator process and its Python adapter
+(`ecora.simulator`) implement `configure`, `advance` and `cohorts` across the process
+boundary; `observe`, `apply`, `truth` and `fork` are refused by the simulator with a reason
+until their items land. Of the acceptance list below, item 1 is demonstrated; the rest are
+not.**
 
 This document settles how a simulator becomes a world the pipeline can drive. It exists
 because the decision that unblocks simulator integration is architectural rather than
@@ -166,7 +169,10 @@ The adapter is not integrated until each of these is demonstrated, and each corr
 a way the integration could otherwise claim more than it established:
 
 1. The same scenario builds both worlds, and each reports holding what the scenario
-   declares.
+   declares. **Demonstrated** for all six scenarios: `verify_world` checks the finite
+   model and `verify_simulated` checks what the simulator's `configure` reports it built,
+   field by field, including that the finite world's logical reading of the LTE leg is
+   reported as not applicable.
 2. An admitted action changes simulator state, and observations taken afterwards establish
    its consequences. A suppressed action leaves state unchanged.
 3. A `truth` request without the matching grant is refused, and no truth-derived value

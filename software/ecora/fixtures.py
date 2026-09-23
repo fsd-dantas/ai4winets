@@ -156,6 +156,10 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assemb
     pacing_cap = {"capability_id": "observe.ami.pacing", "kind": "observe", "target": "site-1",
                   "service": "ami", "name": "pacing_profile", "unit": "id",
                   "evidence_refs": ["fixture:observation"]}
+    # The centre's delivery summary for the site's SCADA transactions, delayed in transit.
+    summary_cap = {"capability_id": "observe.scada.response", "kind": "observe",
+                   "target": "site-1", "service": "scada", "name": "scada_response", "unit": "s",
+                   "evidence_refs": ["fixture:observation"]}
     # Truth capabilities are separate grants, so an Oracle's reach is declared and not
     # inferred from what it happens to be able to observe.
     truths = [{"capability_id": f"truth.{service}.{name}", "kind": "truth", "target": "site-1",
@@ -173,7 +177,7 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assemb
                 "target": f"site-1/{leg}", "service": "shared", "name": "path_probe",
                 "unit": "s", "evidence_refs": ["fixture:truth"]}
                for leg in ("lte", "alternative")]
-    granted = [cap, path_cap, pacing_cap, actuator, path_actuator, *probes, *truths]
+    granted = [cap, path_cap, pacing_cap, summary_cap, actuator, path_actuator, *probes, *truths]
     ordinary = [c["capability_id"] for c in granted if c["kind"] != "truth"]
     caps = Record("CapabilityManifest", {"adapter_id": "fixture", "adapter_version": "1", "model_version": "fixture-1",
                   "capabilities": [*granted, *extra_capabilities], "limitations": ["Fixture only; no enabled simulator."],

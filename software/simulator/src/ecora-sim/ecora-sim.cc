@@ -72,6 +72,9 @@ const uint32_t PROBE_BYTES = 32;
 const double PROBE_TIMEOUT_S = 0.15;
 const double PROBE_VALIDITY_S = 0.5;
 const double PROBE_START_S = 0.2;
+// Delivery summaries, the v1 register's delivery_summary_delay_s: the centre reports what it
+// received to each site, and the report takes this long to arrive.
+const double DELIVERY_SUMMARY_DELAY_S = 0.010;
 const char* INTERNAL_RATE = "100Mbps";
 const double INTERNAL_DELAY_S = 0.001;
 
@@ -289,6 +292,7 @@ struct Site
     Ptr<Socket> sendAlt;
     std::string path;
     std::string pacing;
+    uint64_t pathVersion = 0;
     std::deque<uint64_t> held;
     bool releasing = false;
     double extraLossDb = 0;
@@ -326,6 +330,8 @@ class World
     json Advance(const json& request);
     json Cohorts(const json& request);
     json Observe(const json& request);
+    json Apply(const json& request);
+    json ActuatorState() const;
 
   private:
     void BuildLte(const json& leg);
@@ -999,6 +1005,45 @@ World::Observation(const Site& site,
                 "SDU segment boundary in a PDU."};
         }
     }
+    else if (metric == "scada_response")
+    {
+        // The window ending one summary delay ago: the newest the centre's report can be.
+        double end = std::max(0.0, now - DELIVERY_SUMMARY_DELAY_S);
+        double start = std::max(0.0, end - windowS);
+        double total = 0;
+        uint64_t count = 0;
+        for (const auto& [id, obligation] : m_ledger)
+        {
+            if (obligation.service == "scada" && obligation.site == site.name &&
+                obligation.delivered_s && *obligation.delivered_s > start &&
+                *obligation.delivered_s <= end)
+            {
+                total += *obligation.delivered_s - obligation.generated_s;
+                ++count;
+            }
+        }
+        observation["service"] = "scada";
+        observation["unit"] = "s";
+        observation["event_time_s"] = end;
+        observation["window"] = {{"start_s", start}, {"end_s", end}};
+        observation["sampling_policy"] = "delivery_summary_mean";
+        observation["assumptions"] = {
+            "Mean response time of " + std::to_string(count) +
+            " SCADA transactions the centre completed in the window, reported " +
+            std::to_string(DELIVERY_SUMMARY_DELAY_S) + " s later."};
+        if (count)
+        {
+            observation["value"] = total / count;
+        }
+        else
+        {
+            observation["value"] = nullptr;
+            observation["quality"] = "missing";
+            observation["missing_reason"] = {
+                {"code", "no_completion"},
+                {"detail", "No SCADA transaction completed in the summarised window."}};
+        }
+    }
     else if (metric == "path_probe")
     {
         std::string leg = subject.substr(subject.find('/') + 1);
@@ -1031,6 +1076,80 @@ World::Observation(const Site& site,
         throw Refusal("unsupported_signal", "this simulator does not export " + metric);
     }
     return observation;
+}
+
+json
+World::ActuatorState() const
+{
+    // The gateway actuators' own readback: what a controller can see, not simulator truth.
+    json paths = json::object(), pacing = json::object(), versions = json::object();
+    for (const auto& site : m_sites)
+    {
+        paths[site.name] = site.path;
+        pacing[site.name] = site.pacing;
+        versions[site.name] = site.pathVersion;
+    }
+    return {{"selected_path", paths}, {"pacing", pacing}, {"path_version", versions}};
+}
+
+json
+World::Apply(const json& request)
+{
+    Require(m_configured, "not_configured", "configure before applying");
+    const json& command = request.at("command");
+    std::string operatorName = command.at("operator");
+    std::string target = command.at("target");
+    // The same catalog, checks and reasons as the finite world, so an arm's commands are
+    // applied or refused alike in either world. A refusal here is the actuator's answer
+    // and is reported as a result, not raised: the command was well formed and was heard.
+    auto answer = [this](bool applied, const char* reason) {
+        return json{{"applied", applied},
+                    {"reason", reason ? json(reason) : json()},
+                    {"applied_at_s", applied ? json(Now()) : json()},
+                    {"actuator_state", ActuatorState()}};
+    };
+    if (operatorName == "no_op")
+    {
+        return answer(false, "no_op");
+    }
+    Site* site = nullptr;
+    for (auto& candidate : m_sites)
+    {
+        if (candidate.name == target)
+        {
+            site = &candidate;
+        }
+    }
+    if (!site)
+    {
+        return answer(false, "unknown_target");
+    }
+    const json& arguments = command.at("arguments");
+    if (operatorName == "select_path")
+    {
+        std::string path = arguments.at("path");
+        if (!site->probes.count(path))
+        {
+            return answer(false, "unknown_path");
+        }
+        // Newly released datagrams take the new leg; those already sent keep theirs.
+        site->path = path;
+        ++site->pathVersion;
+        return answer(true, nullptr);
+    }
+    if (operatorName == "set_ami_pacing")
+    {
+        std::string profile = arguments.at("profile");
+        if (!PACING_BPS.count(profile))
+        {
+            return answer(false, "unknown_profile");
+        }
+        // A release interval already being counted completes at its old rate, as it does
+        // in the finite world; the next one uses the new profile.
+        site->pacing = profile;
+        return answer(true, nullptr);
+    }
+    return answer(false, "unsupported_operator");
 }
 
 json
@@ -1534,7 +1653,7 @@ World::Resolved() const
               {"direction", "up"},
               {"traffic_sink", "background node beside the EPC; never the study's egress"}}},
             {"disturbances_scheduled", m_scenario.at("disturbances").size()},
-            {"unsupported_requests", {"apply", "truth", "fork"}},
+            {"unsupported_requests", {"truth", "fork"}},
             {"probes",
              {{"period_s", PROBE_PERIOD_S},
               {"payload_bytes", PROBE_BYTES},
@@ -1692,6 +1811,10 @@ main(int argc, char* argv[])
             else if (kind == "observe")
             {
                 result = world.Observe(request);
+            }
+            else if (kind == "apply")
+            {
+                result = world.Apply(request);
             }
             else if (kind == "shutdown")
             {

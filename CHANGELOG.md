@@ -7,6 +7,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Changed
 
+- **The loop closes in the simulator** (B23). The simulator applies `select_path` and
+  `set_ami_pacing` as the finite world does, command for command and refusal for refusal.
+  On the silent and degraded primaries the planner and eco treatments switch once and SCADA
+  recovers fully in both worlds, while the Null arm's suppressed commands leave the path and
+  its version untouched. Receipts now cite the actuators' readback as the resulting state;
+  they had read the privileged truth channel for it. The state-version compare-and-swap the
+  contract names is not yet enforced in either world, and is recorded as a decision.
+- **Sites can see what the shared egress does to their deliveries** (B22b). Both worlds
+  export the centre's delivery summary, `scada_response`, delayed by the declared 10 ms and
+  missing rather than zero when nothing completed. It shows the contended egress plainly
+  where the site's own queue stays empty. No study reads it yet.
 - **The finite world's probe is real traffic** (B22a). It was computed from the leg's rate,
   so it never waited behind queued traffic and never lagged as evidence. It is now sent
   every 0.2 s, echoed at the far end of its leg, lost after 0.15 s and valid for 0.5 s, as

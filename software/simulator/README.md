@@ -1,8 +1,20 @@
 # ns-3 build, model manifest and simulator process
 
 **Status: implemented build, manifest, simulator process and Python adapter, answering
-`configure`, `advance` and `cohorts`. `observe`, `apply`, `truth` and `fork` are refused
-with a reason until their items land. No ns-3 value is calibrated.**
+`configure`, `advance`, `observe`, `apply` and `cohorts`. `truth` and `fork` are refused
+with a reason until their items land. The LTE leg's rate table is calibrated; other values
+are the register's nominal ones.**
+
+`apply` implements the same catalog as the finite world, `select_path` and
+`set_ami_pacing`, with the same refusal codes (`no_op`, `unknown_target`, `unknown_path`,
+`unknown_profile`, `unsupported_operator`). A switch affects datagrams released afterwards;
+those already sent keep their leg, and an AMI release interval already being counted
+completes at its old rate. Every answer carries the actuators' readback (selected path,
+pacing, path version), which receipts cite as the resulting state.
+
+`observe` also exports the centre's delivery summary per site, `scada_response`: the mean
+response time of SCADA transactions completed in the window ending 10 ms ago, the
+register's summary delay, and missing with `no_completion` when none completed.
 
 ## Driving it from Python
 

@@ -133,7 +133,9 @@ class ModelActionProvider:
                 "idempotency_key": payload.data["idempotency_key"],
                 "disposition": "applied" if applied else "rejected",
                 "applied_at_s": watermark if applied else None,
-                "resulting_state": self.model.truth()["selected_path"] if applied else {},
+                # The actuator's own readback, not truth: a receipt states what the
+                # actuator reports holding, which any controller could also observe.
+                "resulting_state": self.model.actuator_state()["selected_path"] if applied else {},
                 "application_observation_ids": evidence,
                 "reason": None if applied else {"code": why, "detail": "The world refused the command."}}))
         if not receipts:

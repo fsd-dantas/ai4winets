@@ -168,11 +168,14 @@ class PipelineTests(unittest.TestCase):
                     simulated.advance_to(at)
                     self.assertEqual(diagnose(finite, at), diagnose(simulated, at), f"at {at} s")
 
-    def test_an_action_the_simulator_cannot_apply_yet_is_a_rejection_not_a_crash(self):
+    def test_the_pipelines_decision_is_applied_in_the_simulator(self):
+        """Before B23 this switch was refused; the simulator now applies it."""
         scenario = load(SCENARIOS / "s2-silent-primary.json")
         with Ns3World.start(scenario) as world:
             _, action = self.run_treatment(world, scenario, "blackboard")
-        self.assertIn("rejected", action)
+            state = world.actuator_state()
+        self.assertNotIn("rejected", action)
+        self.assertEqual(state["selected_path"]["site-1"], "alternative")
 
 
 if __name__ == "__main__":

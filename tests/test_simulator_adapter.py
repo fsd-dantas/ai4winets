@@ -184,7 +184,8 @@ class SimulatorTests(unittest.TestCase):
             with self.assertRaises(SimulatorRefusal) as caught:
                 world.client.request("advance", time_s=0.5)
             self.assertEqual(caught.exception.code, "clock_backwards")
-            for call in (world.truth, lambda: world.apply({"operator": "no_op"})):
+            # Truth and fork are not served yet; both are refused, never approximated.
+            for call in (world.truth, lambda: world.client.request("fork", epoch=1)):
                 with self.assertRaises(SimulatorRefusal) as caught:
                     call()
                 self.assertEqual(caught.exception.code, "unsupported_request")

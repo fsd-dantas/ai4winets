@@ -2,11 +2,11 @@
 
 **Status: normative specification, partly implemented. The finite reference world satisfies
 this interface in-process. The ns-3 simulator process and its Python adapter
-(`ecora.simulator`) implement `configure`, `advance`, `observe` and `cohorts` across the
-process boundary; `apply`, `truth` and `fork` are refused by the simulator with a reason
-until their items land. Of the acceptance list below, item 1 is demonstrated and item 3
-in part: a probe returned through `observe` carries the capability of the leg it probed,
-and a `truth` request is refused, but only because truth is not yet served at all.**
+(`ecora.simulator`) implement `configure`, `advance`, `observe`, `apply` and `cohorts`
+across the process boundary; `truth` and `fork` are refused by the simulator with a reason
+until their items land. Of the acceptance list below, items 1 and 2 are demonstrated and
+item 3 in part: a probe returned through `observe` carries the capability of the leg it
+probed, and a `truth` request is refused, but only because truth is not yet served at all.**
 
 This document settles how a simulator becomes a world the pipeline can drive. It exists
 because the decision that unblocks simulator integration is architectural rather than
@@ -175,7 +175,10 @@ a way the integration could otherwise claim more than it established:
    field by field, including that the finite world's logical reading of the LTE leg is
    reported as not applicable.
 2. An admitted action changes simulator state, and observations taken afterwards establish
-   its consequences. A suppressed action leaves state unchanged.
+   its consequences. A suppressed action leaves state unchanged. **Demonstrated**: on S2
+   the planner's switch is applied, later path observations show it, and SCADA goes from
+   none on time to all on time, while the Null arm's suppressed commands leave the path
+   and its version untouched.
 3. A `truth` request without the matching grant is refused, and no truth-derived value
    ever reaches an ordinary observation. A probe returned through `observe` carries the
    capability for the leg it probed and no other. A test asserts each refusal and can fail.

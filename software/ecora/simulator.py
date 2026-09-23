@@ -209,8 +209,27 @@ class Ns3World:
                 for o in exported]
 
     def apply(self, command):
+        """Apply an admitted command. Returns (applied, reason), as the finite world does.
+
+        A refusal by the actuator, such as an unknown path, is a result the simulator
+        reports; only a malformed or unanswerable request raises.
+        """
         data = command.data if isinstance(command, Record) else command
-        return self.client.request("apply", command=data)
+        result = self.client.request("apply", command=data)
+        self._actuator_state = result["actuator_state"]
+        return result["applied"], result["reason"]
+
+    def actuator_state(self):
+        """The gateway actuators' readback: selected path, pacing and path version.
+
+        What a receipt may cite as the resulting state. It is the actuator's own report,
+        not simulator truth, so reading it grants no privilege.
+        """
+        if getattr(self, "_actuator_state", None) is None:
+            self._actuator_state = self.client.request(
+                "apply", command={"operator": "no_op", "target": "", "arguments": {}}
+            )["actuator_state"]
+        return self._actuator_state
 
     def truth(self):
         return self.client.request("truth")

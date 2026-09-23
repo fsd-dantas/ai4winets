@@ -675,6 +675,50 @@ One difference remains, recorded for follow-up:
   empty in both worlds; the backlog is central. The v1 catalogue's remote delivery
   summaries are the signal that would reveal it, and neither world exports them yet.
 
+## Closing the loop in the simulator
+
+The simulator applies `select_path` and `set_ami_pacing` as the finite world does: for the
+same commands at the same instant the two worlds return the same `(applied, reason)` and
+the same actuator readback, including every refusal. Over twelve decision epochs, SCADA on
+time among transactions generated from 1 to 5 s:
+
+| Scenario | Treatment | Final path, version | Finite world | Simulator |
+| --- | --- | --- | --- | --- |
+| S2 silent | Null baseline | lte, 0 | 0 of 40 | 0 of 41 |
+| S2 silent | planner, eco | alternative, 1 | 40 of 40 | 41 of 41 |
+| S1 degraded | Null baseline | lte, 0 | 5 of 40 | 5 of 41 |
+| S1 degraded | planner, eco | alternative, 1 | 40 of 40 | 41 of 41 |
+
+The planner and eco treatments switch once, at the first epoch with probe evidence; the
+blackboard treatment, planning with the Null planner, reapplies its switch every epoch,
+reaching version 12 in both worlds, which is the churn B32's instrumentation measures. The
+generated counts differ by one because the finite world's floating-point generation times
+drift across the window's closing edge.
+
+Receipts now state the actuator's readback as the resulting state. The action provider had
+read `truth()` for it, which is the privileged channel; a test makes `truth()` raise and
+runs the loop to show no receipt needs it. The contract's state-version compare-and-swap
+is not enforced in either world: every provider sends version 0, and no controller observes
+the version, so enforcing it would refuse every second switch. Recorded as a decision.
+
+## Delivery summaries
+
+Both worlds export `scada_response`, the centre's delivery summary for a site: the mean
+response time of its SCADA transactions completed in the window ending 10 ms ago, and
+missing, not zero, when none completed. It separates three conditions the site's own queue
+cannot, at 3 s, finite world / simulator:
+
+| Scenario | Site queue | SCADA response |
+| --- | --- | --- |
+| S0 nominal | empty | 43 / 44 ms |
+| S9 contended egress | empty | 677 / 905 ms |
+| S1 degraded LTE | 4.1 / 5.8 KB | 422 / 499 ms |
+| S2 silent LTE | growing | missing / missing |
+
+S9's contention is invisible to the queue and plain in the summary. The signal is exported
+and grantable; no study's projection yet expects it, so no rule reads it. Whether the
+studies should, which changes their knowledge and their hashes, is recorded as a decision.
+
 ## Simulator adapter
 
 `ecora.simulator` drives the simulator from Windows through WSL. For every scenario the

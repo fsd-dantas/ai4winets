@@ -58,6 +58,9 @@ PROBE_BYTES = 32
 PROBE_TIMEOUT_S = 0.15
 PROBE_VALIDITY_S = 0.5
 PROBE_START_S = 0.2
+# Delivery summaries, the v1 register's delivery_summary_delay_s: the centre reports what
+# it received to each site, and the report takes this long to arrive.
+DELIVERY_SUMMARY_DELAY_S = 0.010
 
 
 @dataclass(frozen=True)
@@ -443,6 +446,15 @@ class FiniteModel:
             return True, None
         return False, "unsupported_operator"
 
+    def actuator_state(self):
+        """The gateway actuators' readback: selected path, pacing and path version.
+
+        What a receipt may cite as the resulting state. It is what the actuators report
+        about themselves, the same as their path and pacing observations, not model truth.
+        """
+        return {"selected_path": dict(self.path), "pacing": dict(self.pacing),
+                "path_version": dict(self.path_version)}
+
     # -- observation ----------------------------------------------------------
 
     def probe_evidence(self, site, leg):
@@ -497,6 +509,9 @@ class FiniteModel:
                 exported.append(self._observation(
                     self.observation_id(site, "pacing_profile", self.now), site, "ami",
                     "pacing_profile", "id", self.pacing[site], capability, window))
+            capability = capability_ids.get((site, "scada_response"))
+            if capability:
+                exported.append(self._scada_response(site, capability, window_s))
             # A probe per leg, each its own subject so each needs its own permission:
             # being allowed to probe one leg is not permission to probe the other.
             for leg in self.links:
@@ -520,6 +535,38 @@ class FiniteModel:
                                        window={"start_s": sent, "end_s": completed})
                 exported.append(observation)
         return exported
+
+    def _scada_response(self, site, capability, window_s):
+        """The delivery summary as an observation: mean response of what completed, or none."""
+        start, end, times = self.delivery_summary(site, window_s)
+        observation = self._observation(
+            self.observation_id(site, "scada_response", self.now), site, "scada",
+            "scada_response", "s", sum(times) / len(times) if times else None, capability,
+            {"start_s": start, "end_s": end})
+        observation.update(
+            event_time_s=end, sampling_policy="delivery_summary_mean",
+            assumptions=[f"Mean response time of {len(times)} SCADA transactions the centre "
+                         f"completed in the window, reported {DELIVERY_SUMMARY_DELAY_S} s later."])
+        if not times:
+            # No completion is not a fast response. It is no evidence about response time.
+            observation.update(quality="missing", missing_reason={
+                "code": "no_completion",
+                "detail": "No SCADA transaction completed in the summarised window."})
+        return observation
+
+    def delivery_summary(self, site, window_s):
+        """SCADA transactions the centre completed for this site in the summarised window.
+
+        The summary describes the window ending one summary delay ago, because that is the
+        newest a site can know: the centre's report is still on its way for anything later.
+        Returns (window_start, window_end, response times of the completions in it).
+        """
+        end = max(0.0, self.now - DELIVERY_SUMMARY_DELAY_S)
+        start = max(0.0, end - window_s)
+        times = [at - obligation.generated_s for obligation, at, _ in self.delivered
+                 if obligation.service == "scada" and obligation.site_id == site
+                 and start < at <= end]
+        return start, end, times
 
     def _observation(self, observation_id, site, service, metric, unit, value, capability, window):
         return {"observation_id": observation_id, "subject": site, "service": service,

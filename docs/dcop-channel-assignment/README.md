@@ -28,6 +28,7 @@ ECoRA stage and not a change to ECoRA's contracts.
 | --- | --- |
 | This page | Problem, research questions, claims, system model and protocol |
 | [Architecture](architecture.md) | Bounded contexts, agent lifecycle, DFS/UTIL/VALUE protocol, invariants and decisions |
+| [Simulation declaration](simulation-declaration.md) | What the model includes, abstracts and leaves out, against the repository's [simulation framework](../../research/simulation/README.md) |
 | [Package](../../software/dcop_channel_assignment/README.md) | Implemented modules, commands and verification |
 | [Curitiba inputs](../../data/geography/curitiba-metropolitan/README.md) | Sourced municipal boundaries and their provenance |
 | [Protocol replay](visualization.html) | Offline replay of actual DFS/UTIL messages on the 14-region map |

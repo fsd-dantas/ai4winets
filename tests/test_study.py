@@ -40,13 +40,13 @@ def raw(name="baseline"):
     return json.loads((STUDIES / f"{name}.json").read_text(encoding="utf-8"))
 
 
-def diagnose(study, scenario="s1-degraded-primary", at=2.0):
+def diagnose(study, scenario="s1-degraded-primary", at=2.0, organisation="blackboard"):
     """Run the blackboard organisation over one study's inventory and real observations."""
     world = build_world(load_scenario(SCENARIOS / f"{scenario}.json")).advance_to(at)
     relayed = Record("TelemetryBatch",
                      observation_batch(world, CAPABILITIES, at, 0.5, 0).data)
     registry = Registry()
-    binding = expert_binding(registry, [], study.rules, "blackboard")
+    binding = expert_binding(registry, [], study.rules, organisation)
     result = registry.resolve(binding).factory().invoke(
         [Message(relayed)], Snapshot(), Context(binding["configuration"], at))
     return result.outputs[0].data
@@ -128,6 +128,23 @@ class ArbitrationTests(unittest.TestCase):
         inhibited = diagnose(resolve("arbitration"))["rule_trace"][0]["inhibited"]
         self.assertEqual(len(inhibited), len({json.dumps(e, sort_keys=True)
                                               for e in inhibited}))
+
+    def test_no_accumulated_trace_field_repeats_an_entry(self):
+        """Every list that grows across inference passes, not only the one that failed."""
+        for organisation in ("single_engine", "blackboard"):
+            with self.subTest(organisation=organisation):
+                record = diagnose(resolve("arbitration"), organisation=organisation)
+                trace = record["rule_trace"][0]
+                for field, entries in (("inhibited", trace["inhibited"]),
+                                       ("fired", trace["fired"]),
+                                       ("unresolved_conflicts",
+                                        record["unresolved_conflicts"]),
+                                       ("hypotheses", [h["label"]
+                                                       for h in record["hypotheses"]])):
+                    with self.subTest(field=field):
+                        rendered = [json.dumps(e, sort_keys=True) for e in entries]
+                        self.assertEqual(len(rendered), len(set(rendered)),
+                                         f"{field} repeats an entry across passes")
 
 
 class PlanningTests(unittest.TestCase):
@@ -211,6 +228,56 @@ class ContentionTests(unittest.TestCase):
         loosened["planner"]["agents"][0]["goals"] = ["pacing:site-1:normal"]
         with self.assertRaises(ContractError):
             self.proposals(Study(loosened))
+
+
+class ArmCoverageTests(unittest.TestCase):
+    """Every stage carries the arms its evaluation case designates, and each resolves.
+
+    A declared binding that no registered provider answers is a cell that cannot run, and
+    a study whose coverage is assumed rather than checked is how an unsupported cell comes
+    to be reported as though it had been measured.
+    """
+
+    def environment(self):
+        from ecora.runner import closed_loop_environment
+        model = build_world(load_scenario(SCENARIOS / "s0-nominal.json"))
+        return closed_loop_environment(model, period_s=0.5)
+
+    def test_every_stage_carries_all_three_arms(self):
+        from ecora.schema import STAGES
+        registry, study, _, _, _ = self.environment()
+        arms = {stage: set() for stage in STAGES}
+        for treatment in study.data["treatments"]:
+            for binding in treatment["bindings"]:
+                arms[binding["stage_id"]].add(binding["arm"])
+        for stage in STAGES:
+            with self.subTest(stage=stage):
+                self.assertEqual(arms[stage], {"null", "proposed", "oracle"},
+                                 f"{stage} is missing an arm its evaluation case designates")
+
+    def test_every_declared_binding_resolves_to_a_registered_provider(self):
+        registry, study, _, _, _ = self.environment()
+        for treatment in study.data["treatments"]:
+            for binding in treatment["bindings"]:
+                with self.subTest(treatment=treatment["treatment_id"],
+                                  stage=binding["stage_id"]):
+                    entry = registry.resolve(binding)
+                    self.assertIsNotNone(entry.factory)
+                    self.assertTrue(hasattr(entry.factory(), "invoke"),
+                                    "a binding must resolve to something that can be invoked")
+
+    def test_an_oracle_binding_declares_its_information_regime(self):
+        """A privileged arm must be labelled as one, or its results read as ordinary."""
+        _, study, _, _, _ = self.environment()
+        for treatment in study.data["treatments"]:
+            for binding in treatment["bindings"]:
+                if binding["arm"] != "oracle":
+                    continue
+                with self.subTest(provider=binding["provider_id"]):
+                    self.assertIn(binding["information_regime"],
+                                  ("contract_only", "oracle_state"))
+                    if binding["information_regime"] == "oracle_state":
+                        self.assertTrue(binding["allow_privileged_inputs"])
 
 
 if __name__ == "__main__":

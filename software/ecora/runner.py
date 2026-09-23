@@ -24,7 +24,8 @@ from .planning import planner_binding
 from .scenario import describe_world, verify_world
 from .study import resolve
 from .telemetry import projection_binding
-from .truth import TruthPort, oracle_diagnosis_binding, truth_binding
+from .truth import (TruthPort, oracle_assessment_binding, oracle_diagnosis_binding,
+                    truth_binding)
 
 STREAM_NAMES = ("arrivals", "errors", "disturbances", "controller")
 
@@ -406,6 +407,31 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
     resolved_exactly = [dict(exact_resolve) if b["stage_id"] == "resolution" else dict(b)
                         for b in planned_exactly]
 
+    # Measurement without decision: the Null arm's telemetry, diagnosis, planning and
+    # resolution, with the two assessment stages that can reach a verdict. Without it the
+    # study can only show requirements met by arms that also act, and a reader has no way
+    # to see what the world does when nothing intervenes. It is the counterfactual the
+    # closed-loop arms are worth comparing against.
+    unattended = [dict(extraction) if b["stage_id"] == "result"
+                  else dict(evaluation) if b["stage_id"] == "assurance"
+                  else dict(b) for b in bindings]
+
+    # The last two stages gain the references stage-arms.md designates for them:
+    # independent extraction from the complete event record, and reference evaluation
+    # against full truth with the same frozen requirements. Both read truth, so both are
+    # granted it explicitly and both declare what they read.
+    oracle_extraction = oracle_assessment_binding(
+        registry, port, granted + truths, {"cohorts": assembly["result"]["cohorts"]}, "result")
+    exact_measured = [dict(oracle_extraction) if b["stage_id"] == "result"
+                      else {**b, "allow_privileged_inputs": True} for b in assured]
+    oracle_evaluation = oracle_assessment_binding(
+        registry, port, granted + truths,
+        {"cohorts": assembly["result"]["cohorts"],
+         "requirements": scenario.data["requirements"],
+         "evaluator_version": "assessment-v1"}, "assurance")
+    exact_assured = [dict(oracle_evaluation) if b["stage_id"] == "assurance" else dict(b)
+                     for b in exact_measured]
+
     # A diagnosis Oracle reads truth directly, so it needs no Oracle upstream of it. This
     # treatment differs from eco in the diagnosis binding alone, which is what makes the
     # gap between them a difference in information rather than in anything else.
@@ -426,7 +452,10 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
                                    {"treatment_id": "oracle", "bindings": privileged},
                                    {"treatment_id": "verified_action", "bindings": verified},
                                    {"treatment_id": "measured", "bindings": extracted},
+                                   {"treatment_id": "unattended", "bindings": unattended},
                                    {"treatment_id": "assured", "bindings": assured},
+                                   {"treatment_id": "oracle_result", "bindings": exact_measured},
+                                   {"treatment_id": "oracle_assurance", "bindings": exact_assured},
                                    {"treatment_id": "exact_planning", "bindings": planned_exactly},
                                    {"treatment_id": "exact_resolution", "bindings": resolved_exactly},
                                    {"treatment_id": "oracle_diagnosis", "bindings": informed}]}

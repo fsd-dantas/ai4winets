@@ -89,6 +89,14 @@ def catalog(sites, costs):
                     add=frozenset({predicate("pacing", site, profile)}),
                     delete=frozenset({predicate("pacing", site, current)}),
                     cost=costs["set_ami_pacing"]))
+    # An operator with no precondition has nothing to cite, and the resolver refuses to
+    # issue a mutation with no precondition evidence. Such an operator is planned, admitted
+    # and then silently never becomes a command. Refuse it where it is declared instead of
+    # discovering it as a command that was never built.
+    for operator in operators:
+        require(operator.preconditions,
+                f"{operator.operator_id} declares no precondition, so no command could "
+                "cite evidence for it and the action could never be issued")
     return tuple(operators)
 
 

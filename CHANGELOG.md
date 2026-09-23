@@ -310,4 +310,31 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
   asserted a new profile without knowing the old one removed a predicate nobody established.
 - An inhibited rule is recorded once rather than once per inference pass. The trace is
   evidence, and a reader counting entries would have been counting passes.
+- Outcomes are measured per service. A measurement carries the service class its population
+  came from and a requirement is judged against its own, where keyed by metric alone a SCADA
+  requirement was answered by whatever population the extraction produced and the coverage
+  check consulted another service's outstanding demand.
+- A study declares a warm-up and a measured cohort per service over explicit windows. The
+  frozen cohort had been the single instant `end_s: 0`, so every verdict rested on the one
+  reading generated at time zero and a silent serving leg still returned met. Censoring is
+  derived from the run: a cohort is right-censored when the clock stopped before an
+  outstanding obligation's deadline had elapsed, rather than every cohort being marked
+  censored and telling a reader nothing.
+- Result and assurance gain the Oracle arms [`docs/ECoRA/stage-arms.md`](docs/ECoRA/stage-arms.md)
+  designates, and were the only stages without one. Independent extraction reads the complete
+  event record through its own truth capability; reference evaluation re-derives measurements
+  from that record rather than trusting the result it was handed, while scoring the study's
+  frozen requirements and not its own. An Oracle without its grant refuses and names what is
+  missing instead of becoming the Proposed arm under an Oracle's name.
+- An `unattended` treatment measures without deciding, so the study can show what the world
+  does when nothing intervenes. Every requirement previously shown met belonged to an arm
+  that also acted.
+- All seven stages carry all three arms, every declared binding resolves to an invocable
+  provider, and every Oracle binding declares its information regime. Asserted by tests
+  rather than surveyed, because assumed coverage is how an unsupported cell is reported as
+  though it had been measured.
+- An operator declaring no precondition is refused where the catalog is built, since the
+  resolver refuses a mutation with nothing to cite and such an operator would be planned,
+  admitted and silently never issued. Every list accumulating across inference passes is
+  deduplicated where it is written, with a test asserting no trace field repeats an entry.
 

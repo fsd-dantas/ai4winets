@@ -1,6 +1,6 @@
 [
   {
-    "content_hash": "4578cc127f7903383600777df69b2ea2e3aef5c3dfd74c02f498a7632a54627c",
+    "content_hash": "6b6e6011e2667dc7dd771787d6264b8dd6763555a6f6e9a72c89fd68866a0999",
     "data": {
       "access_policy_version": "v1",
       "analysis_version": "fixture-1",
@@ -21,18 +21,45 @@
         "result": {
           "cohorts": [
             {
-              "cohort_id": "cohort:ami",
+              "cohort_id": "cohort:scada:warmup",
+              "deadline_s": 0.25,
+              "generation_window": {
+                "end_s": 0.5,
+                "start_s": 0
+              },
+              "service": "scada"
+            },
+            {
+              "cohort_id": "cohort:scada:measured",
+              "deadline_s": 0.25,
+              "generation_window": {
+                "end_s": 2.0,
+                "start_s": 0.5
+              },
+              "service": "scada"
+            },
+            {
+              "cohort_id": "cohort:ami:warmup",
               "deadline_s": 10,
               "generation_window": {
-                "end_s": 0,
+                "end_s": 0.5,
                 "start_s": 0
+              },
+              "service": "ami"
+            },
+            {
+              "cohort_id": "cohort:ami:measured",
+              "deadline_s": 10,
+              "generation_window": {
+                "end_s": 2.0,
+                "start_s": 0.5
               },
               "service": "ami"
             }
           ]
         }
       },
-      "capability_manifest_hash": "3b19dbac96e2c90c6928a24fc10f35092adda572aedb3f950e82686647633d83",
+      "capability_manifest_hash": "42eddaeccd973478834a46962428df7aa8e14af5f2f0a479c372ee6e1ce3eee4",
       "compute_budget_s": 60,
       "frozen": true,
       "parameter_set_hash": "ffbc2dfc402782325da71132100e74ff511d1585dd80e4ea196ed4bcace3fef2",
@@ -731,7 +758,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "3b19dbac96e2c90c6928a24fc10f35092adda572aedb3f950e82686647633d83",
+    "content_hash": "42eddaeccd973478834a46962428df7aa8e14af5f2f0a479c372ee6e1ce3eee4",
     "data": {
       "adapter_id": "fixture",
       "adapter_version": "1",
@@ -845,6 +872,17 @@
           "service": "ami",
           "target": "site-1",
           "unit": "id"
+        },
+        {
+          "capability_id": "truth.shared.cohort_record",
+          "evidence_refs": [
+            "fixture:truth"
+          ],
+          "kind": "truth",
+          "name": "cohort_record",
+          "service": "shared",
+          "target": "site-1",
+          "unit": "count"
         },
         {
           "capability_id": "truth.probe.lte",
@@ -1123,7 +1161,7 @@
     "schema_version": "1"
   },
   {
-    "content_hash": "771b8dde2029f3eb38e0172e44ac917174907e59a39cc2b4fc76dc86244e0b40",
+    "content_hash": "8f260e191126ca755008c9ee3e720d49088098e82c14f1c4a2660f6ab4a4c243",
     "data": {
       "action_ids": [],
       "after_window": {
@@ -1158,6 +1196,7 @@
           "metric": "delivery",
           "numerator": 1,
           "quality": "unknown",
+          "service": "ami",
           "unit": "ratio",
           "value": null
         }

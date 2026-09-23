@@ -127,8 +127,12 @@ class _Inference:
                 return False
             if winner["priority"] == rule["priority"]:
                 # Equal authority on contradictory conclusions is not resolvable by policy.
-                self.unresolved.append(rule["rule_id"])
-                self.unresolved.append(winner["rule_id"])
+                # Deduped where it is recorded, not only where it is read. The same
+                # conflict is reconsidered on every later pass, and a list that grows per
+                # pass is one output change away from reporting passes as conflicts.
+                for identifier in (rule["rule_id"], winner["rule_id"]):
+                    if identifier not in self.unresolved:
+                        self.unresolved.append(identifier)
                 self.concluded.pop(other, None)
                 self._inhibit(rule["rule_id"], "unresolved_conflict", other)
                 return True

@@ -1086,6 +1086,13 @@
             "unknown"
           ]
         },
+        "service": {
+          "enum": [
+            "scada",
+            "ami",
+            "shared"
+          ]
+        },
         "unit": {
           "enum": [
             "s",
@@ -1112,6 +1119,7 @@
       },
       "required": [
         "metric",
+        "service",
         "unit",
         "value",
         "quality",

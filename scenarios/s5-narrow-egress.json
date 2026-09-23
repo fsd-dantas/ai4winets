@@ -42,6 +42,18 @@
   "requirements": [
     {
       "comparator": "ge",
+      "denominator": "generated commands",
+      "metric": "within_age_delivery",
+      "missingness_limit": 0,
+      "requirement_id": "req:scada-response",
+      "service": "scada",
+      "target": "site-1",
+      "threshold": 0.99,
+      "unit": "ratio",
+      "window_s": 10
+    },
+    {
+      "comparator": "ge",
       "denominator": "generated readings",
       "metric": "within_age_delivery",
       "missingness_limit": 0.05,

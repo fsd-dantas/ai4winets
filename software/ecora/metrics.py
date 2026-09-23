@@ -22,9 +22,11 @@ from .contracts import Record, require
 STAGES_READ = ("diagnosis", "planning", "resolution", "action")
 
 
-def _measure(metric, unit, value, *, numerator=0, denominator=0):
+def _measure(metric, unit, value, *, numerator=0, denominator=0, service="shared"):
     known = value is not None
-    return {"metric": metric, "unit": unit, "value": value,
+    # These measure the controller, not a service class, so they are shared by default.
+    # A per-service outcome comes from the cohorts, which carry their own service.
+    return {"metric": metric, "service": service, "unit": unit, "value": value,
             "quality": "measured" if known else "unknown",
             "numerator": numerator, "denominator": denominator}
 

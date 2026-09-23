@@ -262,5 +262,114 @@ class OracleArmTests(unittest.TestCase):
             truth_binding(Registry(), port, [], {"reads": []})
 
 
+class Message:
+    def __init__(self, record):
+        self.data = {"payload": record.to_dict(), "scope": SCOPE,
+                     "stage_invocation_id": "result", "output_dataset_id": "dataset:result"}
+
+
+class Snapshot:
+    def __init__(self):
+        self.data = {"state": {}}
+
+
+class Context:
+    def __init__(self, configuration, watermark):
+        self.data = {"configuration": configuration, "decision_watermark_s": watermark}
+
+
+SCOPE = {"study_id": "study:fixture", "scenario_set_version": "1",
+         "scenario_set_hash": "a" * 64, "scenario_id": "scenario:fixture",
+         "scenario_revision": "1", "scenario_hash": "b" * 64, "run_id": "run:fixture"}
+
+
+class AssessmentOracleTests(unittest.TestCase):
+    """The references stage-arms.md designates for the last two stages."""
+
+    def setUp(self):
+        from ecora.scenario import SCENARIOS, build_world, load as load_scenario
+        from ecora.study import resolve
+        self.study = resolve("baseline")
+        self.world = build_world(load_scenario(SCENARIOS / "s1-degraded-primary.json"))
+        self.world.advance_to(2.5)
+        self.cohorts = self.study.assembly["result"]["cohorts"]
+
+    def port(self, capabilities=None):
+        from ecora.fixtures import fixture_environment
+        from ecora.truth import TruthPort
+        _, _, _, _, caps = fixture_environment()
+        declared = caps.data["capabilities"] if capabilities is None else capabilities
+        return TruthPort(self.world, declared)
+
+    def invoke(self, stage, configuration, port=None):
+        from ecora.registry import Registry
+        from ecora.truth import oracle_assessment_binding
+        port = port or self.port()
+        registry = Registry()
+        binding = oracle_assessment_binding(registry, port, port.granted(),
+                                            configuration, stage)
+        message = Message(Record("ResultRecord", {
+            "before_window": {"start_s": 0, "end_s": 2.5},
+            "after_window": {"start_s": 2.5, "end_s": 2.5},
+            "cohorts": [], "measurements": [], "action_ids": [],
+            "uncertainty": "Synthetic."}))
+        return port, registry.resolve(binding).factory().invoke(
+            [message], Snapshot(), Context(binding["configuration"], 2.5))
+
+    def test_it_counts_the_event_record_and_declares_the_read(self):
+        port, result = self.invoke("result", {"cohorts": self.cohorts})
+        record = result.outputs[0].data
+        self.assertEqual(len(record["cohorts"]), len(self.cohorts))
+        services = {m["service"] for m in record["measurements"]}
+        self.assertEqual(services, {"scada", "ami"})
+        self.assertTrue(result.trace["privileged_source_refs"],
+                        "a truth-holding provider must declare what it read")
+        self.assertTrue(all(reference.startswith("truth:cohort_record:")
+                            for reference in result.trace["privileged_source_refs"]))
+
+    def test_an_oracle_without_its_grant_is_unsupported_not_substituted(self):
+        """An Oracle cell that cannot be served says so rather than becoming Proposed."""
+        ordinary = [c for c in self.port().__dict__["_capabilities"].values()
+                    if c["name"] != "cohort_record"]
+        _, result = self.invoke("result", {"cohorts": self.cohorts},
+                                port=self.port(ordinary))
+        self.assertEqual(result.status, "rejected")
+        self.assertEqual(result.reason["code"], "no_truth_capability")
+        self.assertEqual(result.outputs, ())
+
+    def test_the_evaluator_scores_the_studys_requirements_and_not_its_own(self):
+        requirements = [{"requirement_id": "req:ami-delivery", "target": "site-1",
+                         "service": "ami", "metric": "within_age_delivery", "unit": "ratio",
+                         "comparator": "ge", "threshold": 0.95, "window_s": 10,
+                         "denominator": "generated readings", "missingness_limit": 0.05}]
+        _, result = self.invoke("assurance", {"cohorts": self.cohorts,
+                                              "requirements": requirements})
+        report = result.outputs[0].data
+        self.assertEqual([c["requirement_id"] for c in report["claims"]],
+                         ["req:ami-delivery"])
+        self.assertTrue(result.trace["privileged_source_refs"])
+
+    def test_an_assessment_oracle_needs_the_cohorts_it_counts(self):
+        from ecora.registry import Registry
+        from ecora.truth import oracle_assessment_binding
+        with self.assertRaises(ContractError):
+            oracle_assessment_binding(Registry(), self.port(), [], {}, "result")
+        with self.assertRaises(ContractError):
+            oracle_assessment_binding(Registry(), self.port(), [],
+                                      {"cohorts": self.cohorts}, "assurance")
+        with self.assertRaises(ContractError):
+            oracle_assessment_binding(Registry(), self.port(), [],
+                                      {"cohorts": self.cohorts}, "planning")
+
+    def test_censoring_reports_the_run_rather_than_a_blanket_disclaimer(self):
+        """An obligation whose deadline has not elapsed is censored; a settled one is not."""
+        cohorts = self.world.cohorts(self.cohorts)
+        by_id = {c["cohort_id"]: c for c in cohorts}
+        self.assertFalse(by_id["cohort:scada:measured"]["censored"],
+                         "SCADA deadlines elapsed long before the clock stopped")
+        self.assertTrue(by_id["cohort:ami:measured"]["censored"],
+                        "an AMI reading still has until its deadline to arrive")
+
+
 if __name__ == "__main__":
     unittest.main()

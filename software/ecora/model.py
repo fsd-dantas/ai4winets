@@ -335,8 +335,17 @@ class FiniteModel:
             on_time = sum(1 for p, _, ok in self.delivered if p.packet_id in identities and ok)
             late = sum(1 for p, _, ok in self.delivered if p.packet_id in identities and not ok)
             lost = sum(1 for p, _, _ in self.dropped if p.packet_id in identities)
+            # Censoring is a fact about the run, not a blanket disclaimer. A cohort is
+            # right-censored when the clock stopped before an outstanding obligation's
+            # deadline had elapsed: the outcome is unknown rather than a loss. Marking
+            # every cohort censored told a reader nothing, and marking none would count
+            # an undecided obligation as failed.
+            outstanding = [p for p in cohort
+                           if p.packet_id not in {d.packet_id for d, _, _ in self.delivered}
+                           and p.packet_id not in {d.packet_id for d, _, _ in self.dropped}]
+            censored = any(p.deadline_s > self.now for p in outstanding)
             result.append({**spec, "generated": len(cohort), "delivered_on_time": on_time,
                            "delivered_late": late, "lost": lost,
                            "pending": len(cohort) - on_time - late - lost,
-                           "duplicate_deliveries": 0, "censored": True})
+                           "duplicate_deliveries": 0, "censored": censored})
         return result

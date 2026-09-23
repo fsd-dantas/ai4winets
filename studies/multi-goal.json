@@ -18,11 +18,38 @@
     "result": {
       "cohorts": [
         {
-          "cohort_id": "cohort:ami",
+          "cohort_id": "cohort:scada:warmup",
+          "deadline_s": 0.25,
+          "generation_window": {
+            "end_s": 0.5,
+            "start_s": 0
+          },
+          "service": "scada"
+        },
+        {
+          "cohort_id": "cohort:scada:measured",
+          "deadline_s": 0.25,
+          "generation_window": {
+            "end_s": 2.0,
+            "start_s": 0.5
+          },
+          "service": "scada"
+        },
+        {
+          "cohort_id": "cohort:ami:warmup",
           "deadline_s": 10,
           "generation_window": {
-            "end_s": 0,
+            "end_s": 0.5,
             "start_s": 0
+          },
+          "service": "ami"
+        },
+        {
+          "cohort_id": "cohort:ami:measured",
+          "deadline_s": 10,
+          "generation_window": {
+            "end_s": 2.0,
+            "start_s": 0.5
           },
           "service": "ami"
         }

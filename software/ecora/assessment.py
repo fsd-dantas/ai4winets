@@ -31,38 +31,45 @@ from .schema import INPUT_TYPES, OUTPUT_TYPES
 VERSION = "assessment-v1"
 
 
-def _measure(metric, unit, value, numerator=0, denominator=0):
+def _measure(metric, service, unit, value, numerator=0, denominator=0):
     known = value is not None
-    return {"metric": metric, "unit": unit, "value": value,
+    return {"metric": metric, "service": service, "unit": unit, "value": value,
             "quality": "measured" if known else "unknown",
             "numerator": numerator, "denominator": denominator}
 
 
 def cohort_measurements(cohorts):
-    """What the cohorts support, per service class, with their populations attached."""
-    measurements, totals = [], {}
+    """What the cohorts support, per service class, with their populations attached.
+
+    Per service and never pooled. A cohort of SCADA commands and one of AMI readings have
+    different deadlines and different requirements, so one ratio drawn across both answers
+    no requirement either of them declares while looking like it answers two.
+    """
+    counted, measurements, totals = {}, [], {}
     for cohort in cohorts:
-        generated = cohort["generated"]
-        on_time = cohort["delivered_on_time"]
-        late = cohort["delivered_late"]
-        lost = cohort["lost"]
-        pending = cohort["pending"]
-        totals["generated"] = totals.get("generated", 0) + generated
-        totals["on_time"] = totals.get("on_time", 0) + on_time
-        totals["lost"] = totals.get("lost", 0) + lost
-        totals["pending"] = totals.get("pending", 0) + pending
-        totals["late"] = totals.get("late", 0) + late
-    generated = totals.get("generated", 0)
-    # A ratio without a population is not zero and not one; it is unknown.
-    def ratio(name, count):
-        return _measure(name, "ratio", count / generated if generated else None,
-                        count, generated)
-    measurements.append(ratio("within_age_delivery", totals.get("on_time", 0)))
-    measurements.append(ratio("late_delivery", totals.get("late", 0)))
-    measurements.append(ratio("loss", totals.get("lost", 0)))
-    measurements.append(ratio("outstanding", totals.get("pending", 0)))
-    measurements.append(_measure("generated", "count", generated))
-    return measurements, totals
+        service = cohort["service"]
+        tally = counted.setdefault(service, dict.fromkeys(
+            ("generated", "on_time", "late", "lost", "pending"), 0))
+        for name, field in (("generated", "generated"), ("on_time", "delivered_on_time"),
+                            ("late", "delivered_late"), ("lost", "lost"),
+                            ("pending", "pending")):
+            tally[name] += cohort[field]
+            totals[name] = totals.get(name, 0) + cohort[field]
+    for service in sorted(counted):
+        tally = counted[service]
+        generated = tally["generated"]
+
+        def ratio(name, count, generated=generated, service=service):
+            # A ratio without a population is not zero and not one; it is unknown.
+            return _measure(name, service, "ratio",
+                            count / generated if generated else None, count, generated)
+
+        measurements.append(ratio("within_age_delivery", tally["on_time"]))
+        measurements.append(ratio("late_delivery", tally["late"]))
+        measurements.append(ratio("loss", tally["lost"]))
+        measurements.append(ratio("outstanding", tally["pending"]))
+        measurements.append(_measure("generated", service, "count", generated))
+    return measurements, {**totals, "by_service": counted}
 
 
 class ResultProvider:
@@ -105,10 +112,12 @@ class AssuranceProvider:
         if result is None or scope is None:
             return ProviderResult((), {}, {"evaluator": VERSION}, "no_op",
                                   {"code": "no_result", "detail": "No result evidence reached the evaluator."})
-        measured = {m["metric"]: m for m in result.data["measurements"]}
+        # Keyed by service and metric together. A requirement over SCADA must not be
+        # answered by the AMI population that happened to carry the same metric name.
+        measured = {(m["service"], m["metric"]): m for m in result.data["measurements"]}
         claims, evaluable = [], 0
         for requirement in config["requirements"]:
-            measurement = measured.get(requirement["metric"])
+            measurement = measured.get((requirement["service"], requirement["metric"]))
             verdict, reason, evidence = self._judge(requirement, measurement, result)
             evaluable += verdict in ("met", "violated")
             claims.append({"requirement_id": requirement["requirement_id"], "verdict": verdict,
@@ -132,7 +141,7 @@ class AssuranceProvider:
     @staticmethod
     def _judge(requirement, measurement, result):
         """A verdict only where the evidence supports one, and the reason where it does not."""
-        identity = f"measurement:{requirement['metric']}"
+        identity = f"measurement:{requirement['service']}:{requirement['metric']}"
         if measurement is None:
             return "inconclusive", {"code": "no_measurement",
                                     "detail": "The extraction carries no such measurement."}, []
@@ -144,8 +153,10 @@ class AssuranceProvider:
             return "inconclusive", {"code": "empty_population",
                                     "detail": "No generated demand, so the ratio is not applicable."}, []
         missing = requirement.get("missingness_limit", 0)
+        # The coverage check is the same service's outstanding demand, not any service's.
         outstanding = next((m for m in result.data["measurements"]
-                            if m["metric"] == "outstanding"), None)
+                            if m["metric"] == "outstanding"
+                            and m["service"] == requirement["service"]), None)
         if outstanding and outstanding["quality"] == "measured" and outstanding["value"] > missing:
             return "inconclusive", {"code": "coverage_below_limit",
                                     "detail": "Outstanding demand exceeds the declared missingness limit."}, []

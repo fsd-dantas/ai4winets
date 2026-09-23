@@ -156,7 +156,10 @@ def definitions():
                       generation_window=ref("Window"), generated=COUNT,
                       delivered_on_time=COUNT, delivered_late=COUNT, lost=COUNT, pending=COUNT,
                       duplicate_deliveries=COUNT, censored=BOOL, deadline_s=POSITIVE)
-    d["Measurement"] = obj(metric=ID, unit=UNIT, value=nullable({"type": "number"}),
+    # A measurement names its service class. Keyed by metric alone, a requirement over one
+    # service was scored against whatever population the extraction happened to produce.
+    d["Measurement"] = obj(metric=ID, service=enum("scada", "ami", "shared"), unit=UNIT,
+                           value=nullable({"type": "number"}),
                            quality=enum("measured", "unknown"), numerator=COUNT, denominator=COUNT)
     d["ResultInput"] = obj(receipt_ids=IDS, observation_ids=IDS, cohorts=array(ref("Cohort")))
     d["ResultRecord"] = obj(before_window=ref("Window"), after_window=ref("Window"),

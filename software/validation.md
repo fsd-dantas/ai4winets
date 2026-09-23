@@ -303,6 +303,50 @@ the baseline's only goal is path selection. Pacing operators now declare the pro
 move from, which is also what makes their delete effect well founded, and a test asserts
 that no pacing operator has empty preconditions.
 
+**Outcomes are measured per service, over cohorts that cover a declared interval.**
+Measurements carry the service class their population came from, and a requirement is
+judged against its own service: keyed by metric alone, a SCADA requirement was answered by
+whatever population the extraction happened to produce, and the coverage check consulted
+outstanding demand belonging to another service. Both are tested, including that one
+service's outstanding demand does not block another service's verdict.
+
+The frozen cohorts were the single instant `end_s: 0`, so every verdict rested on the one
+reading generated at time zero and a silent serving leg still returned met. A study now
+declares a warm-up and a measured cohort per service over explicit windows. Censoring is
+derived from the run rather than asserted: a cohort is right-censored when the clock
+stopped before an outstanding obligation's deadline had elapsed, so a SCADA cohort whose
+deadlines have passed is not censored while an AMI cohort still within its deadline is.
+Marking every cohort censored told a reader nothing.
+
+**The last two stages have the references stage-arms.md designates for them.** Result and
+assurance were the only stages without an Oracle arm. Independent extraction reads the
+complete event record through its own declared truth capability, and reference evaluation
+re-derives measurements from that record rather than trusting the result it was handed, so
+a result stage that under-reported is visible as a difference between the arms rather than
+inherited by both. What the evaluator Oracle may not do is score differently: its
+requirements and comparators are the study's, exactly as the Proposed arm's are.
+
+An Oracle without the grant it needs is **unsupported and says so**. It returns a refusal
+naming the missing capability and emits nothing, rather than quietly becoming the Proposed
+arm under an Oracle's name. A test removes the capability and asserts the refusal.
+
+All seven stages now carry all three arms, every declared binding resolves to a provider
+that can be invoked, and every Oracle binding declares its information regime. Those are
+asserted by tests rather than surveyed by hand, because coverage that is assumed is how an
+unsupported cell comes to be reported as though it had been measured.
+
+An **unattended** treatment measures without deciding: the Null arm's telemetry, diagnosis,
+planning and resolution with the two assessment stages that can reach a verdict. Without
+it, every requirement shown met belonged to an arm that also acted, and a reader had no way
+to see what the world does when nothing intervenes.
+
+**Two hygiene results from the previous round's findings.** An operator declaring no
+precondition is refused where the catalog is built: it can never be issued, because the
+resolver refuses a mutation with no precondition evidence, so it would be planned,
+admitted, and silently never become a command. And every list that accumulates across
+inference passes is deduplicated where it is written rather than where it is read, with a
+test over both organisations asserting that no trace field repeats an entry.
+
 The **declared failure cases** each have a test: missing observations retained as unknown
 rather than dropped, a batch refused for claiming full coverage while withholding a signal,
 competing proposals resolved to one with the rest deferred and exactly one command issued,

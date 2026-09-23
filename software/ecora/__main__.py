@@ -77,12 +77,18 @@ def _execute(root, treatment, epochs, period_s, scenario, knowledge):
         report = Record.from_dict(store.messages(dataset)[0].data["payload"])
         # The population the verdict rests on. A verdict without it reads as a finding
         # about the run, when the frozen cohort may have counted a handful of readings.
-        population = 0
+        # Per service, because measurements are now keyed by service as well as metric and
+        # a verdict shown beside another service's population would be a false pairing.
+        populations, ratios = {}, {}
         for message in store.messages("dataset:result"):
             payload = Record.from_dict(message.data["payload"])
-            if payload.kind == "ResultRecord":
-                population = next((m["value"] for m in payload.data["measurements"]
-                                   if m["metric"] == "generated"), 0)
+            if payload.kind != "ResultRecord":
+                continue
+            for measure in payload.data["measurements"]:
+                if measure["metric"] == "generated":
+                    populations[measure["service"]] = measure["value"]
+                elif measure["metric"] == "within_age_delivery":
+                    ratios[measure["service"]] = measure
         binding = run.binding("action")
         sensing = run.binding("telemetry")
         return {"treatment": treatment, "arm": binding["arm"], "provider": binding["provider_id"],
@@ -94,9 +100,19 @@ def _execute(root, treatment, epochs, period_s, scenario, knowledge):
                 "concluded": sorted(concluded), "activations": activations,
                 "behaviour": behaviour,
                 "path": model.truth()["selected_path"]["site-1"],
-                "verdict": report.data["claims"][0]["verdict"] if report.data["claims"] else "none",
-                "population": population,
+                "claims": report.data["claims"], "populations": populations, "ratios": ratios,
+                "requirements": {r["requirement_id"]: r for r in scenario.data["requirements"]},
                 "dataset": dataset, "scope": run.scope, "integrity": store.verify()}
+
+
+def _verdicts(result):
+    """A compact tally, because a single verdict cannot stand for several requirements."""
+    counted = {}
+    for claim in result["claims"]:
+        counted[claim["verdict"]] = counted.get(claim["verdict"], 0) + 1
+    if not counted:
+        return "none evaluated"
+    return ", ".join(f"{count} {verdict}" for verdict, count in sorted(counted.items()))
 
 
 def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO,
@@ -111,8 +127,8 @@ def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO,
     knowledge = resolve_study(study)
     results = [_execute(directory, treatment, epochs, period_s, spec, knowledge)
                for treatment in ("null_baseline", "closed_loop", "observing", "expert",
-                                 "blackboard", "planner", "gps", "eco", "assured",
-                                 "oracle_diagnosis")]
+                                 "blackboard", "planner", "gps", "eco", "unattended", "assured",
+                                 "oracle_result", "oracle_diagnosis")]
     scope = results[0]["scope"]
     print(f"ECoRA -- one frozen study, {len(results)} treatments, one binding apart\n")
     print(f"  study     {scope['study_id']}")
@@ -127,13 +143,12 @@ def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO,
           f"{len(knowledge.assembly['planning']['goals'])} goal(s)")
     print(f"  schedule  {epochs} decision epochs at {period_s} s\n")
     header = (f"  {'treatment':<16}{'relayed':>8}{'concluded':>11}{'activations':>13}"
-              f"{'applied':>9}   {'path':<13}{'verdict':<14}{'scored on'}")
+              f"{'applied':>9}   {'path':<13}{'requirements'}")
     print(header)
     print("  " + "-" * (len(header) - 2))
     for r in results:
         print(f"  {r['treatment']:<16}{r['relayed']:>8}{len(r['concluded']):>11}"
-              f"{r['activations']:>13}{r['applied']:>9}   {r['path']:<13}{r['verdict']:<14}"
-              f"{r['population']} reading" + ("" if r['population'] == 1 else "s"))
+              f"{r['activations']:>13}{r['applied']:>9}   {r['path']:<13}{_verdicts(r)}")
     print(f"\n  relayed     = signals the telemetry stage passed on"
           f" (the adapter sensed {results[0]['sensed']})")
     print("  concluded   = distinct supported hypotheses the diagnosis stage reached")
@@ -225,19 +240,36 @@ def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO,
     print("  precondition evidence, and the Null diagnosis offers a first-candidate guess")
     print("  carrying no support, so the first three arms reach no command at all. Capability")
     print("  accrues as bindings are swapped; the loop does not assume it.")
+    # An arm that actually reached a verdict. The Null arm carries claims too, but they
+    # are inconclusive by construction and name the requirement its own policy declares.
+    scored = next((r for r in results
+                   if any(c["verdict"] in ("met", "violated") for c in r["claims"])), None)
+    if scored:
+        print("\n  What each requirement was scored on, where an arm reached a verdict:")
+        for claim in scored["claims"]:
+            requirement = scored["requirements"].get(claim["requirement_id"], {})
+            service = requirement.get("service", "?")
+            ratio = scored["ratios"].get(service)
+            population = scored["populations"].get(service, 0)
+            value = "unmeasured" if not ratio or ratio["value"] is None else f"{ratio['value']:.3f}"
+            print(f"    {claim['requirement_id']:<24}{service:<7}{claim['verdict']:<14}"
+                  f"{value} over {population} generated, needs "
+                  f"{requirement.get('comparator', '?')} {requirement.get('threshold', '?')}")
+        print("  Each is scored against its own service's population. Keyed by metric alone,")
+        print("  a SCADA requirement would have been answered by whatever population the")
+        print("  extraction happened to produce.")
+
     print("\n  Nothing here is a network result. The world is a deterministic queueing model,")
     # Derived, not asserted: this line claimed every verdict was inconclusive, which
     # stopped being true once the assurance stage gained an arm that can reach one.
-    reached = [r for r in results if r["verdict"] in ("met", "violated")]
+    reached = [r for r in results
+               if any(c["verdict"] in ("met", "violated") for c in r["claims"])]
     if not reached:
         print("  and no requirement was evaluated, so every verdict is inconclusive.")
     else:
-        counts = ", ".join(str(c) for c in sorted({r["population"] for r in reached}))
-        subject = "the one verdict reached rests" if len(reached) == 1 else \
-            f"the {len(reached)} verdicts reached rest"
-        print(f"  and {subject} on {counts} generated reading"
-              f"{'' if counts == '1' else 's'}. The study's frozen")
-        print("  cohort window is the single instant it declares, not the length of the run.")
+        print(f"  and {len(reached)} of {len(results)} arms reached a verdict at all. The")
+        print("  cohorts scored are the ones the study froze, covering a declared interval")
+        print("  rather than the single instant they once did.")
     print(f"\n  Elapsed {time.perf_counter() - started:.1f} s")
 
 
@@ -276,8 +308,8 @@ def main(argv=None):
             print(f"Valid {record.kind}/1 {record.content_hash}")
         elif args.command == "showcase":
             for treatment in ("null_baseline", "closed_loop", "observing", "expert",
-                              "blackboard", "planner", "gps", "eco", "assured",
-                              "oracle_diagnosis"):
+                              "blackboard", "planner", "gps", "eco", "unattended", "assured",
+                              "oracle_result", "oracle_diagnosis"):
                 if (args.directory / treatment).exists():
                     raise ContractError(f"showcase directory already exists: {args.directory / treatment}")
             showcase(args.directory, args.epochs, scenario=args.scenario, study=args.study)

@@ -56,8 +56,8 @@ def evaluate(measurements, requirements=(REQUIREMENT,), cohorts=None):
     return result.outputs[0].data, result.trace
 
 
-def measurement(metric, value, numerator=10, denominator=10, quality=None):
-    return {"metric": metric, "unit": "ratio", "value": value,
+def measurement(metric, value, numerator=10, denominator=10, quality=None, service="ami"):
+    return {"metric": metric, "service": service, "unit": "ratio", "value": value,
             "quality": quality or ("measured" if value is not None else "unknown"),
             "numerator": numerator, "denominator": denominator}
 
@@ -155,6 +155,56 @@ class EvaluationTests(unittest.TestCase):
     def test_no_assessment_provider_exists_for_a_decision_stage(self):
         with self.assertRaises(ContractError):
             assessment_binding(Registry(), [], {}, "planning")
+
+
+class PerServiceTests(unittest.TestCase):
+    """A requirement over one service must not be answered by another's population."""
+
+    def both(self):
+        return [cohort(cohort_id="cohort:scada", service="scada", generated=10,
+                       delivered_on_time=5, delivered_late=5, lost=0, pending=0),
+                cohort(cohort_id="cohort:ami", service="ami", generated=4,
+                       delivered_on_time=4, delivered_late=0, lost=0, pending=0)]
+
+    def test_each_service_gets_its_own_population(self):
+        record, _ = extract(self.both())
+        values = {(m["service"], m["metric"]): m for m in record["measurements"]}
+        self.assertAlmostEqual(values[("scada", "within_age_delivery")]["value"], 0.5)
+        self.assertAlmostEqual(values[("ami", "within_age_delivery")]["value"], 1.0)
+        self.assertEqual(values[("scada", "generated")]["value"], 10)
+        self.assertEqual(values[("ami", "generated")]["value"], 4)
+
+    def test_a_requirement_is_judged_against_its_own_service(self):
+        """Pooled, these would average to a ratio answering neither requirement."""
+        scada = {**REQUIREMENT, "requirement_id": "req:scada", "service": "scada",
+                 "threshold": 0.9}
+        ami = {**REQUIREMENT, "requirement_id": "req:ami", "service": "ami",
+               "threshold": 0.9}
+        record, _ = extract(self.both())
+        report, _ = evaluate(record["measurements"], (scada, ami), cohorts=self.both())
+        verdicts = {c["requirement_id"]: c["verdict"] for c in report["claims"]}
+        self.assertEqual(verdicts["req:scada"], "violated")
+        self.assertEqual(verdicts["req:ami"], "met")
+
+    def test_a_requirement_for_a_service_nobody_measured_is_inconclusive(self):
+        record, _ = extract([cohort(service="ami")])
+        report, _ = evaluate(record["measurements"],
+                             ({**REQUIREMENT, "service": "scada"},))
+        self.assertEqual(report["claims"][0]["verdict"], "inconclusive")
+        self.assertEqual(report["claims"][0]["reason"]["code"], "no_measurement")
+
+    def test_coverage_is_checked_against_the_same_service(self):
+        """One service's outstanding demand must not block another's verdict."""
+        cohorts = [cohort(cohort_id="cohort:scada", service="scada", generated=10,
+                          delivered_on_time=10, delivered_late=0, lost=0, pending=0),
+                   cohort(cohort_id="cohort:ami", service="ami", generated=10,
+                          delivered_on_time=2, delivered_late=0, lost=0, pending=8)]
+        record, _ = extract(cohorts)
+        report, _ = evaluate(record["measurements"],
+                             ({**REQUIREMENT, "service": "scada", "threshold": 0.9},),
+                             cohorts=cohorts)
+        self.assertEqual(report["claims"][0]["verdict"], "met",
+                         "AMI's outstanding demand does not bear on a SCADA requirement")
 
 
 if __name__ == "__main__":

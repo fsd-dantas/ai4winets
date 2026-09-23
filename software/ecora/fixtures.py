@@ -119,7 +119,7 @@ class FixtureProvider:
                 "before_window": {"start_s": 0, "end_s": watermark},
                 "after_window": {"start_s": watermark, "end_s": watermark},
                 "cohorts": payloads[0].data["cohorts"],
-                "measurements": [{"metric": "within_age_delivery", "unit": "ratio", "value": None,
+                "measurements": [{"metric": "within_age_delivery", "service": "ami", "unit": "ratio", "value": None,
                                   "quality": "unknown", "numerator": 0, "denominator": 0}],
                 "action_ids": [], "uncertainty": "Synthetic fixture; no simulated service."}),),
                 {}, {"fixture": True})
@@ -164,6 +164,11 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assemb
               for service, name, unit in (("ami", "queue_occupancy", "byte"),
                                           ("shared", "path_state", "id"),
                                           ("ami", "pacing_profile", "id"))]
+    # The complete event record, which only a simulator can serve. It is what makes an
+    # independent extraction independent of the extraction path being measured.
+    truths.append({"capability_id": "truth.shared.cohort_record", "kind": "truth",
+                   "target": "site-1", "service": "shared", "name": "cohort_record",
+                   "unit": "count", "evidence_refs": ["fixture:truth"]})
     truths += [{"capability_id": f"truth.probe.{leg}", "kind": "truth",
                 "target": f"site-1/{leg}", "service": "shared", "name": "path_probe",
                 "unit": "s", "evidence_refs": ["fixture:truth"]}
@@ -249,7 +254,7 @@ def payload_fixtures():
                           "applied_at_s": None, "resulting_state": {}, "application_observation_ids": [], "reason": reason()},
         "ResultInput": {"receipt_ids": [], "observation_ids": [], "cohorts": [cohort]},
         "ResultRecord": {"before_window": window, "after_window": {"start_s": 1, "end_s": 2}, "cohorts": [cohort],
-                         "measurements": [{"metric": "delivery", "unit": "ratio", "value": None, "quality": "unknown",
+                         "measurements": [{"metric": "delivery", "service": "ami", "unit": "ratio", "value": None, "quality": "unknown",
                                            "numerator": 1, "denominator": 2}], "action_ids": [], "uncertainty": "Censored fixture."},
         "AssuranceReport": {"study_id": study.data["study_id"], "scenario_set_version": "1", "scenario_set_hash": scenario_set.content_hash,
                             "contributing_run_ids": ["run:fixture"], "contributing_invocation_ids": [], "contributing_dataset_ids": [],

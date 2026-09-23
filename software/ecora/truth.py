@@ -45,6 +45,12 @@ PROJECTIONS = {
 }
 
 
+def _cohort_capability(port):
+    """The one capability that opens the complete event record, if it was granted."""
+    return next((identifier for identifier in port.granted()
+                 if identifier.endswith(".cohort_record")), None)
+
+
 def _declared(port, since):
     """The reads a provider made in this invocation, for it to declare to the boundary."""
     return sorted({entry["reference"] for entry in port.log[since:]})
@@ -95,6 +101,24 @@ class TruthPort:
             "evidence_kind": "simulator_truth", "capability_id": capability_id,
             "source_observation_ids": [], "formula": None,
             "privileged_source_refs": [reference]}
+
+    def read_cohorts(self, capability_id, cohort_specs, at_s):
+        """The complete event record, scored into the study's frozen cohorts.
+
+        This is one read of one capability, not a way around the scalar projection. It is
+        logged like any other, and it is current-state only for the same reason: a cohort
+        whose window has not closed reports what has happened, not what will.
+        """
+        capability = self._capabilities.get(capability_id)
+        require(capability is not None, f"no truth capability grants {capability_id}")
+        require(at_s == self.model.now,
+                "truth is current state only; the port serves neither the future nor the past")
+        require(capability["name"] == "cohort_record",
+                f"{capability_id} does not open the event record")
+        reference = f"truth:cohort_record:{capability['target']}:{at_s}"
+        self.log.append({"capability_id": capability_id, "name": "cohort_record",
+                         "target": capability["target"], "at_s": at_s, "reference": reference})
+        return self.model.cohorts(cohort_specs)
 
     def accounting(self):
         return {"regime": "oracle_state", "reads": len(self.log),
@@ -204,6 +228,120 @@ def truth_binding(registry, port, capability_ids, configuration):
         "capability_ids": list(capability_ids), "direct_truth_access": True})
     if not registry.registered("telemetry", spec.data["provider_id"], VERSION):
         registry.register(spec, partial(OracleTelemetryProvider, port))
+    return {k: v for k, v in spec.data.items() if k != "direct_truth_access"} | {
+        "information_regime": "oracle_state", "allow_privileged_inputs": True,
+        "configuration": configuration, "configuration_hash": digest(configuration)}
+
+
+class OracleResultProvider:
+    """Independent extraction from the complete simulator event record.
+
+    The Proposed arm counts what the cohorts it was handed report. This one counts the
+    events themselves, with exact identities and times, so the gap between them is what
+    the extraction path loses rather than what the world did.
+
+    It is an Oracle by information and not by procedure: given the same counts it would
+    reach the same measurements, because it uses the same extraction the Proposed arm does.
+    """
+
+    def __init__(self, port):
+        self.port = port
+
+    def invoke(self, inputs, prior_state, context):
+        from .assessment import cohort_measurements
+        watermark = context.data["decision_watermark_s"]
+        config = context.data["configuration"]
+        before = len(self.port.log)
+        capability = _cohort_capability(self.port)
+        if capability is None:
+            # An Oracle cell without the grant it needs is unsupported, and says so. It is
+            # not quietly replaced by the Proposed arm wearing an Oracle's name.
+            return ProviderResult((), {}, {"reference": "oracle_result"}, "rejected",
+                                  {"code": "no_truth_capability",
+                                   "detail": "No capability grants the complete event record."})
+        cohorts = self.port.read_cohorts(capability, config["cohorts"], watermark)
+        measurements, totals = cohort_measurements(cohorts)
+        censored = [c["cohort_id"] for c in cohorts if c["censored"]]
+        record = Record("ResultRecord", {
+            "before_window": {"start_s": 0, "end_s": watermark},
+            "after_window": {"start_s": watermark, "end_s": watermark},
+            "cohorts": cohorts, "measurements": measurements, "action_ids": [],
+            "uncertainty": ("Censored cohorts: " + ", ".join(censored)) if censored
+            else "No cohort was censored in this extraction."})
+        return ProviderResult((record,), {}, {
+            "reference": "oracle_result", "cohorts": len(cohorts),
+            "population": totals.get("generated", 0), "censored": censored,
+            "reads": len(self.port.log) - before,
+            "privileged_source_refs": _declared(self.port, before)})
+
+
+class OracleAssuranceProvider:
+    """Reference evaluation against full truth and the same frozen requirements.
+
+    It does not trust the result it was handed. It re-derives the measurements from the
+    event record and scores those, so a result stage that under-reported is visible as a
+    difference between this arm and the Proposed one rather than inherited by both.
+
+    What it may not do is score differently. The requirements and comparators are the
+    study's, frozen in this binding exactly as they are in the Proposed arm's, because an
+    Oracle that changed what passing means would be measuring a different question.
+    """
+
+    def __init__(self, port):
+        self.port = port
+
+    def invoke(self, inputs, prior_state, context):
+        from .assessment import AssuranceProvider, cohort_measurements
+        watermark = context.data["decision_watermark_s"]
+        config = context.data["configuration"]
+        scope = inputs[0].data["scope"] if inputs else None
+        if scope is None:
+            return ProviderResult((), {}, {"evaluator": "oracle_truth"}, "no_op",
+                                  {"code": "no_result", "detail": "No result evidence reached the evaluator."})
+        before = len(self.port.log)
+        capability = _cohort_capability(self.port)
+        if capability is None:
+            return ProviderResult((), {}, {"evaluator": "oracle_truth"}, "rejected",
+                                  {"code": "no_truth_capability",
+                                   "detail": "No capability grants the complete event record."})
+        cohorts = self.port.read_cohorts(capability, config["cohorts"], watermark)
+        measurements, _ = cohort_measurements(cohorts)
+        reference = Record("ResultRecord", {
+            "before_window": {"start_s": 0, "end_s": watermark},
+            "after_window": {"start_s": watermark, "end_s": watermark},
+            "cohorts": cohorts, "measurements": measurements, "action_ids": [],
+            "uncertainty": "Derived from the complete event record."})
+
+        class _Reference:
+            def __init__(self, payload, origin):
+                self.data = dict(origin.data, payload=payload.to_dict())
+
+        result = AssuranceProvider().invoke(
+            [_Reference(reference, inputs[0])], prior_state, context)
+        trace = dict(result.trace, evaluator="oracle_truth",
+                     reads=len(self.port.log) - before,
+                     privileged_source_refs=_declared(self.port, before))
+        return ProviderResult(result.outputs, result.next_state, trace, result.status,
+                              result.reason)
+
+
+def oracle_assessment_binding(registry, port, capability_ids, configuration, stage):
+    """Register the Oracle provider for an assessment stage and return its binding."""
+    require(stage in ("result", "assurance"), f"no assessment Oracle is defined for {stage}")
+    require(configuration.get("cohorts"),
+            "an Oracle extraction must be given the frozen cohorts it counts")
+    if stage == "assurance":
+        require(configuration.get("requirements"),
+                "an Oracle evaluator is scored against the study's frozen requirements")
+    factory = OracleResultProvider if stage == "result" else OracleAssuranceProvider
+    provider_id = f"{stage}.oracle_truth"
+    spec = Record("ProviderSpec", {
+        "stage_id": stage, "provider_id": provider_id, "provider_version": VERSION,
+        "arm": "oracle", "input_types": list(INPUT_TYPES[stage]),
+        "output_types": list(OUTPUT_TYPES[stage]), "state_schema_version": "1",
+        "capability_ids": list(capability_ids), "direct_truth_access": True})
+    if not registry.registered(stage, provider_id, VERSION):
+        registry.register(spec, partial(factory, port))
     return {k: v for k, v in spec.data.items() if k != "direct_truth_access"} | {
         "information_regime": "oracle_state", "allow_privileged_inputs": True,
         "configuration": configuration, "configuration_hash": digest(configuration)}

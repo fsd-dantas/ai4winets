@@ -1,6 +1,7 @@
 """CLI for schema export, record validation, artifact inspection and synthetic runs."""
 
 import argparse
+import hashlib
 import json
 import time
 from pathlib import Path
@@ -390,8 +391,10 @@ def main(argv=None):
                               study=args.study)
         elif args.command == "simulator-manifest":
             from . import ns3build
-            built = ns3build.assemble(json.loads(args.attributes.read_text(encoding="utf-8")),
-                                      json.loads(args.facts.read_text(encoding="utf-8")))
+            raw = args.attributes.read_bytes()
+            built = ns3build.assemble(json.loads(raw.decode("utf-8")),
+                                      json.loads(args.facts.read_text(encoding="utf-8")),
+                                      dump_sha256=hashlib.sha256(raw).hexdigest())
             path = ns3build.write(built, args.output or ns3build.MANIFEST)
             print(f"ns-3 {built['release']}  model {built['model_hash'][:12]}  "
                   f"build {built['build_hash'][:12]}  {built['registry']['types']} types, "

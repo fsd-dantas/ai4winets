@@ -8,7 +8,13 @@
   "modules": ["core", "network", "internet", "point-to-point", "lte", "applications", "traffic-control", "flow-monitor"],
   "configure_flags": ["--disable-examples", "--disable-tests", "--disable-python-bindings", "--enable-asserts", "--disable-logs", "--disable-werror"],
   "cmake_defines": {"NS3_NATIVE_OPTIMIZATIONS": "OFF"},
-  "programs": ["ecora-attributes"],
+  "programs": ["ecora-attributes", "ecora-sim"],
+  "dependencies": [
+    {"name": "nlohmann-json", "version": "3.11.3", "file": "json.hpp", "program": "ecora-sim",
+     "url": "https://github.com/nlohmann/json/releases/download/v3.11.3/json.hpp",
+     "sha256": "9bea4c8066ef4a1c206b2be5a36302f8926f7fdc6087af5d20b417d0cf103ea6"}
+  ],
+  "build_id_note": "ecora-sim is compiled with build_id = sha256 of '<archive sha256>:<attribute dump sha256>:<simulator source sha256>', where the source hash is sha256 over the sorted 'sha256  path' lines of the program's files. Every response carries it, and the manifest records its inputs so the adapter can check a response came from the build the manifest describes.",
   "manifest_groups": ["", "Lte", "PointToPoint", "Internet", "TrafficControl", "Applications", "Network", "Spectrum", "Propagation", "Antenna", "Core"],
   "manifest_groups_note": "The empty group is the types ns-3 registers without a group name, among them LteHelper, LteEnbNetDevice, LteUeNetDevice and UeManager, which hold defaults v1 inherits. A type with no attributes is still listed, with none, so its absence from a scenario's settings is visibly not an omission.",
   "note": "Release, archive and checksum are pinned. Profile release is -O3 without host-specific code generation, so the build does not depend on the CPU it was compiled on. Asserts stay on so a misused model fails rather than runs; logging is off because it costs time on every event. Python bindings are off because the adapter boundary is a separate process, not an import."

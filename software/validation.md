@@ -503,6 +503,32 @@ committed manifest's `model_hash` is `64b9a0f7904d...`; tests re-derive both has
 the manifest against the current declaration and exporter source, and require the RLC,
 HARQ and selected-component settings v1 scope names.
 
+## Simulator process: first observations
+
+`ecora-sim` answered `configure`, `advance` and `cohorts` for all six scenarios, and
+refused a backwards clock and an unimplemented request with their reasons. Every response
+carried the build identity the manifest records, recomputed independently by
+`ecora.ns3build`. The resolved LTE carrier is 2.12 GHz downlink and 1.93 GHz uplink,
+derived from the declared EARFCNs, and both spectrum channels carry the Friis spectrum
+model and the per-site impairment model.
+
+Uncontrolled, eight simulated seconds, cohorts over generation in the first seven:
+
+| Scenario | SCADA on time / generated | Lost | Pending | Host time |
+| --- | --- | --- | --- | --- |
+| S0 nominal | 70 / 71 | 0 | 1 | 0.11 s |
+| S1 radio loss 50 dB at 1 s | 9 / 71 | 0 | 62 | 0.09 s |
+| S2 radio loss 200 dB at 1 s | 9 / 71 | 18 | 44 | 0.05 s |
+| S5 narrow egress | 1 / 71, 68 late | 0 | 2 | 0.10 s |
+
+**These are observations, not calibration.** The nominal 50 dB was expected to degrade the
+LTE leg to roughly the finite world's 32 kbit/s; in ns-3 it effectively silences it, and
+transactions stay pending in the radio's buffers. The finite world's loss-to-rate table
+therefore does not yet describe the simulator, which is the gap B21 exists to close. S5 is
+harsher in ns-3 because the envelope and UDP/IP headers add bytes the finite world does not
+count. The one pending S0 transaction is the one sent before the UE attached, which the
+UE discards silently and which is therefore not attributed as a loss.
+
 `python -m ecora demo .ecora-runs/example` runs the same invocation sequence for two
 frozen treatment bindings. Both produce valid DiagnosisRecord payloads with different
 synthetic fixture labels. Each treatment yields three committed datasets, three messages

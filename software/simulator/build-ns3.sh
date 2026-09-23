@@ -61,20 +61,57 @@ if [[ "$(cat "$stamp")" != "$sha256" ]]; then
     exit 1
 fi
 
+# Pinned third-party sources, verified like the archive.
+mkdir -p "$root/deps"
+while IFS=$'\t' read -r dep_file dep_url dep_sha dep_program; do
+    [[ -n "$dep_file" ]] || continue
+    if [[ ! -f "$root/deps/$dep_file" ]]; then
+        echo "downloading $dep_url"
+        curl -sSfL -o "$root/deps/$dep_file.part" "$dep_url"
+        mv "$root/deps/$dep_file.part" "$root/deps/$dep_file"
+    fi
+    dep_actual="$(sha256sum "$root/deps/$dep_file" | cut -d' ' -f1)"
+    if [[ "$dep_actual" != "$dep_sha" ]]; then
+        echo "refused: $dep_file has SHA-256 $dep_actual, declared $dep_sha" >&2
+        exit 1
+    fi
+    echo "verified $dep_file $dep_actual"
+done < <(python3 -c "import json,sys; [print('\t'.join((d['file'], d['url'], d['sha256'], d['program']))) for d in json.load(open(sys.argv[1])).get('dependencies', [])]" "$declaration")
+
+# A program is one file, or a directory ns-3 builds into one executable named after it.
 for program in "${programs[@]}"; do
-    cp "$here/src/$program.cc" "$source_dir/scratch/$program.cc"
+    if [[ -d "$here/src/$program" ]]; then
+        rm -rf "$source_dir/scratch/$program"
+        cp -r "$here/src/$program" "$source_dir/scratch/$program"
+    else
+        cp "$here/src/$program.cc" "$source_dir/scratch/$program.cc"
+    fi
 done
+while IFS=$'\t' read -r dep_file dep_program; do
+    [[ -n "$dep_file" ]] && cp "$root/deps/$dep_file" "$source_dir/scratch/$dep_program/$dep_file"
+done < <(python3 -c "import json,sys; [print(d['file'] + '\t' + d['program']) for d in json.load(open(sys.argv[1])).get('dependencies', [])]" "$declaration")
 
 cd "$source_dir"
 ./ns3 clean >/dev/null 2>&1 || true
 ./ns3 configure --build-profile="$profile" --enable-modules="$modules" "${flags[@]}" -- "${defines[@]}"
-./ns3 build "${programs[@]}"
 
 # Profiles other than release and default carry a suffix, as in ns3.48-name-debug.
-binary() { find "$source_dir/build/scratch" -maxdepth 1 -type f \( -name "ns${release}-$1" -o -name "ns${release}-$1-*" \) -perm -u+x | head -1; }
+binary() { find "$source_dir/build/scratch" -maxdepth 2 -type f \( -name "ns${release}-$1" -o -name "ns${release}-$1-*" \) -perm -u+x | head -1; }
+
+./ns3 build ecora-attributes
 attributes="$(binary ecora-attributes)"
 [[ -n "$attributes" ]] || { echo "refused: ecora-attributes was not built" >&2; exit 1; }
 "$attributes" > "$root/out/ns3-attributes.json"
+
+# The simulator's identity: the archive, the registry it runs over, and its own sources.
+dump_sha="$(sha256sum "$root/out/ns3-attributes.json" | cut -d' ' -f1)"
+sim_sha="$(cd "$here/src/ecora-sim" && find . -type f | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1)"
+build_id="$(printf '%s:%s:%s' "$actual" "$dump_sha" "$sim_sha" | sha256sum | cut -d' ' -f1)"
+printf '#pragma once\n#define ECORA_BUILD_ID "%s"\n' "$build_id" > "$source_dir/scratch/ecora-sim/build-id.h"
+./ns3 build ecora-sim
+simulator="$(binary ecora-sim)"
+[[ -n "$simulator" ]] || { echo "refused: ecora-sim was not built" >&2; exit 1; }
+ln -sf "$simulator" "$root/out/ecora-sim"
 
 # What configure actually enabled, dependencies included, as ns-3 recorded it.
 resolved="$(python3 -c "import ast,glob,re,sys; t=open(glob.glob(sys.argv[1]+'/.lock-ns3_*')[0]).read(); m=re.search(r'^NS3_ENABLED_MODULES = (\[.*\])', t, re.M); print(';'.join(sorted(x[4:] for x in ast.literal_eval(m.group(1)))))" "$source_dir")"
@@ -100,6 +137,9 @@ facts = {
     "logs": "$(cachevalue NS3_LOG)",
     "platform": platform.platform(),
     "machine": platform.machine(),
+    "attribute_dump_sha256": "$dump_sha",
+    "simulator_source_sha256": "$sim_sha",
+    "simulator_build_id": "$build_id",
 }
 json.dump(facts, open(sys.argv[1], "w"), indent=2, sort_keys=True)
 EOF

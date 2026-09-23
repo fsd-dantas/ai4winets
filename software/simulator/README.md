@@ -1,7 +1,40 @@
-# ns-3 build and model manifest
+# ns-3 build, model manifest and simulator process
 
-**Status: implemented build and manifest. The simulator program the adapter drives is not
-built yet; this directory produces the pinned library and the record of what it is.**
+**Status: implemented build, manifest and simulator process answering `configure`,
+`advance` and `cohorts`. `observe`, `apply`, `truth` and `fork` are refused with a reason
+until their items land. No Python adapter drives it yet, and no ns-3 value is calibrated.**
+
+## The simulator process
+
+[src/ecora-sim/ecora-sim.cc](src/ecora-sim/ecora-sim.cc) builds one world from one scenario
+and answers one request at a time on standard input and output. Each frame is a four-byte
+big-endian length and that many bytes of JSON. It never writes anything else to standard
+output and never initiates a message. Every response carries the build identity compiled
+into it, which the manifest records and `ecora.ns3build` can recompute from the repository.
+
+What `configure` builds, from the scenario alone:
+
+| Element | ns-3 realisation |
+| --- | --- |
+| LTE leg | `LteHelper` with `PointToPointEpcHelper`, `PfFfMacScheduler`, `FriisSpectrumPropagationLossModel`, RLC UM set explicitly, RLC buffer from the leg's queue limit, radio parameters and positions from the scenario |
+| LTE impairment | a `MatrixPropagationLossModel` on both spectrum channels, per site, 0 dB until a `radio_loss` disturbance sets it |
+| Alternative leg | point-to-point, DropTail at the declared byte limit, `RateErrorModel` at both receivers; no queue disc |
+| Egress | point-to-point, DropTail at the declared byte limit; no queue disc |
+| SCADA | central request to the site over its selected leg, response after the processing delay over the leg selected then |
+| AMI | readings at the site, released through the same pacing gate as the finite world |
+| Identity | a 32-byte envelope on every datagram, plus a packet tag so a drop can be attributed |
+
+The `configure` response reads settings back from the objects built rather than echoing the
+request, so a setting ns-3 did not take shows up as a disagreement. Two findings from doing
+so are recorded in the program: `LteHelper`'s `PathlossModel` is write-only, so the loss
+models are read from the channels; and with an EPC attached, ns-3 silently changes its
+`RLC_SM_ALWAYS` default to RLC UM, so the mode is set explicitly and reported.
+
+A rate disturbance of zero on the alternative leg is realised as a receive error rate of 1
+at both ends, because a point-to-point device cannot run at zero. Drops are attributed from
+point-to-point queue and PHY drops, IPv4 drops and LTE RLC drops. A datagram discarded where
+its identity cannot be read is counted as untraced and attributed to nothing; one the UE
+discards silently before attaching stays pending, not lost.
 
 The [simulator adapter contract](../../system/simulator-adapter.md) runs ns-3 in a separate
 process and requires every response to carry the hash of the model that produced it. This

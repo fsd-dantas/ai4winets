@@ -43,8 +43,15 @@ class DeclarationTests(unittest.TestCase):
         self.assertEqual(DECLARED["cmake_defines"]["NS3_NATIVE_OPTIMIZATIONS"], "OFF")
 
     def test_every_declared_program_has_a_source(self):
+        source = ROOT / "software" / "simulator" / "src"
         for program in DECLARED["programs"]:
-            self.assertTrue((ROOT / "software" / "simulator" / "src" / f"{program}.cc").is_file())
+            with self.subTest(program=program):
+                # One file, or a directory ns-3 builds into one executable.
+                self.assertTrue((source / f"{program}.cc").is_file()
+                                or any((source / program).glob("*.cc")))
+        for dependency in DECLARED["dependencies"]:
+            self.assertRegex(dependency["sha256"], r"^[0-9a-f]{64}$")
+            self.assertIn(dependency["program"], DECLARED["programs"])
 
 
 class AssemblyTests(unittest.TestCase):
@@ -62,6 +69,20 @@ class AssemblyTests(unittest.TestCase):
                                  ({"native_optimizations": "ON"}, "CPU")):
             with self.subTest(change=change), self.assertRaises(ContractError) as caught:
                 ns3build.assemble(dump(), facts(**change))
+            self.assertIn(expected, str(caught.exception))
+
+    def test_it_refuses_a_simulator_built_from_other_sources(self):
+        dump_sha = "d" * 64
+        honest = facts(attribute_dump_sha256=dump_sha,
+                       simulator_source_sha256=ns3build.simulator_source_sha256())
+        honest["simulator_build_id"] = ns3build.build_id(
+            DECLARED["sha256"], dump_sha, honest["simulator_source_sha256"])
+        ns3build.assemble(dump(), honest, dump_sha256=dump_sha)
+        for change, expected in (({"simulator_source_sha256": "e" * 64}, "sources"),
+                                 ({"simulator_build_id": "f" * 64}, "identity"),
+                                 ({"attribute_dump_sha256": "0" * 64}, "dump")):
+            with self.subTest(change=change), self.assertRaises(ContractError) as caught:
+                ns3build.assemble(dump(), {**honest, **change}, dump_sha256=dump_sha)
             self.assertIn(expected, str(caught.exception))
 
     def test_it_refuses_a_dump_missing_a_declared_group(self):
@@ -128,6 +149,16 @@ class CommittedManifestTests(unittest.TestCase):
         for type_name in ("ns3::LteEnbNetDevice", "ns3::LteUeNetDevice", "ns3::UeManager"):
             with self.subTest(ungrouped=type_name):
                 self.assertIn(type_name, attributes)
+
+    def test_the_simulator_identity_follows_from_its_inputs(self):
+        """The id compiled into the simulator is recomputable from the repository."""
+        build = self.manifest["build"]
+        self.assertEqual(build["simulator_source_sha256"], ns3build.simulator_source_sha256())
+        self.assertEqual(self.manifest["simulator_build_id"],
+                         ns3build.build_id(build["archive_sha256"],
+                                           build["attribute_dump_sha256"],
+                                           build["simulator_source_sha256"]))
+        self.assertIn("ecora-sim/ecora-sim.cc", self.manifest["sources"])
 
     def test_no_exported_value_is_a_process_address(self):
         """An address differs per process, so a manifest holding one could never reproduce."""

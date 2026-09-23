@@ -18,6 +18,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **The ns-3 simulator process** in `software/simulator/src/ecora-sim/`. It builds the v1
+  topology from a scenario (the LTE leg with an EPC, the point-to-point alternative leg and
+  the shared egress, each queue a declared DropTail FIFO) and runs SCADA as a
+  request/response transaction and AMI through the pacing gate, with every obligation's
+  identity carried on the wire. It answers `configure`, `advance` and `cohorts` over the
+  framed protocol, and refuses the requests later items implement. `configure` reads
+  settings back from what was built; doing so found that ns-3 silently switches RLC mode
+  when an EPC is attached. First observations show the nominal 50 dB impairment silences
+  the LTE leg rather than degrading it, which the calibration pilot has to resolve.
 - **A reproducible ns-3 build and model manifest** in `software/simulator/`. ns-3 is
   pinned at 3.48 by archive checksum (ADR-28 records the move from the nominal 3.45), built
   under a declared profile without host-specific code generation, and every registered

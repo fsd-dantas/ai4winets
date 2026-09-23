@@ -1585,6 +1585,7 @@
  "build": {
   "archive_sha256": "0dc88d6a4fbee6e8fd1b446e281fd564f394d4ccf8f7ef55d77a604488e25f01",
   "asserts": "ON",
+  "attribute_dump_sha256": "07b3e758872f127e570a96e13e495fa717227e599b87be5fff507b7662d51e1b",
   "build_profile": "release",
   "cmake": "cmake version 3.28.3",
   "cmake_build_type": "release",
@@ -1637,10 +1638,12 @@
    "stats",
    "traffic-control",
    "virtual-net-device"
-  ]
+  ],
+  "simulator_build_id": "3c5ae6047399eff337851b47198b3c3877e42cfdf48d6fb4b3bcfc51d6a65e09",
+  "simulator_source_sha256": "2c741a22f91934486ee71cb8bfa87953d612d3879487ee71198bd20a220068a4"
  },
- "build_hash": "b099c286ea506b706652a18e12fd4472278167339664326d4e00a4558ed14390",
- "declaration_hash": "b794d33f868e970eb1c6fa4b11cbb3d2933f960b2130bfce242d857e0a6988c8",
+ "build_hash": "eddd69937b720709100cfd2b8dec7780505b097926ab78f9f3859a263dad75cf",
+ "declaration_hash": "b19e8677cc3c8ca9e42c6c4e8ef9b2bcf4f74564a95ef4c9a7e5d44f08cafd61",
  "globals": {
   "ChecksumEnabled": "false",
   "RngRun": "1",
@@ -1656,7 +1659,9 @@
   "types": 504
  },
  "release": "3.48",
+ "simulator_build_id": "3c5ae6047399eff337851b47198b3c3877e42cfdf48d6fb4b3bcfc51d6a65e09",
  "sources": {
-  "ecora-attributes.cc": "de640a471213795e0598864e1b302b6755266e8498729eee89ffb6191797995c"
+  "ecora-attributes.cc": "de640a471213795e0598864e1b302b6755266e8498729eee89ffb6191797995c",
+  "ecora-sim/ecora-sim.cc": "07e50649bbea4dcca868625130fd86cf7a66927c077ef5bafe737228ffce35a2"
  }
 }

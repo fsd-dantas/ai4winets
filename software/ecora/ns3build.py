@@ -34,16 +34,59 @@ def declaration():
     return json.loads(DECLARATION.read_text(encoding="utf-8"))
 
 
+def _program_files(program):
+    """A program's source files, as paths relative to `src`, in a stable order."""
+    single = SIMULATOR / "src" / f"{program}.cc"
+    if single.is_file():
+        return [single.relative_to(SIMULATOR / "src").as_posix()]
+    directory = SIMULATOR / "src" / program
+    return sorted(p.relative_to(SIMULATOR / "src").as_posix()
+                  for p in directory.rglob("*") if p.is_file())
+
+
 def source_hashes(declared):
     """SHA-256 of each program source the build compiles into the pinned tree."""
-    return {f"{program}.cc": hashlib.sha256(
-                (SIMULATOR / "src" / f"{program}.cc").read_bytes()).hexdigest()
-            for program in declared["programs"]}
+    return {name: hashlib.sha256((SIMULATOR / "src" / name).read_bytes()).hexdigest()
+            for program in declared["programs"] for name in _program_files(program)}
 
 
-def assemble(attributes, facts, declared=None):
-    """Build the manifest from the registry dump and the build facts, or refuse."""
+def simulator_source_sha256():
+    """The simulator's source hash exactly as the build script computes it.
+
+    The script hashes the output of `sha256sum` over the program's files, paths relative
+    to its directory and sorted bytewise. Reproducing that here lets the manifest's build
+    identity be checked from the repository rather than taken on trust.
+    """
+    directory = SIMULATOR / "src" / "ecora-sim"
+    names = sorted(f"./{p.relative_to(directory).as_posix()}"
+                   for p in directory.rglob("*") if p.is_file())
+    listing = "".join(f"{hashlib.sha256((directory / name[2:]).read_bytes()).hexdigest()}  {name}\n"
+                      for name in names)
+    return hashlib.sha256(listing.encode()).hexdigest()
+
+
+def build_id(archive_sha256, dump_sha256, simulator_sha256):
+    """The identity compiled into the simulator and carried on every response."""
+    return hashlib.sha256(f"{archive_sha256}:{dump_sha256}:{simulator_sha256}".encode()).hexdigest()
+
+
+def assemble(attributes, facts, declared=None, dump_sha256=None):
+    """Build the manifest from the registry dump and the build facts, or refuse.
+
+    `dump_sha256` is the hash of the dump file's bytes, when the caller has them. The
+    simulator's build identity is recomputed from it, the archive and the current sources,
+    and a build whose identity does not match is refused: its responses would be
+    attributed to sources other than the ones that produced it.
+    """
     declared = declared or declaration()
+    if dump_sha256 is not None:
+        require(facts.get("attribute_dump_sha256") == dump_sha256,
+                "the build facts describe a different attribute dump")
+        require(facts.get("simulator_source_sha256") == simulator_source_sha256(),
+                "the simulator was built from sources other than the current ones")
+        require(facts.get("simulator_build_id") == build_id(
+                    facts["archive_sha256"], dump_sha256, facts["simulator_source_sha256"]),
+                "the simulator's build identity does not follow from its inputs")
     require(facts["release"] == declared["release"],
             f"the build is {facts['release']}, the declaration pins {declared['release']}")
     require(facts["archive_sha256"] == declared["sha256"],
@@ -73,6 +116,7 @@ def assemble(attributes, facts, declared=None):
     manifest = {"manifest_version": MANIFEST_VERSION, **model,
                 "declaration_hash": digest(declared),
                 "sources": source_hashes(declared),
+                "simulator_build_id": facts.get("simulator_build_id"),
                 "build": facts, "attributes": readable,
                 "model_hash": digest(model)}
     manifest["build_hash"] = digest({k: v for k, v in manifest.items() if k != "build_hash"})
@@ -87,6 +131,12 @@ def verify(manifest, declared=None):
             "the build declaration changed after this manifest was made; rebuild it")
     require(manifest["sources"] == source_hashes(declared),
             "a simulator source changed after this manifest was made; rebuild it")
+    build = manifest["build"]
+    if manifest.get("simulator_build_id") is not None:
+        require(manifest["simulator_build_id"] == build_id(
+                    build["archive_sha256"], build["attribute_dump_sha256"],
+                    simulator_source_sha256()),
+                "the recorded simulator build identity does not follow from its inputs")
     model = {k: manifest[k] for k in ("release", "archive_sha256", "registry", "globals")}
     require(manifest["model_hash"] == digest(model), "model_hash does not match its content")
     require(manifest["build_hash"] == digest(

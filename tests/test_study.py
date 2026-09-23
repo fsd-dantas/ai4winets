@@ -40,7 +40,7 @@ def raw(name="baseline"):
     return json.loads((STUDIES / f"{name}.json").read_text(encoding="utf-8"))
 
 
-def diagnose(study, scenario="s1-degraded-primary", at=2.0, organisation="blackboard"):
+def diagnose(study, scenario="s1-degraded-primary", at=1.5, organisation="blackboard"):
     """Run the blackboard organisation over one study's inventory and real observations."""
     world = build_world(load_scenario(SCENARIOS / f"{scenario}.json")).advance_to(at)
     relayed = Record("TelemetryBatch",
@@ -113,6 +113,18 @@ class ArbitrationTests(unittest.TestCase):
                          ["degraded_primary", "demand_outpacing"])
         self.assertEqual(resolve("baseline").arbitrable(), [])
         self.assertEqual(diagnose(resolve("baseline"))["unresolved_conflicts"], [])
+
+    def test_the_conflict_is_reachable_over_a_window_and_not_a_single_instant(self):
+        """With real probes the conflict needs a leg slow but still answering.
+
+        That holds from when the load arrives until the leg's backlog makes its probe time
+        out, so it is a window. A window that closed would make the arbitration the study
+        declares unreachable again, which is the shape of defect this study exists to avoid.
+        """
+        reached = [at / 10 for at in range(10, 30)
+                   if diagnose(resolve("arbitration"), at=at / 10)["unresolved_conflicts"]]
+        self.assertGreaterEqual(len(reached), 3, reached)
+        self.assertIn(1.5, reached)
 
     def test_the_weaker_of_two_authorities_is_inhibited_and_recorded(self):
         record = diagnose(resolve("arbitration"))

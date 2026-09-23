@@ -102,8 +102,11 @@ class LegKindTests(unittest.TestCase):
     def test_a_disturbance_changes_both_directions(self):
         model = world(disturbances=[{"at_s": 0.5, "site": "site-1", "leg": "lte",
                                      "kind": "radio_loss", "extra_loss_db": 200}])
-        model.advance_to(0.6)
+        # The last answer before the loss stays evidence for its validity, as a real
+        # probe's would; once that has passed, a silent leg answers in neither direction.
+        model.advance_to(1.2)
         self.assertIsNone(model.probe("site-1", "lte"), "a silent leg answers in neither direction")
+        self.assertIsNotNone(model.probe("site-1", "alternative"))
 
 
 class TransactionTests(unittest.TestCase):

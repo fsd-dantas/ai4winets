@@ -49,6 +49,15 @@ from .contracts import Record, require
 
 SERVICES = ("scada", "ami")
 PACING_BPS = {"normal": 64000, "restricted": 16000, "minimum": 4096}
+# Path probes, the v1 register's values and the simulator's: every 0.2 s on each leg, a
+# 32-byte datagram echoed at the far end of the leg, lost if not answered within 0.15 s,
+# and evidence for 0.5 s after its answer. Probes are traffic: they wait in the leg's
+# queues behind whatever is there, and they consume its service.
+PROBE_PERIOD_S = 0.2
+PROBE_BYTES = 32
+PROBE_TIMEOUT_S = 0.15
+PROBE_VALIDITY_S = 0.5
+PROBE_START_S = 0.2
 
 
 @dataclass(frozen=True)
@@ -177,6 +186,12 @@ class FiniteModel:
         # Kept, not only scheduled: a model asked to describe itself has to be able to
         # report the disturbances it will apply, or the description understates the world.
         self.disturbances = tuple(dict(d) for d in disturbances)
+        self._probes = {}
+        for site in self.sites:
+            for leg in self.links:
+                self._probes[(site, leg)] = {"sent": {}, "completed_s": None, "rtt_s": None,
+                                             "answered": 0, "timed_out": 0}
+                self._schedule(PROBE_START_S, "probe", {"site": site, "leg": leg})
         for disturbance in self.disturbances:
             self._schedule(disturbance["at_s"], "disturb", disturbance)
 
@@ -310,8 +325,10 @@ class FiniteModel:
         if queue.occupied_bytes + packet.size_bytes > queue.link.queue_limit_bytes:
             queue.dropped += 1
             stats["drops"] += 1
-            self.dropped.append((self._obligations[packet.obligation_id], self.now,
-                                 "queue_overflow"))
+            # A lost probe shows up as its timeout, never as an obligation lost.
+            if packet.kind not in ("probe", "probe_echo"):
+                self.dropped.append((self._obligations[packet.obligation_id], self.now,
+                                     "queue_overflow"))
             return
         queue.occupy(packet.size_bytes, self.now)
         queue.arrived_at[packet.packet_id] = self.now
@@ -348,6 +365,10 @@ class FiniteModel:
         arrival = self.now + queue.link.delay_s
         if hop + 1 < len(packet.route):
             self._schedule(arrival, "hop", {"packet": packet, "hop": hop + 1})
+        elif packet.kind == "probe":
+            self._schedule(arrival, "echo", {"packet": packet})
+        elif packet.kind == "probe_echo":
+            self._schedule(arrival, "answered", {"packet": packet})
         elif packet.kind == "request":
             self._schedule(arrival + self.processing_delay_s, "respond", {"packet": packet})
         else:
@@ -357,6 +378,38 @@ class FiniteModel:
 
     def _on_hop(self, data):
         self._arrive(data["packet"], data["hop"])
+
+    def _on_probe(self, data):
+        """Send one probe up the leg, and schedule the next."""
+        site, leg = data["site"], data["leg"]
+        self._counter += 1
+        identity = f"probe:{site}:{leg}:{self._counter}"
+        self._probes[(site, leg)]["sent"][identity] = self.now
+        self._arrive(Packet(identity, "probe", site, PROBE_BYTES, self.now,
+                            self.now + PROBE_TIMEOUT_S, ((site, leg, "up"),), "probe"), 0)
+        self._schedule(self.now + PROBE_PERIOD_S, "probe", data)
+
+    def _on_echo(self, data):
+        """The far end of the leg answers over the same leg."""
+        probe = data["packet"]
+        leg = probe.route[0][1]
+        self._arrive(Packet(probe.packet_id, "probe", probe.site_id, PROBE_BYTES,
+                            probe.generated_s, probe.deadline_s,
+                            ((probe.site_id, leg, "down"),), "probe_echo"), 0)
+
+    def _on_answered(self, data):
+        """An answer within the timeout is evidence; a later one is a lost probe."""
+        echo = data["packet"]
+        record = self._probes[(echo.site_id, echo.route[0][1])]
+        sent = record["sent"].pop(echo.packet_id, None)
+        if sent is None:
+            return
+        round_trip = self.now - sent
+        if round_trip <= PROBE_TIMEOUT_S:
+            record.update(completed_s=self.now, rtt_s=round_trip)
+            record["answered"] += 1
+        else:
+            record["timed_out"] += 1
 
     def _on_deliver(self, data):
         # Delivery completes the obligation: a reading, or a transaction whose response
@@ -392,18 +445,24 @@ class FiniteModel:
 
     # -- observation ----------------------------------------------------------
 
-    def probe(self, site, leg, probe_bytes=32):
-        """The round trip a probe on this leg would see, or None when it cannot complete.
+    def probe_evidence(self, site, leg):
+        """The latest acknowledged probe on this leg, if still valid: (sent_s, completed_s, rtt_s).
 
         Viability is established by a probe that came back, never by the configured link
-        parameters. A leg whose service has been taken away does not answer, and the
-        absence is reported as unknown rather than as a slow reply.
+        parameters. A probe waits behind the leg's own traffic, so a backlogged leg can fail
+        to answer in time even while it still carries data, and an answer remains evidence
+        for its validity after the leg has changed. Both are what a real probe does.
         """
-        up, down = (self._queues[(site, leg, direction)] for direction in DIRECTIONS)
-        if up.rate_bps <= 0 or down.rate_bps <= 0:
+        record = self._probes[(site, leg)]
+        completed = record["completed_s"]
+        if completed is None or self.now - completed > PROBE_VALIDITY_S:
             return None
-        return (2 * up.link.delay_s + (probe_bytes * 8) / up.rate_bps
-                + (probe_bytes * 8) / down.rate_bps)
+        return completed - record["rtt_s"], completed, record["rtt_s"]
+
+    def probe(self, site, leg):
+        """The latest valid probe round trip on this leg, or None when there is none."""
+        evidence = self.probe_evidence(site, leg)
+        return None if evidence is None else evidence[2]
 
     @staticmethod
     def observation_id(site, metric, at_s):
@@ -444,14 +503,21 @@ class FiniteModel:
                 capability = capability_ids.get((f"{site}/{leg}", "path_probe"))
                 if not capability:
                     continue
-                round_trip = self.probe(site, leg)
+                evidence = self.probe_evidence(site, leg)
                 observation = self._observation(
                     self.observation_id(f"{site}/{leg}", "path_probe", self.now),
-                    f"{site}/{leg}", "shared", "path_probe", "s", round_trip, capability, window)
-                if round_trip is None:
+                    f"{site}/{leg}", "shared", "path_probe", "s",
+                    None if evidence is None else evidence[2], capability, window)
+                observation["sampling_policy"] = "latest_acknowledged_probe"
+                if evidence is None:
                     observation.update({"quality": "missing", "missing_reason": {
                         "code": "probe_timeout",
-                        "detail": "The leg did not answer within its declared timeout."}})
+                        "detail": "No probe on this leg was acknowledged within its validity."}})
+                else:
+                    # The evidence is the probe's own round trip, observed when it answered.
+                    sent, completed, _ = evidence
+                    observation.update(event_time_s=completed, available_at_s=completed,
+                                       window={"start_s": sent, "end_s": completed})
                 exported.append(observation)
         return exported
 

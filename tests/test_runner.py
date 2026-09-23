@@ -150,10 +150,16 @@ class RunTests(unittest.TestCase):
         reachability is unknown, the edge is prohibited and nothing is applied. Only that
         leg is refused: the one still answering stays viable.
         """
+        # Epoch 1, 0.5 s: at the first instant no probe has been answered yet, in either
+        # world, so reachability is unknown there and nothing is switched on no evidence.
         store, model = self.probed("probe-healthy")
-        problem = Record.from_dict(
+        first = Record.from_dict(
             store.messages("dataset:assemble-planning:0")[0].data["payload"]).data
-        plan = Record.from_dict(store.messages("dataset:planning:0")[0].data["payload"]).data
+        self.assertEqual(first["unknown_predicates"],
+                         ["reachable:site-1:alternative", "reachable:site-1:lte"])
+        problem = Record.from_dict(
+            store.messages("dataset:assemble-planning:1")[0].data["payload"]).data
+        plan = Record.from_dict(store.messages("dataset:planning:1")[0].data["payload"]).data
         self.assertEqual(problem["unknown_predicates"], [])
         self.assertEqual(plan["goal_status"], "achieved_in_model")
         self.assertEqual(model.truth()["selected_path"]["site-1"], "alternative")
@@ -162,8 +168,8 @@ class RunTests(unittest.TestCase):
             "probe-silent",
             disturbances=({"at_s": 0.0, "site": "site-1", "leg": "alternative", "rate_bps": 0},))
         problem = Record.from_dict(
-            silent.messages("dataset:assemble-planning:0")[0].data["payload"]).data
-        plan = Record.from_dict(silent.messages("dataset:planning:0")[0].data["payload"]).data
+            silent.messages("dataset:assemble-planning:1")[0].data["payload"]).data
+        plan = Record.from_dict(silent.messages("dataset:planning:1")[0].data["payload"]).data
         self.assertEqual(problem["unknown_predicates"], ["reachable:site-1:alternative"])
         self.assertIn("reachable:site-1:lte", problem["known_predicates"])
         self.assertEqual(plan["goal_status"], "unknown")

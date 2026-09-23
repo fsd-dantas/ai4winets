@@ -156,23 +156,17 @@ class PipelineTests(unittest.TestCase):
             return sorted(h["label"] for h in result.outputs[0].data["hypotheses"]
                           if h["status"] == "supported")
 
-        # Away from a transition the two worlds agree exactly. At S2's disturbance, 1.0 s,
-        # they do not, and the difference is pinned: the finite world's probe sees the leg
-        # go silent at once, while the simulator's evidence is its last acknowledged probe,
-        # valid for 0.5 s. The simulator is the realistic one; the finite probe is idealised.
-        for name, lagging in (("s0-nominal", ()), ("s2-silent-primary", (1.0,))):
+        # Including the transition: at S2's disturbance, 1.0 s, both worlds still hold the
+        # last acknowledged probe as evidence, because both probes are real traffic with the
+        # same timeout and validity. Before B22a the finite probe saw the silence at once.
+        for name in ("s0-nominal", "s2-silent-primary"):
             scenario = load(SCENARIOS / f"{name}.json")
             finite = build_world(scenario)
             with self.subTest(scenario=name), Ns3World.start(scenario) as simulated:
-                for at in (0.5, 1.0, 2.0, 3.0):
+                for at in (0.5, 1.0, 1.2, 2.0, 3.0):
                     finite.advance_to(at)
                     simulated.advance_to(at)
-                    seen, measured = diagnose(finite, at), diagnose(simulated, at)
-                    if at in lagging:
-                        self.assertEqual(sorted(set(measured) - set(seen)), ["lte_viable"],
-                                         "only the probe's validity lag separates them")
-                    else:
-                        self.assertEqual(seen, measured, f"at {at} s")
+                    self.assertEqual(diagnose(finite, at), diagnose(simulated, at), f"at {at} s")
 
     def test_an_action_the_simulator_cannot_apply_yet_is_a_rejection_not_a_crash(self):
         scenario = load(SCENARIOS / "s2-silent-primary.json")

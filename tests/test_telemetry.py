@@ -52,7 +52,10 @@ class ProjectionTests(unittest.TestCase):
                   capability_ids=CAPABILITIES, period_s=PERIOD, epochs=3,
                   assembly=study.data["assembly"])
         run.execute()
-        batch = self.relayed(store, "dataset:telemetry:0")
+        # At the first instant no probe has been answered, so both are relayed as unknown.
+        first = self.relayed(store, "dataset:telemetry:0")
+        self.assertEqual(first.data["omitted_metrics"], ["path_probe"])
+        batch = self.relayed(store, "dataset:telemetry:1")
         self.assertEqual(batch.data["completeness"], 1)
         self.assertEqual(batch.data["omitted_metrics"], [])
         self.assertEqual(sorted(o["metric"] for o in batch.data["observations"]),
@@ -64,11 +67,12 @@ class ProjectionTests(unittest.TestCase):
                          ["site-1/alternative", "site-1/lte"])
         self.assertTrue(all(o["quality"] == "observed" for o in batch.data["observations"]))
         # The path switch the closed loop applies becomes visible in what it relays next.
+        # The Null planner in this treatment switches at the first epoch; it needs no probe.
         self.assertEqual(
-            next(o["value"] for o in self.relayed(store, "dataset:telemetry:0").data["observations"]
+            next(o["value"] for o in first.data["observations"]
                  if o["metric"] == "path_state"), "lte")
         self.assertEqual(
-            next(o["value"] for o in self.relayed(store, "dataset:telemetry:1").data["observations"]
+            next(o["value"] for o in batch.data["observations"]
                  if o["metric"] == "path_state"), "alternative")
 
     def test_an_expected_signal_that_is_absent_becomes_an_explicit_unknown(self):
@@ -82,9 +86,10 @@ class ProjectionTests(unittest.TestCase):
         store, boundary, model, study = self.open("absent", projection=projection,
                                                   extra_capabilities=extra)
         Run(boundary, model, streams=Streams(study.data["seed_manifest"]),
-            capability_ids=CAPABILITIES, period_s=PERIOD, epochs=1,
+            capability_ids=CAPABILITIES, period_s=PERIOD, epochs=2,
             assembly=study.data["assembly"]).execute()
-        batch = self.relayed(store, "dataset:telemetry:0")
+        # Epoch 1, once probes have answered, so only the never-supplied signal is absent.
+        batch = self.relayed(store, "dataset:telemetry:1")
         self.assertEqual(batch.data["omitted_metrics"], ["goodput"])
         self.assertLess(batch.data["completeness"], 1)
         absent = next(o for o in batch.data["observations"] if o["metric"] == "goodput")
@@ -95,12 +100,13 @@ class ProjectionTests(unittest.TestCase):
     def test_a_signal_older_than_the_freshness_bound_is_not_relayed_as_fresh(self):
         store, boundary, model, study = self.open("stale")
         from ecora.runner import observation_batch
-        model.advance_to(0.0)
-        boundary.ingest("ingest:old", observation_batch(model, CAPABILITIES, 0.0, PERIOD, 0),
-                        watermark_s=0.0)
+        # Ingested once probes have answered, so every signal was fresh when it arrived.
+        model.advance_to(0.5)
+        boundary.ingest("ingest:old", observation_batch(model, CAPABILITIES, 0.5, PERIOD, 0),
+                        watermark_s=0.5)
         # Decide two seconds later, well past the declared 0.5 s bound.
         stale = boundary.invoke("telemetry", "telemetry:stale", ["dataset:ingest:old"],
-                                watermark_s=2.0)
+                                watermark_s=2.5)
         batch = self.relayed(store, stale.data["dataset_id"])
         self.assertEqual(batch.data["completeness"], 0)
         self.assertEqual(batch.data["omitted_metrics"],

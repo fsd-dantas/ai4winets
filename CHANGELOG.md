@@ -7,6 +7,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Changed
 
+- **The finite world's probe is real traffic** (B22a). It was computed from the leg's rate,
+  so it never waited behind queued traffic and never lagged as evidence. It is now sent
+  every 0.2 s, echoed at the far end of its leg, lost after 0.15 s and valid for 0.5 s, as
+  the simulator's is, and the two worlds' diagnoses agree at every instant checked. No
+  probe evidence exists at the first instant in either world. The arbitration study stays
+  reachable as a window while the degraded leg is slow but still answering, and a test now
+  requires that window. Withholding the alternative probe on S1 now costs SCADA 0.190.
 - **The decision pipeline runs over the simulator's evidence** (B22). The simulator
   answers `observe` with the finite world's signal catalogue, for exactly the grants it is
   sent: gateway readback of path and pacing, real echo probes on each leg, and the site's

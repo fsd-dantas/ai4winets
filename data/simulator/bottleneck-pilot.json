@@ -1,8 +1,8 @@
 {
- "base_scenario_hash": "8b42e6fff404ed3468f7e9986adc4f5f14e323680d6c03c63e2c9669c80ff5be",
+ "base_scenario_hash": "0b37da92486e8e3b944a9239f384491e2b813f93075c52512ca07ed82b1a7e3d",
  "base_scenario_id": "scenario:s0-nominal",
- "base_scenario_revision": "3",
- "dataset_hash": "ce2a961e17b1159ca6811996c65d9774f2c59b2f8998cf8d47edb29bc7618938",
+ "base_scenario_revision": "4",
+ "dataset_hash": "22296cd383b52a5a1f526f789a854ac3878bb6690ad32e958190850c0de45014",
  "design": {
   "capacities_bps": [
    48000,
@@ -84,25 +84,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -114,7 +140,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_mean_bytes": 0.07799380307012571,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -129,6 +155,14 @@
           "departures": 80,
           "drops": 0
          },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 40960,
@@ -140,7 +174,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 2.4220061969299422,
+        "occupancy_mean_bytes": 2.4243123063459353,
         "occupancy_peak_bytes": 512,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -195,7 +229,7 @@
           "arrivals": 7,
           "bytes_arrived": 3584,
           "delay_max_s": 0.01872579767733562,
-          "delay_mean_s": 0.018725797677332765,
+          "delay_mean_s": 0.018723685855523278,
           "departures": 7,
           "drops": 0
          },
@@ -210,7 +244,7 @@
         },
         "capacity_bps": 48000,
         "held_bytes": 512,
-        "occupancy_mean_bytes": 574.258235436036,
+        "occupancy_mean_bytes": 574.2572893398655,
         "occupancy_peak_bytes": 1024,
         "queue_limit_bytes": 65536,
         "rate_bps": 48000
@@ -218,25 +252,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -248,7 +308,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_mean_bytes": 0.07799380307012571,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -258,9 +318,17 @@
          "ami": {
           "arrivals": 8,
           "bytes_arrived": 4096,
-          "delay_max_s": 0.0,
-          "delay_mean_s": 0.0,
+          "delay_max_s": 1.4782752666420151e-05,
+          "delay_mean_s": 1.847844083302519e-06,
           "departures": 8,
+          "drops": 0
+         },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.00023652404266893967,
+          "delay_mean_s": 3.638831425652082e-05,
+          "departures": 39,
           "drops": 0
          },
          "scada": {
@@ -274,8 +342,8 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 512,
-        "occupancy_mean_bytes": 1.316965869580656,
-        "occupancy_peak_bytes": 512,
+        "occupancy_mean_bytes": 1.3258946521913173,
+        "occupancy_peak_bytes": 544,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
        }
@@ -352,25 +420,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -382,7 +476,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_mean_bytes": 0.07799380307012571,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -397,6 +491,14 @@
           "departures": 80,
           "drops": 0
          },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 40960,
@@ -408,7 +510,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 2.4220061969299422,
+        "occupancy_mean_bytes": 2.424312306345935,
         "occupancy_peak_bytes": 512,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -463,7 +565,7 @@
           "arrivals": 7,
           "bytes_arrived": 3584,
           "delay_max_s": 0.0034877024392399036,
-          "delay_mean_s": 0.003487702439237176,
+          "delay_mean_s": 0.003485590617427687,
           "departures": 7,
           "drops": 0
          },
@@ -478,7 +580,7 @@
         },
         "capacity_bps": 56000,
         "held_bytes": 512,
-        "occupancy_mean_bytes": 437.38356876936444,
+        "occupancy_mean_bytes": 437.3826226731938,
         "occupancy_peak_bytes": 1024,
         "queue_limit_bytes": 65536,
         "rate_bps": 56000
@@ -486,25 +588,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -516,7 +644,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_mean_bytes": 0.07799380307012571,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -526,9 +654,17 @@
          "ami": {
           "arrivals": 8,
           "bytes_arrived": 4096,
-          "delay_max_s": 0.0,
-          "delay_mean_s": 0.0,
+          "delay_max_s": 1.4782752666420151e-05,
+          "delay_mean_s": 1.847844083302519e-06,
           "departures": 8,
+          "drops": 0
+         },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.00023652404266893967,
+          "delay_mean_s": 3.638831425652082e-05,
+          "departures": 39,
           "drops": 0
          },
          "scada": {
@@ -542,8 +678,8 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 512,
-        "occupancy_mean_bytes": 1.3169658695806559,
-        "occupancy_peak_bytes": 512,
+        "occupancy_mean_bytes": 1.325894652191317,
+        "occupancy_peak_bytes": 544,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
        }
@@ -620,25 +756,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -650,7 +812,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_mean_bytes": 0.07799380307012571,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -665,6 +827,14 @@
           "departures": 80,
           "drops": 0
          },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 40960,
@@ -676,7 +846,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 2.4220061969299422,
+        "occupancy_mean_bytes": 2.424312306345935,
         "occupancy_peak_bytes": 512,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -738,15 +908,15 @@
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 40960,
-          "delay_max_s": 0.03594086898934101,
-          "delay_mean_s": 0.0031448260365667642,
+          "delay_max_s": 0.03595565174199944,
+          "delay_mean_s": 0.0031450108209750945,
           "departures": 80,
           "drops": 0
          }
         },
         "capacity_bps": 64000,
         "held_bytes": 512,
-        "occupancy_mean_bytes": 372.3065873838093,
+        "occupancy_mean_bytes": 372.30753347997995,
         "occupancy_peak_bytes": 1024,
         "queue_limit_bytes": 65536,
         "rate_bps": 64000
@@ -754,25 +924,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -784,7 +980,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_mean_bytes": 0.07799380307012571,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -794,9 +990,17 @@
          "ami": {
           "arrivals": 8,
           "bytes_arrived": 4096,
-          "delay_max_s": 0.0,
-          "delay_mean_s": 0.0,
+          "delay_max_s": 1.4782752666420151e-05,
+          "delay_mean_s": 1.847844083302519e-06,
           "departures": 8,
+          "drops": 0
+         },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.00023652404266893967,
+          "delay_mean_s": 3.638831425652082e-05,
+          "departures": 39,
           "drops": 0
          },
          "scada": {
@@ -810,8 +1014,8 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 512,
-        "occupancy_mean_bytes": 1.3169658695806559,
-        "occupancy_peak_bytes": 512,
+        "occupancy_mean_bytes": 1.325894652191317,
+        "occupancy_peak_bytes": 544,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
        }
@@ -888,25 +1092,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -918,7 +1148,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_mean_bytes": 0.07799380307012571,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -933,6 +1163,14 @@
           "departures": 80,
           "drops": 0
          },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 40960,
@@ -944,7 +1182,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 2.4220061969299422,
+        "occupancy_mean_bytes": 2.424312306345935,
         "occupancy_peak_bytes": 512,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -1006,15 +1244,15 @@
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 40960,
-          "delay_max_s": 0.03060753565600738,
-          "delay_mean_s": 0.002678159369900085,
+          "delay_max_s": 0.03062231840866625,
+          "delay_mean_s": 0.002678344154308415,
           "departures": 80,
           "drops": 0
          }
         },
         "capacity_bps": 72000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 330.469509307221,
+        "occupancy_mean_bytes": 330.47045540339167,
         "occupancy_peak_bytes": 1024,
         "queue_limit_bytes": 65536,
         "rate_bps": 72000
@@ -1022,25 +1260,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -1052,7 +1316,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_mean_bytes": 0.07799380307012571,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -1062,9 +1326,17 @@
          "ami": {
           "arrivals": 8,
           "bytes_arrived": 4096,
-          "delay_max_s": 0.0,
-          "delay_mean_s": 0.0,
+          "delay_max_s": 1.4782752666420151e-05,
+          "delay_mean_s": 1.847844083302519e-06,
           "departures": 8,
+          "drops": 0
+         },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.00023652404266893967,
+          "delay_mean_s": 3.638831425652082e-05,
+          "departures": 39,
           "drops": 0
          },
          "scada": {
@@ -1078,8 +1350,8 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 512,
-        "occupancy_mean_bytes": 1.3169658695806559,
-        "occupancy_peak_bytes": 512,
+        "occupancy_mean_bytes": 1.325894652191317,
+        "occupancy_peak_bytes": 544,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
        }
@@ -1156,25 +1428,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -1186,7 +1484,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_mean_bytes": 0.07799380307012571,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -1201,6 +1499,14 @@
           "departures": 80,
           "drops": 0
          },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 40960,
@@ -1212,7 +1518,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 2.4220061969299413,
+        "occupancy_mean_bytes": 2.424312306345934,
         "occupancy_peak_bytes": 512,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -1274,15 +1580,15 @@
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 40960,
-          "delay_max_s": 0.026340868989340294,
-          "delay_mean_s": 0.002304826036566729,
+          "delay_max_s": 0.02635565174199961,
+          "delay_mean_s": 0.0023050108209750593,
           "departures": 80,
           "drops": 0
          }
         },
         "capacity_bps": 80000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 296.8823093072209,
+        "occupancy_mean_bytes": 296.88325540339156,
         "occupancy_peak_bytes": 1024,
         "queue_limit_bytes": 65536,
         "rate_bps": 80000
@@ -1290,25 +1596,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -1320,7 +1652,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_mean_bytes": 0.07799380307012571,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -1330,9 +1662,17 @@
          "ami": {
           "arrivals": 8,
           "bytes_arrived": 4096,
-          "delay_max_s": 0.0,
-          "delay_mean_s": 0.0,
+          "delay_max_s": 1.4782752666420151e-05,
+          "delay_mean_s": 1.847844083302519e-06,
           "departures": 8,
+          "drops": 0
+         },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.00023652404266893967,
+          "delay_mean_s": 3.638831425652082e-05,
+          "departures": 39,
           "drops": 0
          },
          "scada": {
@@ -1346,8 +1686,8 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 512,
-        "occupancy_mean_bytes": 1.316965869580655,
-        "occupancy_peak_bytes": 512,
+        "occupancy_mean_bytes": 1.3258946521913162,
+        "occupancy_peak_bytes": 544,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
        }
@@ -1424,25 +1764,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -1454,7 +1820,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_mean_bytes": 0.07799380307012571,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -1469,6 +1835,14 @@
           "departures": 80,
           "drops": 0
          },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 40960,
@@ -1480,7 +1854,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 2.4220061969299422,
+        "occupancy_mean_bytes": 2.424312306345935,
         "occupancy_peak_bytes": 512,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -1542,15 +1916,15 @@
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 40960,
-          "delay_max_s": 0.019940868989341,
-          "delay_mean_s": 0.0017448260365667601,
+          "delay_max_s": 0.019955651741999425,
+          "delay_mean_s": 0.0017450108209750904,
           "departures": 80,
           "drops": 0
          }
         },
         "capacity_bps": 96000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 246.5015093072213,
+        "occupancy_mean_bytes": 246.50245540339196,
         "occupancy_peak_bytes": 1024,
         "queue_limit_bytes": 65536,
         "rate_bps": 96000
@@ -1558,25 +1932,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -1588,7 +1988,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_mean_bytes": 0.07799380307012571,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -1598,9 +1998,17 @@
          "ami": {
           "arrivals": 8,
           "bytes_arrived": 4096,
-          "delay_max_s": 0.0,
-          "delay_mean_s": 0.0,
+          "delay_max_s": 1.4782752666420151e-05,
+          "delay_mean_s": 1.847844083302519e-06,
           "departures": 8,
+          "drops": 0
+         },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.00023652404266893967,
+          "delay_mean_s": 3.638831425652082e-05,
+          "departures": 39,
           "drops": 0
          },
          "scada": {
@@ -1614,8 +2022,8 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 512,
-        "occupancy_mean_bytes": 1.3169658695806559,
-        "occupancy_peak_bytes": 512,
+        "occupancy_mean_bytes": 1.325894652191317,
+        "occupancy_peak_bytes": 544,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
        }
@@ -1692,25 +2100,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -1722,7 +2156,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_mean_bytes": 0.07799380307012571,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -1737,6 +2171,14 @@
           "departures": 80,
           "drops": 0
          },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 40960,
@@ -1748,7 +2190,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 2.4220061969299422,
+        "occupancy_mean_bytes": 2.424312306345935,
         "occupancy_peak_bytes": 512,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -1810,15 +2252,15 @@
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 40960,
-          "delay_max_s": 0.011940868989340991,
-          "delay_mean_s": 0.0010448260365667622,
+          "delay_max_s": 0.011955651741999418,
+          "delay_mean_s": 0.0010450108209750925,
           "departures": 80,
           "drops": 0
          }
         },
         "capacity_bps": 128000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 183.52550930722197,
+        "occupancy_mean_bytes": 183.52645540339262,
         "occupancy_peak_bytes": 1024,
         "queue_limit_bytes": 65536,
         "rate_bps": 128000
@@ -1826,25 +2268,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -1856,7 +2324,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413175,
+        "occupancy_mean_bytes": 0.07799380307012571,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -1866,9 +2334,17 @@
          "ami": {
           "arrivals": 8,
           "bytes_arrived": 4096,
-          "delay_max_s": 0.0,
-          "delay_mean_s": 0.0,
+          "delay_max_s": 1.4782752666420151e-05,
+          "delay_mean_s": 1.847844083302519e-06,
           "departures": 8,
+          "drops": 0
+         },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.00023652404266893967,
+          "delay_mean_s": 3.638831425652082e-05,
+          "departures": 39,
           "drops": 0
          },
          "scada": {
@@ -1882,8 +2358,8 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 512,
-        "occupancy_mean_bytes": 1.3169658695806559,
-        "occupancy_peak_bytes": 512,
+        "occupancy_mean_bytes": 1.325894652191317,
+        "occupancy_peak_bytes": 544,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
        }
@@ -1960,25 +2436,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -1990,7 +2492,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413174,
+        "occupancy_mean_bytes": 0.0779938030701257,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -2005,6 +2507,14 @@
           "departures": 80,
           "drops": 0
          },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 40960,
@@ -2016,7 +2526,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 2.4220061969299422,
+        "occupancy_mean_bytes": 2.424312306345935,
         "occupancy_peak_bytes": 512,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -2094,25 +2604,51 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001385,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_mean_bytes": 0.03993600000001474,
+        "occupancy_peak_bytes": 32,
         "queue_limit_bytes": 65536,
         "rate_bps": 1000000
        },
        "site-1/lte/down": {
         "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         },
          "scada": {
           "arrivals": 80,
           "bytes_arrived": 10240,
@@ -2124,7 +2660,7 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 0,
-        "occupancy_mean_bytes": 0.07568769365413174,
+        "occupancy_mean_bytes": 0.0779938030701257,
         "occupancy_peak_bytes": 128,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
@@ -2134,9 +2670,17 @@
          "ami": {
           "arrivals": 8,
           "bytes_arrived": 4096,
-          "delay_max_s": 0.0,
-          "delay_mean_s": 0.0,
+          "delay_max_s": 1.4782752666420151e-05,
+          "delay_mean_s": 1.847844083302519e-06,
           "departures": 8,
+          "drops": 0
+         },
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 1248,
+          "delay_max_s": 0.00023652404266893967,
+          "delay_mean_s": 3.638831425652082e-05,
+          "departures": 39,
           "drops": 0
          },
          "scada": {
@@ -2150,8 +2694,8 @@
         },
         "capacity_bps": 17317478.4,
         "held_bytes": 512,
-        "occupancy_mean_bytes": 1.3169658695806559,
-        "occupancy_peak_bytes": 512,
+        "occupancy_mean_bytes": 1.325894652191317,
+        "occupancy_peak_bytes": 544,
         "queue_limit_bytes": 65536,
         "rate_bps": 17317478.4
        }
@@ -2246,21 +2790,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -2344,21 +2906,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -2442,21 +3022,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -2540,21 +3138,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -2638,21 +3254,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -2736,21 +3370,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -2834,21 +3486,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -2932,21 +3602,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -3030,21 +3718,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -3128,21 +3834,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -3226,21 +3950,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -3324,21 +4066,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -3422,21 +4182,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -3520,21 +4298,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -3618,21 +4414,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -3716,21 +4530,39 @@
       },
       "legs": {
        "site-1/alternative/down": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/alternative/up": {
-        "by_service": {},
+        "by_service": {
+         "probe": {
+          "arrivals": 39,
+          "bytes_arrived": 2418,
+          "delay_max_s": 0.0,
+          "delay_mean_s": 0.0,
+          "departures": 39,
+          "drops": 0
+         }
+        },
         "capacity_bps": 1000000,
         "held_bytes": 0,
         "instrumented": true,
         "occupancy_mean_bytes": 0.0,
-        "occupancy_peak_bytes": 0,
+        "occupancy_peak_bytes": 62,
         "queue_limit_bytes": 65536
        },
        "site-1/lte/down": {
@@ -3779,5 +4611,5 @@
    }
   }
  },
- "simulator_build_id": "fd6b8b4a3005bcf28182157c456fca01dc4e55ab306307e3a9987ec02c0edcdc"
+ "simulator_build_id": "f1651fbf2acb6101b9107802ec5c6c7252ee742d5b19b94566b341915ace738c"
 }

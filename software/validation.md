@@ -458,19 +458,21 @@ than inferred from a run: a label whose every derivation needs a withheld signal
 every diagnoser on that subset, privileged or not. Tests assert that no arm misses a label
 outside that set and that none concludes anything false.
 
-On `s1-degraded-primary` revision 3, four epochs at 0.5 s: a cell-edge site in a busy cell
-(ADR-30), with the LTE leg read through the measured rate table. The figure has moved twice
-and each move is explained by what S1 declared. Revision 1 (one-way SCADA, nominal rate)
-measured 0.381; revision 2 (SCADA as a round trip over a leg its nominal table made nearly
-silent) measured 0.429; revision 3, where the leg is degraded but still delivering,
-measures 0.143 for SCADA and 0.143 for AMI. A site stuck on a slow leg loses less, over a
-short run, than one stuck on a dead one. Every other finding was unchanged by each revision.
+On `s1-degraded-primary` revision 4, four epochs at 0.5 s: a cell-edge site in a busy cell
+(ADR-30), the LTE leg read through the measured rate table, and probes as real traffic
+(B22a). The figure has moved three times and each move is explained. Revision 1 (one-way
+SCADA, nominal rate) measured 0.381; revision 2 (SCADA as a round trip over a leg its
+nominal table made nearly silent) 0.429; revision 3 (degraded but still delivering) 0.143.
+With realistic probes no evidence exists at the first decision epoch, in either world, so
+the switch comes one epoch later in both arms: 0.190 for SCADA and 0.143 for AMI, and
+withholding path state now costs three applications rather than four. Access headroom is
+zero on every subset throughout.
 
-| Subset withheld | Access headroom | Subset cost (within-age delivery, SCADA and AMI) | Applied actions |
+| Subset withheld | Access headroom | Subset cost (within-age delivery, SCADA / AMI) | Applied actions |
 | --- | --- | --- | --- |
 | none | 0 | 0 | 1 |
-| `site-1/alternative/path_probe` | 0 | 0.143 | 0 |
-| `path_state` | 0 | 0 | 4 |
+| `site-1/alternative/path_probe` | 0 | 0.190 / 0.143 | 0 |
+| `path_state` | 0 | 0 | 3 |
 | any other single signal | 0 | 0 | 1 |
 
 Access headroom is zero on every subset: the projection relays fresh values each epoch, so
@@ -645,14 +647,30 @@ The two worlds' evidence at the same instants, uncontrolled:
 | LTE probe, S1 degraded | 27.5 ms | missing: timed out behind the backlog |
 | LTE probe, S2 in the 0.5 s after the leg goes silent | missing at once | last acknowledgement still valid |
 
-With the same rules over each world's own evidence, diagnoses agree exactly away from a
-transition. Two differences are findings, recorded for follow-up rather than resolved here:
+The table above was measured before B22a, when the finite probe was idealised: computed
+from the leg's rate, so it neither waited behind queued traffic nor lagged as evidence. The
+simulator's probe does both, which is what a real probe does. B22a made the finite probe
+real traffic with the simulator's schedule, timeout and validity: sent every 0.2 s from
+0.2 s, echoed at the far end of the leg, lost after 0.15 s, evidence for 0.5 s. With the
+same rules over each world's own evidence, diagnoses now agree exactly at every instant
+checked, including S2's transition, where both still hold the last acknowledgement.
 
-- **The finite world's probe is idealised.** It is computed from the leg's rate, so it
-  neither waits behind queued traffic nor lags as evidence. The simulator's probe does
-  both, which is what a real probe does: on a backlogged degraded leg it times out, and
-  after a leg goes silent it stays valid for up to 0.5 s. The simulator's site queue is
-  larger for the envelope, header and probe bytes the finite world does not count.
+What that cost and what it kept:
+
+- **No probe evidence exists at the first instant**, in either world, so nothing is
+  switched on no evidence at t = 0. Tests that assumed otherwise now observe from 0.5 s.
+- **The arbitration study stays reachable, as a window.** Its equal-authority conflict
+  needs a leg slow but still answering, which holds from when the load arrives until the
+  backlog makes the probe time out: 1.2 to 2.0 s in the finite world and 1.4 to 1.7 s in
+  the simulator, in S1, S3 and S4. The priority inhibition holds from 0.3 s. A test now
+  requires the window rather than one instant, so a window that closed would fail loudly.
+- **The bottleneck pilot's conclusions are unchanged**: probes never cross the egress, and
+  no SCADA outcome or egress wait moved by more than 0.1 ms.
+
+One difference remains, recorded for follow-up:
+
+- **The simulator's site queue is larger** for the envelope and header bytes the finite
+  world does not count.
 - **No site signal shows contention at the shared egress.** In S9 the site's queue is
   empty in both worlds; the backlog is central. The v1 catalogue's remote delivery
   summaries are the signal that would reveal it, and neither world exports them yet.

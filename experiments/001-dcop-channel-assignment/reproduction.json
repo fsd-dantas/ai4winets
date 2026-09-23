@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "method": "isolated virtual environment; extracted source.zip; pinned requirements; no editable repository import",
+  "tests": "59 DCOP tests passed",
+  "comparison": "Reproduced 99 deterministic artifacts exactly; host timings excluded",
+  "line_endings": "Repeated with every archived source file converted to CRLF; the same 99 artifacts reproduce exactly",
+  "excluded": "host-timings.json varies by host/run",
+  "python": "3.13.12"
+}

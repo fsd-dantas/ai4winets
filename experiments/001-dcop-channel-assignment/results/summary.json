@@ -1,0 +1,318 @@
+[
+  {
+    "baseline_conflicts": 17,
+    "conflicts": 0,
+    "cost": 0,
+    "max_join_entries": 1024,
+    "max_outgoing_entries": 256,
+    "max_separator": 4,
+    "messages": {
+      "dfs_explore": 17,
+      "dfs_return": 11,
+      "dfs_seen": 6,
+      "util": 11,
+      "value": 11
+    },
+    "required_entries": null,
+    "run": "grid12-zero-lowest",
+    "run_id": "33d1cfe7ae15eb40df2583cff89e946b422c27f5eccf2d821ad11c98d83b33d6",
+    "status": "optimal_cost",
+    "transmitted_entries": 1700
+  },
+  {
+    "baseline_conflicts": 17,
+    "conflicts": 0,
+    "cost": 0,
+    "max_join_entries": 4096,
+    "max_outgoing_entries": 1024,
+    "max_separator": 5,
+    "messages": {
+      "dfs_explore": 17,
+      "dfs_return": 11,
+      "dfs_seen": 6,
+      "util": 11,
+      "value": 11
+    },
+    "required_entries": null,
+    "run": "grid12-zero-highest",
+    "run_id": "73f7269209f622eb0faa45ef85c1f78ed8626a6eb5428f48b15f6b5d25a19f25",
+    "status": "optimal_cost",
+    "transmitted_entries": 3812
+  },
+  {
+    "baseline_conflicts": 17,
+    "conflicts": 0,
+    "cost": 60,
+    "max_join_entries": 1024,
+    "max_outgoing_entries": 256,
+    "max_separator": 4,
+    "messages": {
+      "dfs_explore": 17,
+      "dfs_return": 11,
+      "dfs_seen": 6,
+      "util": 11,
+      "value": 11
+    },
+    "required_entries": null,
+    "run": "grid12-shared-lowest",
+    "run_id": "29b12566f2e6240b03ea307c17556e011749ae11c38d9007339f0e1845aae6e3",
+    "status": "optimal_cost",
+    "transmitted_entries": 1700
+  },
+  {
+    "baseline_conflicts": 17,
+    "conflicts": 0,
+    "cost": 60,
+    "max_join_entries": 4096,
+    "max_outgoing_entries": 1024,
+    "max_separator": 5,
+    "messages": {
+      "dfs_explore": 17,
+      "dfs_return": 11,
+      "dfs_seen": 6,
+      "util": 11,
+      "value": 11
+    },
+    "required_entries": null,
+    "run": "grid12-shared-highest",
+    "run_id": "7adb0aa55f1312d4e0fc0425509269a759798c30a290d7e46592685c6e2ade74",
+    "status": "optimal_cost",
+    "transmitted_entries": 3812
+  },
+  {
+    "baseline_conflicts": 14,
+    "conflicts": 0,
+    "cost": 0,
+    "max_join_entries": 64,
+    "max_outgoing_entries": 16,
+    "max_separator": 2,
+    "messages": {
+      "dfs_explore": 14,
+      "dfs_return": 9,
+      "dfs_seen": 5,
+      "util": 9,
+      "value": 9
+    },
+    "required_entries": null,
+    "run": "hand10-zero-lowest",
+    "run_id": "759e735d24a955026ae0db1cd9d2eb1e52435647812a89d6216bfc24f54a6fea",
+    "status": "optimal_cost",
+    "transmitted_entries": 132
+  },
+  {
+    "baseline_conflicts": 14,
+    "conflicts": 0,
+    "cost": 0,
+    "max_join_entries": 256,
+    "max_outgoing_entries": 64,
+    "max_separator": 3,
+    "messages": {
+      "dfs_explore": 14,
+      "dfs_return": 9,
+      "dfs_seen": 5,
+      "util": 9,
+      "value": 9
+    },
+    "required_entries": null,
+    "run": "hand10-zero-highest",
+    "run_id": "2bf9a755b4004ff1514fab8a92afa2f669ef69f6b8d417ba1cbea370a37bfc61",
+    "status": "optimal_cost",
+    "transmitted_entries": 468
+  },
+  {
+    "baseline_conflicts": 14,
+    "conflicts": 0,
+    "cost": 60,
+    "max_join_entries": 64,
+    "max_outgoing_entries": 16,
+    "max_separator": 2,
+    "messages": {
+      "dfs_explore": 14,
+      "dfs_return": 9,
+      "dfs_seen": 5,
+      "util": 9,
+      "value": 9
+    },
+    "required_entries": null,
+    "run": "hand10-shared-lowest",
+    "run_id": "f584998ef5e893ec614bd11bef77e1fea7c6fa987d9da2936fadd4f778bba470",
+    "status": "optimal_cost",
+    "transmitted_entries": 132
+  },
+  {
+    "baseline_conflicts": 14,
+    "conflicts": 0,
+    "cost": 60,
+    "max_join_entries": 256,
+    "max_outgoing_entries": 64,
+    "max_separator": 3,
+    "messages": {
+      "dfs_explore": 14,
+      "dfs_return": 9,
+      "dfs_seen": 5,
+      "util": 9,
+      "value": 9
+    },
+    "required_entries": null,
+    "run": "hand10-shared-highest",
+    "run_id": "b9dff78c5934d9c4bbfd15898bd3ed8a6ba5ec5b4c22e1b59518438307700cbe",
+    "status": "optimal_cost",
+    "transmitted_entries": 468
+  },
+  {
+    "baseline_conflicts": 29,
+    "conflicts": 0,
+    "cost": 0,
+    "max_join_entries": 4096,
+    "max_outgoing_entries": 1024,
+    "max_separator": 5,
+    "messages": {
+      "dfs_explore": 29,
+      "dfs_return": 13,
+      "dfs_seen": 16,
+      "util": 13,
+      "value": 13
+    },
+    "required_entries": null,
+    "run": "core14-zero-lowest",
+    "run_id": "ecea3da2746f68010b475f0981c12d2cebbdbc9f8481ca4d81caff1177df6ec5",
+    "status": "optimal_cost",
+    "transmitted_entries": 3028
+  },
+  {
+    "baseline_conflicts": 29,
+    "conflicts": 0,
+    "cost": 0,
+    "max_join_entries": 16384,
+    "max_outgoing_entries": 4096,
+    "max_separator": 6,
+    "messages": {
+      "dfs_explore": 29,
+      "dfs_return": 13,
+      "dfs_seen": 16,
+      "util": 13,
+      "value": 13
+    },
+    "required_entries": null,
+    "run": "core14-zero-curitiba",
+    "run_id": "f60d999ad144fada70251a4aa4d2cba4663bbc9c2038539a8bf0d61d1170290e",
+    "status": "optimal_cost",
+    "transmitted_entries": 8404
+  },
+  {
+    "baseline_conflicts": 29,
+    "conflicts": 0,
+    "cost": 140,
+    "max_join_entries": 4096,
+    "max_outgoing_entries": 1024,
+    "max_separator": 5,
+    "messages": {
+      "dfs_explore": 29,
+      "dfs_return": 13,
+      "dfs_seen": 16,
+      "util": 13,
+      "value": 13
+    },
+    "required_entries": null,
+    "run": "core14-shared-lowest",
+    "run_id": "a4a18c64d0e1cc8dfc402e1cfdf9a9f7acd5a2551698a425fc838ca5d1ad3908",
+    "status": "optimal_cost",
+    "transmitted_entries": 3028
+  },
+  {
+    "baseline_conflicts": 29,
+    "conflicts": 0,
+    "cost": 140,
+    "max_join_entries": 16384,
+    "max_outgoing_entries": 4096,
+    "max_separator": 6,
+    "messages": {
+      "dfs_explore": 29,
+      "dfs_return": 13,
+      "dfs_seen": 16,
+      "util": 13,
+      "value": 13
+    },
+    "required_entries": null,
+    "run": "core14-shared-curitiba",
+    "run_id": "cc8ed070935ef1a16e494081f58dc8dbefb9fdcb62ab4d12e594f642c96ae568",
+    "status": "optimal_cost",
+    "transmitted_entries": 8404
+  },
+  {
+    "baseline_conflicts": 66,
+    "conflicts": null,
+    "cost": null,
+    "max_join_entries": 65536,
+    "max_outgoing_entries": 16384,
+    "max_separator": 11,
+    "messages": {
+      "dfs_explore": 66,
+      "dfs_return": 28,
+      "dfs_seen": 38,
+      "util": 10
+    },
+    "required_entries": 1048576,
+    "run": "metro29-zero-lowest",
+    "run_id": "d6d11403598669b62d298728921c68922c537254f4ab422c3a846619509dec89",
+    "status": "budget_exceeded",
+    "transmitted_entries": 38404
+  },
+  {
+    "baseline_conflicts": 66,
+    "conflicts": null,
+    "cost": null,
+    "max_join_entries": 65536,
+    "max_outgoing_entries": 16384,
+    "max_separator": 10,
+    "messages": {
+      "dfs_explore": 66,
+      "dfs_return": 28,
+      "dfs_seen": 38,
+      "util": 16
+    },
+    "required_entries": 4194304,
+    "run": "metro29-zero-curitiba",
+    "run_id": "f801629cfd9da1f1c301fdbeb99eba9dd4c8ac70a11a565bf92f06b8e39ee57c",
+    "status": "budget_exceeded",
+    "transmitted_entries": 52228
+  },
+  {
+    "baseline_conflicts": 66,
+    "conflicts": null,
+    "cost": null,
+    "max_join_entries": 65536,
+    "max_outgoing_entries": 16384,
+    "max_separator": 11,
+    "messages": {
+      "dfs_explore": 66,
+      "dfs_return": 28,
+      "dfs_seen": 38,
+      "util": 10
+    },
+    "required_entries": 1048576,
+    "run": "metro29-shared-lowest",
+    "run_id": "ad9c8cadc16b736e5417a421ca64bf293d89619aaabda78c73d7cf8ba21b17c8",
+    "status": "budget_exceeded",
+    "transmitted_entries": 38404
+  },
+  {
+    "baseline_conflicts": 66,
+    "conflicts": null,
+    "cost": null,
+    "max_join_entries": 65536,
+    "max_outgoing_entries": 16384,
+    "max_separator": 10,
+    "messages": {
+      "dfs_explore": 66,
+      "dfs_return": 28,
+      "dfs_seen": 38,
+      "util": 16
+    },
+    "required_entries": 4194304,
+    "run": "metro29-shared-curitiba",
+    "run_id": "4e1fc17de563b5f4f0613c161071acf2aac342f62f26b91cc40765ddfcb97556",
+    "status": "budget_exceeded",
+    "transmitted_entries": 52228
+  }
+]

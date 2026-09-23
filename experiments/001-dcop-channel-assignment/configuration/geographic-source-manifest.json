@@ -1,0 +1,28 @@
+{
+  "recorded_at_utc": "2026-09-23T12:09:17.420428+00:00",
+  "boundary_reference_period": 2022,
+  "membership_source": "https://www.amep.pr.gov.br/FAQ/Municipios-da-Regiao-Metropolitana-de-Curitiba",
+  "membership_checked_on": "2026-09-23",
+  "crs_note": "IBGE geographic longitude/latitude; retained without reprojection",
+  "transformations": [
+    "gzip decompression where needed",
+    "select AMEP municipality membership by IBGE name and code",
+    "retain geometry unchanged",
+    "derive positive-length boundary intersections without snapping"
+  ],
+  "sources": {
+    "parana-source.geojson": {
+      "url": "https://servicodados.ibge.gov.br/api/v3/malhas/estados/41?formato=application/vnd.geo%2Bjson&qualidade=maxima&intrarregiao=municipio&periodo=2022",
+      "sha256": "3587937e594aa25afa67962b41f6b1538ce14581cd16be3cbd20d4452ee4244e"
+    },
+    "municipalities-source.json": {
+      "url": "https://servicodados.ibge.gov.br/api/v1/localidades/estados/41/municipios",
+      "sha256": "aa5f984155444aece8f3647bd480b11fcb41a409c669b2c58bd4410db7ae7c23"
+    }
+  },
+  "software": {
+    "shapely": "2.1.2",
+    "networkx": "3.4.2"
+  },
+  "rights_note": "Public IBGE geographic data, attributed to IBGE; not relicensed as repository software. No separate license identifier supplied by API response."
+}

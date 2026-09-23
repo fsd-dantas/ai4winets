@@ -1,0 +1,15 @@
+{
+  "modes": [
+    "zero",
+    "shared"
+  ],
+  "roots": "lowest plus highest for synthetic; lowest plus Curitiba for geography",
+  "shared_scores": [
+    0,
+    10,
+    20,
+    30
+  ],
+  "stability": "0 versus 101 times epoch region count; fixed APs only",
+  "table_budget": 1000000
+}

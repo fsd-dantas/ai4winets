@@ -1,8 +1,7 @@
 # Wireless channel assignment domain foundation
 
 Status: implemented domain contracts, fixtures, message transport, distributed DFS, upward
-UTIL propagation and downward VALUE reconstruction (`agents.solve`). The independent
-evaluator and a solving CLI remain planned. This package has no ECoRA imports. Its DCOP core uses only the Python standard
+UTIL propagation and downward VALUE reconstruction (`agents.solve`). The independent evaluator, solving CLI, recorded demonstrations and mobile epochs are implemented. This package has no ECoRA imports. Its DCOP core uses only the Python standard
 library; optional geographic adapters use Shapely for geometry and NetworkX for graph
 validation, not for channel allocation.
 
@@ -32,7 +31,7 @@ validation, not for channel allocation.
 
 The harness can evaluate an instance cost, but this method is not an agent decision
 procedure or the future independent evaluator. A local view exposes only the agent's
-variable, neighboring variable domains and incident factors. The planned execution harness
+variable, neighboring variable domains and incident factors. The execution harness
 must pass only these views, not a global instance, into agents.
 
 ## Verify from the repository root
@@ -55,8 +54,7 @@ translation preserves costs and forbidden assignments. Other checks exercise geo
 invalid inputs, local visibility, immutable inputs, serialization and order independence.
 They cover the domain layer; DPOP correctness is checked by the UTIL and VALUE tests below.
 
-Table joins/projection, UTIL propagation and VALUE reconstruction are implemented. Next: the
-independent evaluator (CA-11). See the [architecture](../../docs/dcop-channel-assignment/architecture.md).
+The full core, independent evaluator, recorded demonstration and mobile snapshots are implemented. The comparative study remains deferred. See the [architecture](../../docs/dcop-channel-assignment/architecture.md).
 
 The optional [Curitiba map package](../../data/geography/curitiba-metropolitan/README.md)
 contains source provenance, reproduction commands and the geographic validation results.
@@ -119,7 +117,7 @@ $env:PYTHONPATH = 'software'
 The synthetic preference mode assigns every agent channel costs `(0,10,20,30)`; without
 `--preferences` all costs are zero. The command above returns cost 140 and 13 UTIL messages.
 This is an integration example, not a measured wireless benefit or a frozen study result.
-The CLI does not print channels yet; `agents.solve` below returns them. `optimal_cost`, `infeasible` and `budget_exceeded` are distinct
+The `--util` mode stops at costs; `--solve` also prints independently checked channels. `optimal_cost`, `infeasible` and `budget_exceeded` are distinct
 outcomes. An infeasible cost serializes as `"forbidden"`; interrupted computation has
 no cost (`null`). `--trace` includes delivered DFS and UTIL messages with explicit cost encoding.
 
@@ -142,7 +140,7 @@ then it looks up its own conditional choice, enters ASSIGNED and sends on. A chi
 separator lies within its parent's separator plus the parent, so the parent always holds
 the values the child needs. The harness reads each agent's own choice and, as an internal
 guard, checks that the assignment costs the root optimum; the independent evaluator is
-still planned (CA-11).
+implemented in `evaluation.py` without importing solver code.
 
 An infeasible root refuses to start VALUE: the result has status `infeasible`, no
 assignment and no VALUE messages. A budget stop also returns no assignment. Ties choose the
@@ -157,9 +155,9 @@ The geographic tests color the 14-region Curitiba map under two roots and both c
 
 The [offline visualization](../../docs/dcop-channel-assignment/visualization.html) embeds
 the actual 14-region integration trace and map geometry. Play, step backward/forward, drag
-the timeline or jump to UTIL. Every step highlights sender/recipient and shows the first
+the timeline or jump to UTIL or VALUE. Every step highlights sender/recipient and shows the first
 12 rows of the current UTIL table; complete tables remain embedded in the HTML. Root cost
-appears only after the final delivered message. Playback time is illustrative, not latency.
+appears after the root has completed UTIL. Channel colors are revealed only as VALUE reaches agents. Playback time is illustrative, not latency.
 
 Regenerate from the repository root with map dependencies installed:
 
@@ -171,7 +169,7 @@ $env:PYTHONPATH = 'software'
 The viewer is read-only: it never chooses channels or changes the solver. It is an
 integration demonstration, not a frozen study report. The default data uses synthetic
 preferences, Curitiba as root and a 1,000,000-entry table budget. Geometry source hash and
-settings are embedded. `#step=59` opens the first UTIL message; `#step=71` shows completion.
+settings are embedded. `#step=59` opens the first UTIL message; `#step=84` shows the final independently verified coloring.
 The HTML template is package data so regeneration also works from an installed package.
 
 Each child table must match the separator established by DFS. Known variable domains
@@ -191,3 +189,25 @@ The current DFS adapter supports unary/binary factors only, matching the channel
 generic scalar/higher-order factors are rejected explicitly. For connected admitted graphs,
 this protocol sends two DFS messages per undirected edge. This is a count of logical
 messages, not a measure of wire bytes or wireless airtime.
+
+## Complete solves and independent evaluation
+
+```powershell
+$env:PYTHONPATH = 'software'
+.\.venv\Scripts\python.exe -m dcop_channel_assignment --solve --preferences --geojson data/geography/curitiba-metropolitan/central-core-14.geojson --root ap-4106902 --output .ecora-runs/core.json
+.\.venv\Scripts\python.exe -m dcop_channel_assignment.visualize --record .ecora-runs/core.json --output .ecora-runs/core.html
+```
+
+`--solve` returns the full assignment, independent completeness/domain/conflict/cost checks,
+baseline conflicts, positions and phase metrics. `--output` retains the complete trace and
+resolved map, binds them to a run ID and source hashes, and writes a checksum.
+`--map` accepts a validated hand-authored shared-border file; `--geojson` accepts polygons.
+The evaluator and bounded reference take plain records and import no solver module.
+
+`mobility.py` owns validated epoch sequences and stability costs. Each epoch is solved from
+scratch; only independently valid previous assignments inform surviving fixed APs'
+penalties. The mobile agent is excluded. The solver receives ordinary unary costs.
+
+[Experiment runbook and recorded results](../../experiments/001-dcop-channel-assignment/README.md)
+include the self-contained source snapshot, isolated-environment reproduction, exact
+commands, hand-checkable trace, mobile comparison and all metropolitan budget stops.

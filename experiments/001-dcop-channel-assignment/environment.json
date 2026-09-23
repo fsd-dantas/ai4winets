@@ -1,0 +1,10 @@
+{
+  "python": "3.13.12",
+  "platform": "Windows 11",
+  "dependencies": {
+    "numpy": "2.5.3",
+    "shapely": "2.1.2",
+    "networkx": "3.4.2"
+  },
+  "scope": "Core deterministic demonstrations; host timings are indicative only"
+}

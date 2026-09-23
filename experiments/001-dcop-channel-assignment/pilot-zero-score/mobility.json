@@ -1,0 +1,94 @@
+{
+  "free": [
+    {
+      "all_survivor_reassignments": 0,
+      "base_cost": 0,
+      "changed_fixed_aps": [],
+      "conflicts": 0,
+      "epoch": "baseline",
+      "objective": 0,
+      "penalty": 0,
+      "reassignments": 0,
+      "status": "optimal_cost"
+    },
+    {
+      "all_survivor_reassignments": 0,
+      "base_cost": 0,
+      "changed_fixed_aps": [],
+      "conflicts": 0,
+      "epoch": "arrival",
+      "objective": 0,
+      "penalty": 0,
+      "reassignments": 0,
+      "status": "optimal_cost"
+    },
+    {
+      "all_survivor_reassignments": 0,
+      "base_cost": 0,
+      "changed_fixed_aps": [],
+      "conflicts": 0,
+      "epoch": "move",
+      "objective": 0,
+      "penalty": 0,
+      "reassignments": 0,
+      "status": "optimal_cost"
+    },
+    {
+      "all_survivor_reassignments": 0,
+      "base_cost": 0,
+      "changed_fixed_aps": [],
+      "conflicts": 0,
+      "epoch": "departure",
+      "objective": 0,
+      "penalty": 0,
+      "reassignments": 0,
+      "status": "optimal_cost"
+    }
+  ],
+  "stable": [
+    {
+      "all_survivor_reassignments": 0,
+      "base_cost": 0,
+      "changed_fixed_aps": [],
+      "conflicts": 0,
+      "epoch": "baseline",
+      "objective": 0,
+      "penalty": 0,
+      "reassignments": 0,
+      "status": "optimal_cost"
+    },
+    {
+      "all_survivor_reassignments": 0,
+      "base_cost": 0,
+      "changed_fixed_aps": [],
+      "conflicts": 0,
+      "epoch": "arrival",
+      "objective": 0,
+      "penalty": 1313,
+      "reassignments": 0,
+      "status": "optimal_cost"
+    },
+    {
+      "all_survivor_reassignments": 0,
+      "base_cost": 0,
+      "changed_fixed_aps": [],
+      "conflicts": 0,
+      "epoch": "move",
+      "objective": 0,
+      "penalty": 1313,
+      "reassignments": 0,
+      "status": "optimal_cost"
+    },
+    {
+      "all_survivor_reassignments": 0,
+      "base_cost": 0,
+      "changed_fixed_aps": [],
+      "conflicts": 0,
+      "epoch": "departure",
+      "objective": 0,
+      "penalty": 1212,
+      "reassignments": 0,
+      "status": "optimal_cost"
+    }
+  ]
+}

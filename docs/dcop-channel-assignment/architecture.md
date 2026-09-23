@@ -1,7 +1,6 @@
 # Architecture
 
-**Status: DFS, UTIL and VALUE implemented; independent evaluation, demonstration and
-mobile-cell epochs planned. Revision: 0.3. Date: 2026-09-23.**
+**Status: core implemented, including independent evaluation, recorded demonstration and mobile-cell epochs. Revision: 0.4. Date: 2026-09-23.**
 
 [Study design](README.md) · [Package](../../software/dcop_channel_assignment/README.md)
 
@@ -57,11 +56,11 @@ exist.
 
 | Context | Owns | Exposes | Modules | Status |
 | --- | --- | --- | --- | --- |
-| **Wireless Planning** | Region, AP and channel identity; map geometry; adjacency derived from shared boundaries; channel scores; mobile-cell sequences | A validated scenario snapshot per epoch | `wireless.py`, `geography.py`, `curitiba.py`, `fixtures.py` | implemented; hand-authored maps and mobile-cell sequences planned |
+| **Wireless Planning** | Region, AP and channel identity; map geometry; adjacency derived from shared boundaries; channel scores; mobile-cell sequences | A validated scenario snapshot per epoch | `wireless.py`, `geography.py`, `curitiba.py`, `fixtures.py` | implemented, including `inputs.py` and `mobility.py` |
 | **Translation** | The mapping from wireless terms to DCOP terms | `to_dcop(scenario) -> DcopInstance` | `translation.py` | implemented |
 | **DCOP Coordination** (core) | Immutable instance; agent sessions, their phase state and pseudo-tree position; cost tables | Local views, typed messages, solve outcome | `dcop.py`, `tables.py`, `agents.py`, `protocol.py` | implemented |
-| **Execution** | One run's configuration (root, budget, mode); epoch ordering for mobile cells | `solve(...)` and the CLI | `agents.py`, `__main__.py` | `solve` and inspection CLI implemented; solving CLI and epoch runner planned |
-| **Evidence and Presentation** | Evaluation records, exhaustive reference, independent baseline, figures | Verdicts, comparison tables, colored map, replay | `visualize.py` | replay implemented; evaluator, reference, baseline and colored map planned |
+| **Execution** | One run's configuration (root, budget, mode); epoch ordering for mobile cells | `solve(...)` and the CLI | `agents.py`, `__main__.py` | implemented; `execution.py` records runs and `mobility.py` orchestrates epochs |
+| **Evidence and Presentation** | Evaluation records, exhaustive reference, independent baseline, figures | Verdicts, comparison tables, colored map, replay | `visualize.py` | implemented; `evaluation.py` is independent, `visualize.py` renders checked records |
 
 Dependencies point one way: Wireless Planning → Translation → DCOP Coordination, with
 Execution composing them and Evidence reading their outputs. The solver imports nothing
@@ -103,8 +102,7 @@ message count is linear in the graph; the cost of DPOP lies in UTIL table size.
 ### DFS: building the pseudo-tree (implemented)
 
 The root probes its neighbors one at a time in ascending ID order. An unvisited neighbor
-adopts the ancestor path, becomes a child and explores its own neighbors; a neighbor already
-on the path answers SEEN, which makes that edge a back edge. When an agent has no neighbors
+adopts the ancestor path, becomes a child and explores its own neighbors; a completed descendant probed later by an ancestor answers SEEN, identifying a non-tree edge. Ancestor neighbors on the current path are skipped by the descendant. When an agent has no neighbors
 left to probe, it returns its separator to its parent. The result is a pseudo-tree: a
 spanning tree in which every non-tree edge joins an ancestor and a descendant, so no edge
 crosses between sibling subtrees.
@@ -193,17 +191,18 @@ partial assignment.
 | The root cost equals the exact optimum | Tests against exhaustive enumeration, every root | implemented |
 | Each VALUE context covers exactly the receiver's separator and comes from its parent | Receiving agent | implemented |
 | Every agent chooses exactly once, and the assignment costs what the root reported | `solve` guard; tests with an enumeration-based evaluator | implemented |
-| The reconstructed assignment is complete and conflict-free | Independent evaluator, sharing no code with the solver | planned (CA-11); tests check it today |
+| The reconstructed assignment is complete and conflict-free | Independent evaluator, sharing no code with the solver | implemented in `evaluation.py`, with no solver imports |
 | An infeasible run yields no assignment and no VALUE message | K5 tests under every root; generated infeasible instances | implemented |
-| Epoch `t`'s stability costs derive only from epoch `t - 1`'s validated plan | Epoch runner tests | planned |
+| Epoch `t`'s stability costs derive only from epoch `t - 1`'s validated plan | Epoch runner tests | implemented |
 
-## Mobile cells in the architecture (planned)
+## Mobile cells in the architecture (implemented)
 
 A mobile cell is owned by Wireless Planning as a `MobileCellSequence`: an ordered list of
 epochs, each a complete, validated map in which the mobile cell is one region. The epoch
 runner in Execution solves epoch 1 plainly. For each later epoch it takes the evaluator's
 validated plan from the previous epoch, asks Wireless Planning to add the stability cost to
-each surviving AP's scores, and solves the resulting static instance from scratch.
+each surviving fixed AP's scores, then solves the resulting static instance from scratch.
+The mobile agent is excluded even when it persists across epochs.
 
 This keeps the change out of the core: to the solver, a stability cost is an ordinary unary
 cost, and each epoch is an ordinary run. Solving from scratch forgoes incremental repair,
@@ -219,16 +218,15 @@ and the reassignment count (C5) measures what matters to users either way.
 | D3 | Each edge constraint is owned by its deeper endpoint | Every factor counts once, and the owner has the other endpoint in its separator |
 | D4 | Agents run in one process over an in-memory queue | The distribution that matters is informational: an agent sees only its local view and messages. Threads or processes would add nondeterminism without changing what an agent can know |
 | D5 | Determinism: ascending neighbor order, lowest channel on ties, declared root | Identical inputs give identical trees, tables and assignments, so a run is its own reproduction |
-| D6 | Per-table entry budget, checked before allocation | An oversized table stops with `budget_exceeded` before memory is exhausted, and is never mistaken for infeasibility |
+| D6 | Per-table entry budget, checked before allocation | An oversized table stops with `budget_exceeded` before that table is allocated; this is not an aggregate process-memory guarantee, and is never mistaken for infeasibility |
 | D7 | The solver uses only the Python standard library | The algorithm is original; Shapely and NetworkX serve map geometry and planarity validation only |
-| D8 | The evaluator shares no code with the solver | A solver bug cannot also hide in its own check |
+| D8 | The evaluator shares no code with the solver | Independent computation reduces shared-bug risk; tests also corrupt assignments deliberately |
 | D9 | Mobile cells as re-solved snapshots with a stability cost | Keeps the protocol static and verifiable; the stability cost is an ordinary unary cost |
 | D10 | No VALUE on an infeasible root | Nothing to reconstruct; sending a context would invite a fabricated channel |
 
 ## Known limits
 
-- Table size grows as `4^(k+1)`; the 29-region map cannot complete in the pure-Python
-  table algebra. This is DPOP's documented behavior, shown, not hidden.
+- Table size grows as `4^(k+1)`; the 29-region map exceeds the tested 1,000,000-entry budget under the two declared roots. Other roots, representations and budgets have not been exhausted.
 - The transport is reliable and ordered. Lost, duplicated or reordered messages are rejected
   as errors, not tolerated.
 - No leader election: the harness declares the root.

@@ -1,0 +1,66 @@
+[
+  {
+    "host_elapsed_seconds": 0.036,
+    "run": "grid12-zero-lowest"
+  },
+  {
+    "host_elapsed_seconds": 0.082,
+    "run": "grid12-zero-highest"
+  },
+  {
+    "host_elapsed_seconds": 0.035,
+    "run": "grid12-shared-lowest"
+  },
+  {
+    "host_elapsed_seconds": 0.084,
+    "run": "grid12-shared-highest"
+  },
+  {
+    "host_elapsed_seconds": 0.006,
+    "run": "hand10-zero-lowest"
+  },
+  {
+    "host_elapsed_seconds": 0.014,
+    "run": "hand10-zero-highest"
+  },
+  {
+    "host_elapsed_seconds": 0.006,
+    "run": "hand10-shared-lowest"
+  },
+  {
+    "host_elapsed_seconds": 0.013,
+    "run": "hand10-shared-highest"
+  },
+  {
+    "host_elapsed_seconds": 0.086,
+    "run": "core14-zero-lowest"
+  },
+  {
+    "host_elapsed_seconds": 0.23,
+    "run": "core14-zero-curitiba"
+  },
+  {
+    "host_elapsed_seconds": 0.08,
+    "run": "core14-shared-lowest"
+  },
+  {
+    "host_elapsed_seconds": 0.227,
+    "run": "core14-shared-curitiba"
+  },
+  {
+    "host_elapsed_seconds": 1.44,
+    "run": "metro29-zero-lowest"
+  },
+  {
+    "host_elapsed_seconds": 2.117,
+    "run": "metro29-zero-curitiba"
+  },
+  {
+    "host_elapsed_seconds": 1.381,
+    "run": "metro29-shared-lowest"
+  },
+  {
+    "host_elapsed_seconds": 2.197,
+    "run": "metro29-shared-curitiba"
+  }
+]

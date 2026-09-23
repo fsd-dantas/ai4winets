@@ -1,0 +1,13 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Mobile-cell epochs</title>
+<style>body{font:16px system-ui;margin:30px;background:#f1f5f9;color:#172033}section{display:grid;grid-template-columns:1fr 1fr;gap:20px}img{width:100%}article{background:white;padding:15px;border-radius:12px}button{padding:12px}h2{font-size:18px}</style>
+<h1>Mobile-cell snapshots</h1><p>Same baseline. Left: free reoptimization. Right: stability penalty for surviving fixed APs. Each image comes from an independently checked run.</p>
+<p>Move between epochs with the buttons. The mobile cell replaces a strip of its host region; it never overlaps the fixed partition.</p><nav>
+<button onclick="show('baseline')">baseline</button>
+<button onclick="show('arrival')">arrival</button>
+<button onclick="show('move')">move</button>
+<button onclick="show('departure')">departure</button>
+</nav><section>
+<article><h2>free</h2><picture><source id="free-dark" media="(prefers-color-scheme:dark)"><img id="free" alt="free assignment by epoch"></picture></article>
+<article><h2>stable</h2><picture><source id="stable-dark" media="(prefers-color-scheme:dark)"><img id="stable" alt="stable assignment by epoch"></picture></article>
+</section><p>Channel labels accompany every color. No radio throughput or delay is measured.</p>
+<script>function show(e){for(const arm of ["free","stable"]){document.getElementById(arm).src="figures/mobile-"+arm+"-"+e+"-light.svg";document.getElementById(arm+"-dark").srcset="figures/mobile-"+arm+"-"+e+"-dark.svg";}}show("baseline");</script></html>

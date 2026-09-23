@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 780"><rect width="820" height="780" fill="#101827"/>
+<text x="25" y="23" fill="#e2e8f0" font-size="17" font-family="sans-serif">move: optimal_cost</text>
+<path d="M40.0,587.5 L222.5,587.5 L222.5,405.0 L40.0,405.0 L40.0,587.5 Z" fill="#38bdf8" stroke="#e2e8f0" stroke-width=".7" fill-rule="evenodd"/>
+<path d="M222.5,587.5 L405.0,587.5 L405.0,405.0 L222.5,405.0 L222.5,587.5 Z" fill="#fb923c" stroke="#e2e8f0" stroke-width=".7" fill-rule="evenodd"/>
+<path d="M405.0,587.5 L587.5,587.5 L587.5,405.0 L405.0,405.0 L405.0,587.5 Z" fill="#38bdf8" stroke="#e2e8f0" stroke-width=".7" fill-rule="evenodd"/>
+<path d="M587.5,587.5 L770.0,587.5 L770.0,405.0 L587.5,405.0 L587.5,587.5 Z" fill="#fb923c" stroke="#e2e8f0" stroke-width=".7" fill-rule="evenodd"/>
+<path d="M40.0,405.0 L222.5,405.0 L222.5,222.5 L40.0,222.5 L40.0,405.0 Z" fill="#fb923c" stroke="#e2e8f0" stroke-width=".7" fill-rule="evenodd"/>
+<path d="M222.5,405.0 L405.0,405.0 L405.0,222.5 L222.5,222.5 L222.5,405.0 Z" fill="#38bdf8" stroke="#e2e8f0" stroke-width=".7" fill-rule="evenodd"/>
+<path d="M405.0,405.0 L532.75,405.0 L532.75,222.5 L405.0,222.5 L405.0,405.0 Z" fill="#fb923c" stroke="#e2e8f0" stroke-width=".7" fill-rule="evenodd"/>
+<path d="M532.75,405.0 L587.5,405.0 L587.5,222.5 L532.75,222.5 L532.75,405.0 Z" fill="#a78bfa" stroke="#e2e8f0" stroke-width=".7" fill-rule="evenodd"/>
+<path d="M587.5,405.0 L770.0,405.0 L770.0,222.5 L587.5,222.5 L587.5,405.0 Z" fill="#38bdf8" stroke="#e2e8f0" stroke-width=".7" fill-rule="evenodd"/>
+<path d="M40.0,222.5 L222.5,222.5 L222.5,40.0 L40.0,40.0 L40.0,222.5 Z" fill="#38bdf8" stroke="#e2e8f0" stroke-width=".7" fill-rule="evenodd"/>
+<path d="M222.5,222.5 L405.0,222.5 L405.0,40.0 L222.5,40.0 L222.5,222.5 Z" fill="#fb923c" stroke="#e2e8f0" stroke-width=".7" fill-rule="evenodd"/>
+<path d="M405.0,222.5 L587.5,222.5 L587.5,40.0 L405.0,40.0 L405.0,222.5 Z" fill="#38bdf8" stroke="#e2e8f0" stroke-width=".7" fill-rule="evenodd"/>
+<path d="M587.5,222.5 L770.0,222.5 L770.0,40.0 L587.5,40.0 L587.5,222.5 Z" fill="#fb923c" stroke="#e2e8f0" stroke-width=".7" fill-rule="evenodd"/>
+<text x="131.25" y="496.25" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#111827" stroke="#ffffff" stroke-width="2" paint-order="stroke">region-00 / c1</text>
+<text x="313.75" y="496.25" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#111827" stroke="#ffffff" stroke-width="2" paint-order="stroke">region-01 / c2</text>
+<text x="496.25" y="496.25" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#111827" stroke="#ffffff" stroke-width="2" paint-order="stroke">region-02 / c1</text>
+<text x="678.75" y="496.25" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#111827" stroke="#ffffff" stroke-width="2" paint-order="stroke">region-03 / c2</text>
+<text x="131.25" y="313.75" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#111827" stroke="#ffffff" stroke-width="2" paint-order="stroke">region-04 / c2</text>
+<text x="313.75" y="313.75" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#111827" stroke="#ffffff" stroke-width="2" paint-order="stroke">region-05 / c1</text>
+<text x="468.88" y="313.75" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#111827" stroke="#ffffff" stroke-width="2" paint-order="stroke">region-06 / c2</text>
+<text x="560.12" y="313.75" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#111827" stroke="#ffffff" stroke-width="2" paint-order="stroke">mobile-region / c3</text>
+<text x="678.75" y="313.75" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#111827" stroke="#ffffff" stroke-width="2" paint-order="stroke">region-07 / c1</text>
+<text x="131.25" y="131.25" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#111827" stroke="#ffffff" stroke-width="2" paint-order="stroke">region-08 / c1</text>
+<text x="313.75" y="131.25" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#111827" stroke="#ffffff" stroke-width="2" paint-order="stroke">region-09 / c2</text>
+<text x="496.25" y="131.25" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#111827" stroke="#ffffff" stroke-width="2" paint-order="stroke">region-10 / c1</text>
+<text x="678.75" y="131.25" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#111827" stroke="#ffffff" stroke-width="2" paint-order="stroke">region-11 / c2</text>
+<rect x="30" y="704" width="16" height="16" fill="#38bdf8"/><text x="52" y="717" fill="#e2e8f0" font-family="sans-serif">c1</text>
+<rect x="140" y="704" width="16" height="16" fill="#fb923c"/><text x="162" y="717" fill="#e2e8f0" font-family="sans-serif">c2</text>
+<rect x="250" y="704" width="16" height="16" fill="#a78bfa"/><text x="272" y="717" fill="#e2e8f0" font-family="sans-serif">c3</text>
+<rect x="360" y="704" width="16" height="16" fill="#4ade80"/><text x="382" y="717" fill="#e2e8f0" font-family="sans-serif">c4</text>
+<text x="25" y="748" fill="#e2e8f0" font-size="12" font-family="sans-serif">Feasible: True; conflicts: 0; cost: 160</text>
+<text x="25" y="769" fill="#e2e8f0" font-size="9" font-family="sans-serif">Recorded run 3c73c5e9c5f74a76; synthetic channels. Geographic sources: IBGE 2022 / AMEP where applicable.</text></svg>

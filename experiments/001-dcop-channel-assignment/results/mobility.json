@@ -1,0 +1,122 @@
+{
+  "free": [
+    {
+      "all_survivor_reassignments": 0,
+      "base_cost": 60,
+      "changed_fixed_aps": [],
+      "conflicts": 0,
+      "epoch": "baseline",
+      "objective": 60,
+      "penalty": 0,
+      "reassignments": 0,
+      "status": "optimal_cost"
+    },
+    {
+      "all_survivor_reassignments": 1,
+      "base_cost": 80,
+      "changed_fixed_aps": [
+        "ap-05"
+      ],
+      "conflicts": 0,
+      "epoch": "arrival",
+      "objective": 80,
+      "penalty": 0,
+      "reassignments": 1,
+      "status": "optimal_cost"
+    },
+    {
+      "all_survivor_reassignments": 12,
+      "base_cost": 80,
+      "changed_fixed_aps": [
+        "ap-00",
+        "ap-01",
+        "ap-02",
+        "ap-03",
+        "ap-04",
+        "ap-05",
+        "ap-06",
+        "ap-07",
+        "ap-08",
+        "ap-09",
+        "ap-10",
+        "ap-11"
+      ],
+      "conflicts": 0,
+      "epoch": "move",
+      "objective": 80,
+      "penalty": 0,
+      "reassignments": 12,
+      "status": "optimal_cost"
+    },
+    {
+      "all_survivor_reassignments": 12,
+      "base_cost": 60,
+      "changed_fixed_aps": [
+        "ap-00",
+        "ap-01",
+        "ap-02",
+        "ap-03",
+        "ap-04",
+        "ap-05",
+        "ap-06",
+        "ap-07",
+        "ap-08",
+        "ap-09",
+        "ap-10",
+        "ap-11"
+      ],
+      "conflicts": 0,
+      "epoch": "departure",
+      "objective": 60,
+      "penalty": 0,
+      "reassignments": 12,
+      "status": "optimal_cost"
+    }
+  ],
+  "stable": [
+    {
+      "all_survivor_reassignments": 0,
+      "base_cost": 60,
+      "changed_fixed_aps": [],
+      "conflicts": 0,
+      "epoch": "baseline",
+      "objective": 60,
+      "penalty": 0,
+      "reassignments": 0,
+      "status": "optimal_cost"
+    },
+    {
+      "all_survivor_reassignments": 0,
+      "base_cost": 160,
+      "changed_fixed_aps": [],
+      "conflicts": 0,
+      "epoch": "arrival",
+      "objective": 160,
+      "penalty": 1313,
+      "reassignments": 0,
+      "status": "optimal_cost"
+    },
+    {
+      "all_survivor_reassignments": 0,
+      "base_cost": 160,
+      "changed_fixed_aps": [],
+      "conflicts": 0,
+      "epoch": "move",
+      "objective": 160,
+      "penalty": 1313,
+      "reassignments": 0,
+      "status": "optimal_cost"
+    },
+    {
+      "all_survivor_reassignments": 0,
+      "base_cost": 60,
+      "changed_fixed_aps": [],
+      "conflicts": 0,
+      "epoch": "departure",
+      "objective": 60,
+      "penalty": 1212,
+      "reassignments": 0,
+      "status": "optimal_cost"
+    }
+  ]
+}

@@ -1,8 +1,6 @@
 # Distributed channel assignment as map coloring with DPOP
 
-**Status: architecture and research question fixed; domain foundation and the full
-DFS/UTIL/VALUE solve implemented and tested; the independent evaluator, the colored-map
-demonstration, mobile-cell epochs and all results remain planned. Revision: 0.3. Date: 2026-09-23.**
+**Status: core implemented and recorded: DFS/UTIL/VALUE, independent evaluation, colored maps, hand-authored inputs and mobile epochs. The comparative study remains deferred. Revision: 0.4. Date: 2026-09-23.**
 
 ## What is this study?
 
@@ -31,10 +29,9 @@ ECoRA stage and not a change to ECoRA's contracts.
 | [Simulation declaration](simulation-declaration.md) | What the model includes, abstracts and leaves out, against the repository's [simulation framework](../../research/simulation/README.md) |
 | [Package](../../software/dcop_channel_assignment/README.md) | Implemented modules, commands and verification |
 | [Curitiba inputs](../../data/geography/curitiba-metropolitan/README.md) | Sourced municipal boundaries and their provenance |
-| [Protocol replay](visualization.html) | Offline replay of actual DFS/UTIL messages on the 14-region map |
+| [Protocol replay](visualization.html) | Offline replay of recorded DFS/UTIL/VALUE messages and channel choices |
 
-The replay shows protocol activity, not channel assignments. Colors there identify senders,
-recipients and phases. The colored map is drawn once the evaluator and demonstration land.
+The replay shows protocol activity during DFS/UTIL and reveals recorded channel choices during VALUE. [Core evidence, reproduction and report](../../experiments/001-dcop-channel-assignment/README.md) include independently checked assignments, both Curitiba budget stops, and mobile snapshots.
 
 ## Purpose and provenance
 
@@ -85,13 +82,13 @@ color, verified independently of the solver?**
 
 | Claim | Kind | Evidence that settles it |
 | --- | --- | --- |
-| **C1** Every admitted map is colored with zero conflicts | Correctness | Independent evaluator on every demonstration map and generated small instance |
+| **C1** Every completed feasible solve is colored with zero conflicts | Correctness | Independent evaluator on every demonstration map and generated small instance |
 | **C2** The solver's cost equals the exact optimum, and an infeasible instance is reported as infeasible | Correctness | Exhaustive enumeration on instances of 2 to 8 agents; K5 with four colors as the certified-infeasible case |
 | **C3** Independent choice can violate the constraints that coordination satisfies | Illustrative | Conflicts of the independent baseline on the same maps and costs, reported beside DPOP's |
 | **C4** Table size follows the separator, not the region count | Descriptive | Separator sizes, largest tables and message counts per phase on the demonstration maps |
-| **C5** A stability cost reduces reassignment when a mobile cell moves, at no loss of validity | Descriptive | Reassignments and conflicts across a declared sequence of mobile-cell snapshots, solved with and without the stability cost |
+| **C5** Measure whether a stability cost reduces fixed-AP reassignment on the declared mobile sequence, preserving validity | Descriptive | Reassignments and conflicts across a declared sequence of mobile-cell snapshots, solved with and without the stability cost |
 
-C1 is guaranteed to be achievable by the four-color theorem; what it tests is the
+Four-color feasibility follows from the theorem, but completion within a resource budget does not. C1 tests the
 implementation. C2 is an implementation check, not a novelty claim. C3 is illustrative:
 the independent baseline is a deliberately uncoordinated lower bound on local cost, not a
 competing solver, and no claim says DPOP beats it on unconstrained cost. C4 and C5 are
@@ -105,8 +102,7 @@ between moves, not by an incremental or dynamic DCOP algorithm.
 ## System model
 
 Each region holds one AP and one agent. An edge joins two regions that share a boundary
-segment of positive length; corner-only contact creates no edge. Every admitted map is
-simple, connected and planar, and its adjacency derives from its geometry.
+segment of positive length; corner-only contact creates no edge. Every admitted map is simple, connected and planar. Polygon maps derive adjacency from geometry; hand-authored topological maps explicitly declare shared borders and are displayed as planar graph embeddings, not reconstructed geographic regions.
 
 Each agent `i` owns one variable `x_i` in `C`. For each unordered edge `{i, j}`:
 
@@ -145,8 +141,7 @@ stability cost for every AP that already held a channel:
 
 With `s = 0` the plan is re-optimized freely. With `s > 100 x |V_t|`, one avoided
 reassignment outweighs any possible difference in channel scores, so the solver first
-minimizes the number of reassignments and then the score. The mobile cell itself has no
-previous channel and carries no stability cost. This stays inside the static model: a
+minimizes the number of reassignments and then the score. The mobile cell is explicitly excluded from the stability penalty, even if it persists between epochs. Newly appearing agents also have no prior-channel penalty. This stays inside the static model: a
 stability cost is an ordinary unary cost, so no protocol change is needed.
 
 While the mobile cell is a region of a planar partition, four channels still always suffice.
@@ -172,9 +167,9 @@ records this and the other design decisions.
 | Synthetic 3 x 4 grid | 12 | 17 | Hand-sized demonstration; zero and preference costs | solved, tested |
 | Curitiba Central Urban Core | 14 | 29 | Primary demonstration on real municipal geography | solved, tested |
 | Curitiba metropolitan area | 29 | 66 | Limit case: shows the exponential table cost | UTIL stops with `budget_exceeded` |
-| Hand-authored map | at least 10 | as drawn | A map supplied at presentation time, validated before solving | planned |
-| Small trace map | 5 | with one non-tree edge | Every UTIL table and VALUE message checkable by hand | planned |
-| Mobile-cell sequence | fixed regions + 1 mobile | per epoch | A mobile cell crossing a map in declared epochs (RQ4) | planned |
+| Hand-authored map | 10 in the supplied example | 14 | Declared shared-border graph, validated and drawn as a planar embedding | implemented and recorded |
+| Small trace map | 5 | 5, with one non-tree edge | Complete transcript and hand-checkable derivation | implemented and recorded |
+| Mobile-cell sequence | 12 fixed, plus 1 mobile when present | per epoch | Baseline, arrival, move, departure | implemented and recorded |
 | K5 with four colors | 5 | 10 | Certified infeasible; not a map, since K5 is nonplanar | tested |
 | K5 minus one edge | 5 | 9 | Feasible counterpart one edge away | tested |
 
@@ -185,13 +180,10 @@ Figures from the current integration checks, with a 1,000,000-entry table budget
 | 3 x 4 grid | lowest ID | 4 | 1,024 | 34 | optimal cost (0; 60 with preferences) |
 | Central Urban Core | lowest ID | 5 | 4,096 | 58 | optimal cost 0 |
 | Central Urban Core | Curitiba | 6 | 16,384 | 58 | optimal cost 0 |
-| Metropolitan area | lowest ID | 11 | stops at 1,048,576 | 132 | `budget_exceeded`; next join needs 16,777,216 |
+| Metropolitan area | lowest ID | 11 | stops at 65,536 | 132 | `budget_exceeded`; first rejected join needs 1,048,576 |
 | Metropolitan area | Curitiba | 10 | stops at 65,536 | 132 | `budget_exceeded`; next join needs 4,194,304 |
 
-These are software integration checks, not frozen results. They already show C4's point on
-the same map: changing only the root changes the largest table fourfold. The 29-region map
-cannot complete in the pure-Python table algebra at any practical budget, so it is the
-demonstration of DPOP's limit, not of its answer.
+These are deterministic core records, not the deferred comparative study. Changing only the root changes the largest completed table fourfold on the 14-region map. The 29-region map exceeds the tested budget under both declared roots; other roots, representations and larger budgets have not been exhausted. With the lowest-ID root the theoretical widest join has 16,777,216 entries, but the run stops earlier at its first rejected 1,048,576-entry join. These are distinct quantities.
 
 K5 and its one-edge counterpart are built directly as DCOP instances. The map layer
 correctly rejects K5 as nonplanar, and the solver core does not depend on planarity.
@@ -213,7 +205,8 @@ This block is the single source of numeric settings. A change records its ration
 | Preference profiles | Shared: every AP scores `(0, 10, 20, 30)`; independent: per-AP seeded scores |
 | Exact reference | Exhaustive enumeration, instances of 2 to 8 agents |
 | Stability cost `s` | `0` (free re-optimization) and 101 x the epoch's region count (reassignments minimized first) |
-| Mobile-cell epochs | At least 3 declared snapshots: arrival, one move, departure |
+| Mobile-cell epochs | Baseline, arrival at fixed region 05, move to region 06, departure; a width-3 strip of each width-10 host region is assigned to the mobile cell |
+| Mobile preference scores | `(0,100,100,100)`; fixed APs use `(0,10,20,30)`; the retained zero-score pilot showed no changes |
 
 ### Runs
 
@@ -235,7 +228,7 @@ This block is the single source of numeric settings. A change records its ration
   score, the latter never treated as a feasible objective value.
 - Messages by phase (DFS, UTIL, VALUE), transmitted table entries, largest separator,
   largest outgoing table and largest intermediate table.
-- Reassignments between consecutive epochs: APs present in both whose channel changed.
+- Reassignments between consecutive epochs: APs present in both whose channel changed; fixed-AP and all-survivor counts are reported separately because the mobile cell is not penalized.
 - Outcome: `optimal_cost`, `infeasible`, `budget_exceeded` or execution error. A budget stop
   is never reported as infeasibility; an infeasible result is never given an assignment.
 
@@ -257,15 +250,20 @@ core milestones close, with its own frozen protocol:
 
 It is deferred and is not part of the core study.
 
+**Implemented for it so far: resource enforcement.** `software/dcop_comparison/` runs one arm on
+one map in a worker placed in a Windows job object before it executes, so the interpreter and
+anything it starts share a wall-time limit, a per-process committed-memory limit and the table
+budget. Every run ends in one terminal outcome: `optimal_cost`, `infeasible` or `completed`
+for a verified record, or `time_exceeded`, `memory_exceeded`, `budget_exceeded` or
+`execution_error` for a stop, which carries no assignment and no feasibility verdict. Memory is
+peak commit of one process with interpreter start-up included, measured with one BLAS thread;
+it is not RSS. Other hosts refuse to run rather than run unlimited.
+
 ## Delivery and reproducibility
 
-The package lives in `software/dcop_channel_assignment/`. When runs produce evidence, the
-experiment directory `experiments/001-dcop-channel-assignment/` will hold commands, pinned
-dependencies, inputs with hashes, raw message traces, assignments, outcomes and the figures
-regenerated from them; verify the numeric ID is free when it is created. No placeholder
-directory is created now.
+The package lives in `software/dcop_channel_assignment/`. The [experiment directory](../../experiments/001-dcop-channel-assignment/README.md) holds commands, pinned dependencies, input and run hashes, raw traces, checked assignments, the mobile sequence, a source snapshot and regenerated figures.
 
-Completion of the core means: every demonstration map colored and independently verified,
+Completion of the core means: every successful demonstration solve colored and independently verified, every budget stop retained,
 the correctness suite passing against enumeration, a hand-checkable trace, and the colored
 map regenerated from recorded runs. A successful solver exit alone is not completion.
 

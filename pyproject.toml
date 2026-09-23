@@ -19,7 +19,7 @@ ecora = "ecora.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["software"]
-include = ["ecora*", "dcop_channel_assignment*"]
+include = ["ecora*", "dcop_channel_assignment*", "dcop_comparison*"]
 
 [tool.setuptools.package-data]
 dcop_channel_assignment = ["visualization.html"]

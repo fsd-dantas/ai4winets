@@ -6,3 +6,5 @@ Makefile      text eol=lf
 *.h           text eol=lf
 *.sh          text eol=lf
 requirements-*.txt text eol=lf
+# Experiment directories are bound by content hashes; git must store their bytes unconverted.
+experiments/** -text

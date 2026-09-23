@@ -84,6 +84,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **Completed DPOP core demonstration**: independent evaluation and exact reference, a solving CLI, checksummed run records, hand-authored maps, VALUE channel replay, and mobile-cell snapshots. The experiment package retains 25 core records and a zero-effect pilot; 59 tests and all 99 deterministic result artifacts reproduce from an isolated source snapshot, from LF and CRLF checkouts alike. The mobile summary reports the evaluator's conflict count rather than a constant. The factorial study remains deferred.
+
+- **Resource limits for the DPOP comparative study** (CA-16). A worker starts suspended inside a
+  Windows job object, so a venv's launched interpreter cannot escape its wall-time and memory
+  limits, and every run ends in one terminal outcome; time, memory, table-budget and execution
+  stops never carry an assignment or a feasibility verdict.
+
 - **A simulation abstraction framework for every study** in `research/simulation/`. It
   states the rule that a model must keep every mechanism that could reverse the conclusion
   it serves, and asks each study to declare every model class (spatial world, RF and

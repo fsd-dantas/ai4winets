@@ -20,13 +20,38 @@ def main():
     parser.add_argument('--util',action='store_true',help='Compute the optimal cost by upward UTIL propagation')
     parser.add_argument('--max-table-entries',type=int,default=1_000_000,help='Per-table entry limit for UTIL')
     parser.add_argument('--preferences',action='store_true',help='Use synthetic shared channel preferences')
+    parser.add_argument('--solve',action='store_true',help='Solve and independently evaluate a complete assignment')
+    parser.add_argument('--map',type=Path,help='Hand-authored JSON region/shared-border map')
+    parser.add_argument('--output',type=Path,help='Save a complete checked run with checksum (requires --solve)')
     args = parser.parse_args()
+    if args.geojson and args.map:
+        parser.error('Choose either --geojson or --map')
+    if args.solve and args.util:
+        parser.error('Choose either --solve or --util')
+    if args.output and not args.solve:
+        parser.error('--output requires --solve')
     if args.geojson:
         from .geography import from_geojson
         scenario = from_geojson(json.loads(args.geojson.read_text(encoding='utf-8')),
                                 scenario_id=args.geojson.stem,preferences=args.preferences)
+    elif args.map:
+        from .inputs import border_map
+        data = json.loads(args.map.read_text(encoding='utf-8'))
+        if args.preferences:
+            data['scores'] = {n:[0,10,20,30] for n in data['regions']}
+        scenario = border_map(data)
     else:
         scenario = grid_map(preferences=args.preferences)
+    if args.solve:
+        from .execution import run, save_run
+        record = run(scenario,root=args.root,max_entries=args.max_table_entries)
+        if args.output:
+            save_run(record,args.output)
+        report = {k:v for k,v in record.items() if k not in ('messages','source_hashes','problem')}
+        if args.trace:
+            report['messages'] = record['messages']
+        print(json.dumps(report,indent=2))
+        return
     util = propagate_util(to_dcop(scenario),root=args.root,max_entries=args.max_table_entries) if args.util else None
     result = util.tree if util else build_pseudotree(to_dcop(scenario),root=args.root)
     report = {'status':'pseudo_tree_validated_not_channel_assignment','scenario':scenario.id,

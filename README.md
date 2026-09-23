@@ -121,7 +121,7 @@ Three things are deliberately not restated here. Metric definitions and the rule
 
 ## Experiment Index
 
-**The entries below are planned studies, not reported experimental results.** Each design links to its documentation; reproducible execution artifacts will live in a study directory under `experiments/` when available.
+**Status is declared per study.** Planned designs link to their specifications; recorded studies link to reproducible artifacts under `experiments/`.
 
 | Study | What it measures | Framework | Status | Design |
 | --- | --- | --- | --- | --- |
@@ -129,11 +129,11 @@ Three things are deliberately not restated here. Metric definitions and the rule
 | Full-set confirmation | Conditional paired effects around the all-Proposed configuration, on a separately frozen full set | ECoRA | planned | [Declared factorial and confirmatory design](docs/ECoRA/experiments.md#declared-factorial-and-confirmatory-design) |
 | Information-headroom comparison | What a contract-limited controller can reach against a privileged current-state reference | ECoRA | planned | [Stage arms and oracles](docs/ECoRA/stage-arms.md) |
 | Planner microbenchmark | Search effort and plan validity on interacting symbolic goals | ECoRA | planned | [Scenario catalog, S8](docs/ECoRA/experiments.md#scenario-catalog) |
-| Distributed channel assignment as map coloring | Whether agents, one per region, reach a verified conflict-free four-coloring through DPOP messages alone; minimum-cost channel plans; how separators set table size; channel reassignment when a mobile cell moves | Standalone DCOP / DPOP | planned | [Design](docs/dcop-channel-assignment/README.md) · [Architecture](docs/dcop-channel-assignment/architecture.md) |
+| Distributed channel assignment as map coloring | Whether agents, one per region, reach a verified conflict-free four-coloring through DPOP messages alone; minimum-cost channel plans; how separators set table size; channel reassignment when a mobile cell moves | Standalone DCOP / DPOP | simulated core; comparison deferred | [Results and reproduction](experiments/001-dcop-channel-assignment/README.md) · [Design](docs/dcop-channel-assignment/README.md) |
 
 When an experiment lands, its directory carries the objective and hypothesis, the scenario set version it was frozen against, the software versions and seeds, the execution command, the raw artifacts, the analysis, and the limitations that bound its claim. A study with no reproducible execution record remains marked as planned in this index.
 
-Frameworks are listed here only as the source of a study's design. A framework proposal on its own is not experimental evidence, and no entry above should be read as a result.
+Frameworks are listed here only as the source of a study's design. A framework proposal on its own is not experimental evidence; only entries with recorded results support empirical claims within their declared scope.
 
 ## Learning Artifacts and External Work
 

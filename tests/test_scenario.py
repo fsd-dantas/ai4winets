@@ -114,7 +114,14 @@ class VerificationTests(unittest.TestCase):
                      "scada_period_s": 0.1, "ami_period_s": 1.0, "scada_bytes": 512,
                      "ami_bytes": 512, "scada_deadline_s": 0.25, "ami_deadline_s": 10.0,
                      "scada_request_bytes": 128, "scada_processing_delay_s": 0.001,
-                     "loss_rates": {"lte": [(50, 32000), (200, 0)]}}
+                     }
+        # The LTE interpretation is the scenario's own, whatever it was calibrated to, so a
+        # recalibration does not turn this hand-built world into a mismatch.
+        lte = next(leg for leg in self.scenario.data["topology"]["legs"] if leg["kind"] == "lte")
+        arguments["links"]["lte"] = Link("lte", lte["logical"]["capacity_bps"],
+                                         lte["logical"]["delay_s"], lte["queue_limit_bytes"])
+        arguments["rate_tables"] = {"lte": [(r["extra_loss_db"], r["competing_ues"], r["capacity_bps"])
+                                            for r in lte["logical"]["rate_table"]]}
         return FiniteModel(**{**arguments, **changes})
 
     def test_a_matching_world_passes_and_is_returned(self):

@@ -7,6 +7,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Changed
 
+- **The LTE leg is calibrated in the simulator, and degraded LTE means a busy cell at its
+  edge** (ADR-30, scenario revision 3). Measured over 567 points, path loss alone makes the
+  leg fine or silent for this workload and cell load alone leaves a site plenty; a leg that
+  still delivers but too slowly needs a cell-edge site in a busy cell with demand near its
+  share. S1, S3 and S4 now declare that, through a new `cell_load` disturbance, and both
+  worlds agree on every LTE condition. The finite world reads loss and load together
+  through a measured rate table that each scenario cites by dataset hash. Withholding the
+  alternative probe on S1 now costs 0.143 of on-time delivery, down from 0.429 when S1 was
+  effectively an outage.
 - **Scenarios declare legs by kind, and SCADA is a transaction** (ADR-29, scenario
   revision 2). An LTE leg carries radio parameters instead of a rate, since in the
   simulator its capacity emerges, and it is degraded by extra path loss rather than by a
@@ -51,8 +60,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
   scored against ground truth after each decision by a harness port whose reads reach no
   provider, and identifiability is computed from the rule inventory beside the measurement.
   On the degraded-primary scenario access headroom is zero on every subset, while
-  withholding the alternative-leg probe costs SCADA 0.43 of its within-age delivery
-  (0.38 before SCADA became a round-trip transaction),
+  withholding the alternative-leg probe costs SCADA 0.14 of its within-age delivery on the
+  calibrated S1 (0.38 and 0.43 under earlier revisions of the scenario),
   because no diagnoser on that subset can establish that the switch is allowed.
 - **Cohort extraction and requirement evaluation** in `software/ecora/assessment.py`, the
   Proposed arms for the last two stages. Every run previously ended inconclusive by

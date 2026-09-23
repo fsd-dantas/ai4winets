@@ -16,9 +16,12 @@ are one-way from the site.
 Every leg and the egress have two directions, each its own FIFO queue at the same rate,
 because a request and a response do not wait behind each other. A disturbance changes both
 directions of a leg together. An LTE leg is interpreted here through its declared logical
-capacity, and a radio impairment through its declared loss-to-rate table: the largest
-declared loss not above the impairment sets the rate. That table is this model's
-interpretation, not a radio result.
+capacity and its declared rate table, which maps extra loss and cell load to a rate. The
+leg keeps both of its current conditions: a radio loss changes one, a cell load the other,
+and the rate follows from the pair. Lookup takes the largest declared load not above the
+current one, then within it the largest declared loss not above the current one, so between
+measured points the rate is the more favourable neighbour's. The table is this model's
+interpretation of the simulator, measured where its `calibration` says so.
 
 Declared simplifications, each of which bounds what a run of this model can support:
 
@@ -94,7 +97,7 @@ class FiniteModel:
     def __init__(self, *, sites, links, egress, scada_period_s, ami_period_s,
                  scada_bytes, ami_bytes, scada_deadline_s, ami_deadline_s,
                  initial_path="lte", initial_pacing="normal", disturbances=(),
-                 scada_request_bytes=128, scada_processing_delay_s=0.001, loss_rates=None,
+                 scada_request_bytes=128, scada_processing_delay_s=0.001, rate_tables=None,
                  leg_specs=None):
         require(sites, "the model needs at least one site")
         require(set(links) >= {"lte", "alternative"}, "both legs must be declared")
@@ -107,10 +110,11 @@ class FiniteModel:
         self.request_bytes = scada_request_bytes
         self.processing_delay_s = scada_processing_delay_s
         self.deadlines = {"scada": scada_deadline_s, "ami": ami_deadline_s}
-        # Per leg, (extra_loss_db, capacity_bps) in increasing loss. A leg without one
-        # cannot take a radio impairment, because nothing says what it would mean.
-        self.loss_rates = {leg: tuple(tuple(entry) for entry in table)
-                           for leg, table in (loss_rates or {}).items()}
+        # Per leg, (extra_loss_db, competing_ues, capacity_bps). A leg without one cannot
+        # take a radio impairment or a cell load, because nothing says what either would mean.
+        self.rate_tables = {leg: tuple(sorted(tuple(entry) for entry in table))
+                            for leg, table in (rate_tables or {}).items()}
+        self._conditions = {}
         self.leg_specs = dict(leg_specs or {})
         self.path = {site: initial_path for site in self.sites}
         self.pacing = {site: initial_pacing for site in self.sites}
@@ -219,21 +223,39 @@ class FiniteModel:
         self._ami_releasing[site] = False
         self._start_release(site)
 
+    def lookup(self, leg, loss_db, competing_ues):
+        """The rate a leg's table gives for this loss and load."""
+        table = self.rate_tables.get(leg)
+        require(table, f"leg {leg} declares no rate table to interpret a radio condition")
+        level = max(c for _, c, _ in table if c <= competing_ues)
+        return max((entry for entry in table if entry[1] == level and entry[0] <= loss_db),
+                   key=lambda entry: entry[0])[2]
+
     def rate_for(self, disturbance):
-        """The service rate a disturbance sets on its leg."""
-        if disturbance.get("kind", "rate") == "rate":
+        """The service rate a disturbance leaves its leg at, given the leg's other condition.
+
+        A rate change sets a point-to-point leg directly. A radio loss or a cell load changes
+        one of the LTE leg's two conditions and keeps the other.
+        """
+        kind = disturbance.get("kind", "rate")
+        if kind == "rate":
             return disturbance["rate_bps"]
-        table = self.loss_rates.get(disturbance["leg"])
-        require(table, f"leg {disturbance['leg']} declares no loss-to-rate interpretation")
-        rate = self.links[disturbance["leg"]].capacity_bps
-        for loss, capacity in table:
-            if loss <= disturbance["extra_loss_db"]:
-                rate = capacity
-        return rate
+        key = (disturbance["site"], disturbance["leg"])
+        conditions = dict(self._conditions.get(key, {"extra_loss_db": 0, "competing_ues": 0}))
+        field = "extra_loss_db" if kind == "radio_loss" else "competing_ues"
+        conditions[field] = disturbance[field]
+        return self.lookup(disturbance["leg"], conditions["extra_loss_db"],
+                           conditions["competing_ues"])
 
     def _on_disturb(self, data):
         """Change a leg's rate in both directions. In-flight service is unaffected."""
         rate = self.rate_for(data)
+        kind = data.get("kind", "rate")
+        if kind != "rate":
+            key = (data["site"], data["leg"])
+            conditions = self._conditions.setdefault(key, {"extra_loss_db": 0, "competing_ues": 0})
+            field = "extra_loss_db" if kind == "radio_loss" else "competing_ues"
+            conditions[field] = data[field]
         for direction in DIRECTIONS:
             key = (data["site"], data["leg"], direction)
             queue = self._queues[key]

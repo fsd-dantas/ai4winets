@@ -255,6 +255,9 @@ def declared(scenario):
                           "deadline_s": ami["deadline_s"]}},
         "pacing_bps": {name: float(rate) for name, rate in PACING_BPS.items()},
         "disturbances_scheduled": len(data["disturbances"]),
+        # Competitors are built for the largest load any disturbance declares.
+        "competitors_built": max((d["competing_ues"] for d in data["disturbances"]
+                                  if d["kind"] == "cell_load"), default=0),
     }
 
 
@@ -273,7 +276,8 @@ def _reported(resolved):
              for site in resolved["sites"]}
     return {"lte": lte, "sites": sites, "egress": resolved["egress"],
             "flows": resolved["flows"], "pacing_bps": resolved["pacing_bps"],
-            "disturbances_scheduled": resolved["disturbances_scheduled"]}
+            "disturbances_scheduled": resolved["disturbances_scheduled"],
+            "competitors_built": resolved["cell_load"]["competitors_built"]}
 
 
 def verify_simulated(resolved, scenario):

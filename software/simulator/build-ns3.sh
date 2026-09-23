@@ -108,10 +108,13 @@ dump_sha="$(sha256sum "$root/out/ns3-attributes.json" | cut -d' ' -f1)"
 sim_sha="$(cd "$here/src/ecora-sim" && find . -type f | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1)"
 build_id="$(printf '%s:%s:%s' "$actual" "$dump_sha" "$sim_sha" | sha256sum | cut -d' ' -f1)"
 printf '#pragma once\n#define ECORA_BUILD_ID "%s"\n' "$build_id" > "$source_dir/scratch/ecora-sim/build-id.h"
-./ns3 build ecora-sim
+./ns3 build ecora-sim ecora-calibrate
 simulator="$(binary ecora-sim)"
 [[ -n "$simulator" ]] || { echo "refused: ecora-sim was not built" >&2; exit 1; }
 ln -sf "$simulator" "$root/out/ecora-sim"
+calibrate="$(binary ecora-calibrate)"
+[[ -n "$calibrate" ]] || { echo "refused: ecora-calibrate was not built" >&2; exit 1; }
+ln -sf "$calibrate" "$root/out/ecora-calibrate"
 
 # What configure actually enabled, dependencies included, as ns-3 recorded it.
 resolved="$(python3 -c "import ast,glob,re,sys; t=open(glob.glob(sys.argv[1]+'/.lock-ns3_*')[0]).read(); m=re.search(r'^NS3_ENABLED_MODULES = (\[.*\])', t, re.M); print(';'.join(sorted(x[4:] for x in ast.literal_eval(m.group(1)))))" "$source_dir")"

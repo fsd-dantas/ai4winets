@@ -362,8 +362,14 @@ class AssessmentOracleTests(unittest.TestCase):
                                       {"cohorts": self.cohorts}, "planning")
 
     def test_censoring_reports_the_run_rather_than_a_blanket_disclaimer(self):
-        """An obligation whose deadline has not elapsed is censored; a settled one is not."""
-        cohorts = self.world.cohorts(self.cohorts)
+        """An obligation whose deadline has not elapsed is censored; a settled one is not.
+
+        Run on the silent leg, where readings are genuinely outstanding at the stop: on a
+        leg that delivers, every reading may already have arrived and nothing is censored.
+        """
+        from ecora.scenario import SCENARIOS, build_world, load as load_scenario
+        silent = build_world(load_scenario(SCENARIOS / "s2-silent-primary.json")).advance_to(2.5)
+        cohorts = silent.cohorts(self.cohorts)
         by_id = {c["cohort_id"]: c for c in cohorts}
         self.assertFalse(by_id["cohort:scada:measured"]["censored"],
                          "SCADA deadlines elapsed long before the clock stopped")

@@ -198,7 +198,7 @@
       "subject": "site-1"
     }
   },
-  "revision": "1",
+  "revision": "2",
   "rules": {
     "activation_budget": 200,
     "rules": [
@@ -343,12 +343,12 @@
         "condition": {
           "metric": "site-1/lte/path_probe",
           "op": "ge",
-          "value": 0.03
+          "value": 0.025
         },
         "contradicts": [
           "demand_outpaces_gateway"
         ],
-        "explanation": "The primary leg answers a probe more slowly than its nominal round trip.",
+        "explanation": "The primary leg answers a probe more slowly than its nominal round trip: 25 ms against about 20 ms unimpaired, from the calibrated rate table.",
         "priority": 6,
         "requires": [
           "site-1/lte/path_probe"

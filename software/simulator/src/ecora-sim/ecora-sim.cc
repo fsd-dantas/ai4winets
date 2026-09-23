@@ -23,6 +23,7 @@
 
 #include "build-id.h"
 #include "json.hpp"
+#include "lte-leg.h"
 
 #include "ns3/applications-module.h"
 #include "ns3/core-module.h"
@@ -193,6 +194,8 @@ class World
     void ReceiveAtSite(Ptr<Socket> socket);
     void ReceiveCentrally(Ptr<Socket> socket);
     void Disturb(const json& disturbance);
+    void BuildBackground();
+    void CompetitorTick(uint32_t index);
     void Dropped(Ptr<const Packet> packet, const std::string& where);
     void WatchBearers();
     Ptr<Socket> SiteSocket(Site* site, const std::string& path) const;
@@ -227,6 +230,22 @@ class World
     uint64_t m_duplicates = 0;
     std::set<void*> m_watchedRlc;
     std::vector<json> m_disturbanceLog;
+
+    // Cell congestion. Competitors are built at configure, as many as the largest load any
+    // disturbance declares, and are idle until a cell_load disturbance activates them.
+    // Their traffic goes to a background sink beside the EPC, so it contends for the radio
+    // and never for the study's egress.
+    std::string m_competitorSite;
+    uint32_t m_competitorsBuilt = 0;
+    std::vector<Ptr<Node>> m_competitorNodes;
+    std::vector<Ptr<Socket>> m_competitorSockets;
+    std::vector<bool> m_competitorActive;
+    std::vector<bool> m_competitorRunning;
+    uint32_t m_competingNow = 0;
+    Ptr<Node> m_backgroundSink;
+    Ptr<Socket> m_backgroundReceive;
+    Ipv4Address m_backgroundAddress;
+    uint64_t m_backgroundDrops = 0;
 };
 
 double
@@ -305,6 +324,26 @@ World::Configure(const json& request)
             "unbuildable_scenario",
             "unknown pacing profile " + m_initialPacing);
 
+    // Congestion is declared per disturbance; the competitors it needs are built up front.
+    for (const auto& disturbance : m_scenario.at("disturbances"))
+    {
+        if (disturbance.at("kind") != "cell_load")
+        {
+            continue;
+        }
+        uint32_t wanted = disturbance.at("competing_ues");
+        Require(wanted <= ecora::MAX_COMPETITORS,
+                "unbuildable_scenario",
+                "cell load beyond the model's valid range of " +
+                    std::to_string(ecora::MAX_COMPETITORS) + " competing UEs");
+        std::string site = disturbance.at("site");
+        Require(m_competitorSite.empty() || m_competitorSite == site,
+                "unbuildable_scenario",
+                "v1 loads the cell at one site's position");
+        m_competitorSite = site;
+        m_competitorsBuilt = std::max(m_competitorsBuilt, wanted);
+    }
+
     RngSeedManager::SetSeed(1);
     RngSeedManager::SetRun(m_rngRun);
 
@@ -325,6 +364,7 @@ World::Configure(const json& request)
     BuildLte(lte);
     BuildAlternative(alternative);
     BuildEgress(topology.at("egress"));
+    BuildBackground();
     Route();
     Schedule();
     m_configured = true;
@@ -334,73 +374,33 @@ World::Configure(const json& request)
 void
 World::BuildLte(const json& leg)
 {
-    const json& radio = leg.at("radio");
-    // Set explicitly. With an EPC attached, ns-3 silently replaces its RLC_SM_ALWAYS
-    // default by RLC_UM_ALWAYS; saying so here keeps the manifest's inherited default from
-    // being mistaken for the mode that runs.
-    Config::SetDefault("ns3::LteEnbRrc::EpsBearerToRlcMapping",
-                       EnumValue(LteEnbRrc::RLC_UM_ALWAYS));
-    Config::SetDefault("ns3::LteRlcUm::MaxTxBufferSize",
-                       UintegerValue(leg.at("queue_limit_bytes").get<uint32_t>()));
-    Config::SetDefault("ns3::LteEnbPhy::TxPower", DoubleValue(radio.at("enb_tx_dbm")));
-    Config::SetDefault("ns3::LteUePhy::TxPower", DoubleValue(radio.at("ue_tx_dbm")));
-    Config::SetDefault("ns3::LteEnbPhy::NoiseFigure",
-                       DoubleValue(radio.at("enb_noise_figure_db")));
-    Config::SetDefault("ns3::LteUePhy::NoiseFigure",
-                       DoubleValue(radio.at("ue_noise_figure_db")));
-
-    m_lte = CreateObject<LteHelper>();
-    m_epc = CreateObject<PointToPointEpcHelper>();
-    m_lte->SetEpcHelper(m_epc);
-    m_lte->SetSchedulerType("ns3::PfFfMacScheduler");
-    m_lte->SetPathlossModelType(TypeId::LookupByName("ns3::FriisSpectrumPropagationLossModel"));
-    m_lte->SetEnbDeviceAttribute("DlBandwidth", UintegerValue(radio.at("dl_bandwidth_rb")));
-    m_lte->SetEnbDeviceAttribute("UlBandwidth", UintegerValue(radio.at("ul_bandwidth_rb")));
-    m_lte->SetEnbDeviceAttribute("DlEarfcn", UintegerValue(radio.at("dl_earfcn")));
-    m_lte->SetEnbDeviceAttribute("UlEarfcn", UintegerValue(radio.at("ul_earfcn")));
-    m_lte->SetUeDeviceAttribute("DlEarfcn", UintegerValue(radio.at("dl_earfcn")));
-
-    m_enb = CreateObject<Node>();
-    MobilityHelper mobility;
-    mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
-    mobility.Install(m_enb);
-    const json& enbAt = radio.at("enb_position_m");
-    m_enb->GetObject<MobilityModel>()->SetPosition(Vector(enbAt[0], enbAt[1], enbAt[2]));
     NodeContainer gateways;
+    std::vector<std::string> names;
     for (auto& site : m_sites)
     {
-        mobility.Install(site.gateway);
-        const json& at = radio.at("site_positions_m").at(site.name);
-        site.mobility = site.gateway->GetObject<MobilityModel>();
-        site.mobility->SetPosition(Vector(at[0], at[1], at[2]));
         gateways.Add(site.gateway);
+        names.push_back(site.name);
     }
-
-    NetDeviceContainer enbDevices = m_lte->InstallEnbDevice(NodeContainer(m_enb));
-    m_enbDevice = enbDevices.Get(0);
-    NetDeviceContainer ueDevices = m_lte->InstallUeDevice(gateways);
-
-    // Per-site radio impairment: extra loss on one site's link, zero until disturbed. It
-    // sits beside the Friis spectrum model, which LteHelper installed on the spectrum slot.
-    m_radioLoss = CreateObject<MatrixPropagationLossModel>();
-    m_radioLoss->SetDefaultLoss(0);
-    m_lte->GetDownlinkSpectrumChannel()->AddPropagationLossModel(m_radioLoss);
-    m_lte->GetUplinkSpectrumChannel()->AddPropagationLossModel(m_radioLoss);
-    Ptr<MobilityModel> enbMobility = m_enb->GetObject<MobilityModel>();
-    for (auto& site : m_sites)
+    // Competitors follow the sites in the UE order, at the loaded site's position.
+    for (uint32_t i = 0; i < m_competitorsBuilt; ++i)
     {
-        m_radioLoss->SetLoss(site.mobility, enbMobility, 0, true);
+        Ptr<Node> competitor = CreateObject<Node>();
+        m_competitorNodes.push_back(competitor);
+        gateways.Add(competitor);
+        names.push_back(m_competitorSite);
     }
-
-    InternetStackHelper internet;
-    internet.Install(gateways);
-    Ipv4InterfaceContainer ueAddresses = m_epc->AssignUeIpv4Address(ueDevices);
+    ecora::LteLeg built = ecora::BuildLteLeg(leg, gateways, names);
+    m_lte = built.lte;
+    m_epc = built.epc;
+    m_enb = built.enb;
+    m_enbDevice = built.enbDevice;
+    m_radioLoss = built.radioLoss;
     for (uint32_t i = 0; i < m_sites.size(); ++i)
     {
-        m_sites[i].lteDevice = ueDevices.Get(i);
-        m_sites[i].lteAddress = ueAddresses.GetAddress(i);
+        m_sites[i].mobility = built.siteMobility[i];
+        m_sites[i].lteDevice = built.ueDevices.Get(i);
+        m_sites[i].lteAddress = built.ueAddresses.GetAddress(i);
     }
-    m_lte->Attach(ueDevices, m_enbDevice);
 }
 
 void
@@ -467,6 +467,66 @@ World::BuildEgress(const json& leg)
     NetDeviceContainer core = internal.Install(m_epc->GetPgwNode(), m_centralGateway);
     addresses.SetBase("10.1.0.0", "255.255.255.252");
     addresses.Assign(core);
+}
+
+void
+World::BuildBackground()
+{
+    if (m_competitorsBuilt == 0)
+    {
+        return;
+    }
+    m_backgroundSink = CreateObject<Node>();
+    InternetStackHelper().Install(m_backgroundSink);
+    PointToPointHelper link;
+    link.SetDeviceAttribute("DataRate", StringValue(INTERNAL_RATE));
+    link.SetChannelAttribute("Delay", TimeValue(At(INTERNAL_DELAY_S)));
+    NetDeviceContainer devices = link.Install(m_epc->GetPgwNode(), m_backgroundSink);
+    Ipv4AddressHelper addresses;
+    addresses.SetBase("10.3.0.0", "255.255.255.252");
+    Ipv4InterfaceContainer assigned = addresses.Assign(devices);
+    m_backgroundAddress = assigned.GetAddress(1);
+    Ipv4StaticRoutingHelper helper;
+    helper.GetStaticRouting(m_backgroundSink->GetObject<Ipv4>())
+        ->AddNetworkRouteTo("7.0.0.0", "255.0.0.0", assigned.GetAddress(0), 1);
+    // A listening socket that discards, so arriving load raises no ICMP back down the cell.
+    m_backgroundReceive = Socket::CreateSocket(m_backgroundSink, UdpSocketFactory::GetTypeId());
+    m_backgroundReceive->Bind(InetSocketAddress(Ipv4Address::GetAny(), 7000));
+    m_backgroundReceive->SetRecvCallback(MakeCallback(+[](Ptr<Socket> socket) {
+        while (socket->Recv())
+        {
+        }
+    }));
+    for (Ptr<Node> competitor : m_competitorNodes)
+    {
+        helper.GetStaticRouting(competitor->GetObject<Ipv4>())
+            ->SetDefaultRoute(m_epc->GetUeDefaultGatewayAddress(), 1);
+        Ptr<Socket> socket = Socket::CreateSocket(competitor, UdpSocketFactory::GetTypeId());
+        socket->Bind();
+        m_competitorSockets.push_back(socket);
+        m_competitorActive.push_back(false);
+        m_competitorRunning.push_back(false);
+    }
+}
+
+void
+World::CompetitorTick(uint32_t index)
+{
+    if (!m_competitorActive[index])
+    {
+        m_competitorRunning[index] = false;
+        return;
+    }
+    Ptr<Packet> packet = Create<Packet>(ecora::COMPETITOR_PAYLOAD_BYTES);
+    // Identity 0 marks background load: its drops are counted apart and never attributed
+    // to an obligation or to the untraced count.
+    ObligationTag tag;
+    packet->AddPacketTag(tag);
+    m_competitorSockets[index]->SendTo(packet, 0, InetSocketAddress(m_backgroundAddress, 7000));
+    Simulator::Schedule(Seconds(8.0 * ecora::COMPETITOR_PAYLOAD_BYTES / ecora::COMPETITOR_OFFERED_BPS),
+                        &World::CompetitorTick,
+                        this,
+                        index);
 }
 
 void
@@ -770,6 +830,11 @@ void
 World::Dropped(Ptr<const Packet> packet, const std::string& where)
 {
     ObligationTag tag;
+    if (packet->PeekPacketTag(tag) && tag.id == 0)
+    {
+        ++m_backgroundDrops;
+        return;
+    }
     if (!packet->PeekPacketTag(tag) || !m_ledger.count(tag.id))
     {
         // Something was discarded whose obligation cannot be named from the packet. It is
@@ -797,7 +862,20 @@ World::Disturb(const json& disturbance)
         }
     }
     std::string kind = disturbance.at("kind");
-    if (kind == "radio_loss")
+    if (kind == "cell_load")
+    {
+        m_competingNow = disturbance.at("competing_ues");
+        for (uint32_t i = 0; i < m_competitorsBuilt; ++i)
+        {
+            m_competitorActive[i] = i < m_competingNow;
+            if (m_competitorActive[i] && !m_competitorRunning[i])
+            {
+                m_competitorRunning[i] = true;
+                Simulator::ScheduleNow(&World::CompetitorTick, this, i);
+            }
+        }
+    }
+    else if (kind == "radio_loss")
     {
         site->extraLossDb = disturbance.at("extra_loss_db");
         m_radioLoss->SetLoss(site->mobility, m_enb->GetObject<MobilityModel>(), site->extraLossDb, true);
@@ -953,6 +1031,14 @@ World::Resolved() const
             {"envelope_bytes", ENVELOPE_BYTES},
             {"pacing_bps", pacing},
             {"rate_zero_mapping", "receive error rate 1.0 at both ends of the leg"},
+            {"cell_load",
+             {{"competitors_built", m_competitorsBuilt},
+              {"site", m_competitorSite},
+              {"offered_bps_each", ecora::COMPETITOR_OFFERED_BPS},
+              {"payload_bytes", ecora::COMPETITOR_PAYLOAD_BYTES},
+              {"max_competitors", ecora::MAX_COMPETITORS},
+              {"direction", "up"},
+              {"traffic_sink", "background node beside the EPC; never the study's egress"}}},
             {"disturbances_scheduled", m_scenario.at("disturbances").size()},
             {"unsupported_requests", {"observe", "apply", "truth", "fork"}}};
 }
@@ -1018,6 +1104,8 @@ World::Cohorts(const json& request)
     return {{"cohorts", result},
             {"accounting",
              {{"untraced_drops", m_untracedDrops},
+              {"background_drops", m_backgroundDrops},
+              {"competing_ues_now", m_competingNow},
               {"duplicate_deliveries", m_duplicates},
               {"disturbances_applied", m_disturbanceLog}}}};
 }

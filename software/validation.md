@@ -458,15 +458,18 @@ than inferred from a run: a label whose every derivation needs a withheld signal
 every diagnoser on that subset, privileged or not. Tests assert that no arm misses a label
 outside that set and that none concludes anything false.
 
-On `s1-degraded-primary` revision 2, four epochs at 0.5 s, with SCADA as a request/response
-transaction (ADR-29). Revision 1 modelled SCADA as a one-way message and measured the
-alternative-probe cost at 0.381; the round trip is more exposed to the degraded leg, so the
-figure rose. Every other finding was unchanged by the revision.
+On `s1-degraded-primary` revision 3, four epochs at 0.5 s: a cell-edge site in a busy cell
+(ADR-30), with the LTE leg read through the measured rate table. The figure has moved twice
+and each move is explained by what S1 declared. Revision 1 (one-way SCADA, nominal rate)
+measured 0.381; revision 2 (SCADA as a round trip over a leg its nominal table made nearly
+silent) measured 0.429; revision 3, where the leg is degraded but still delivering,
+measures 0.143 for SCADA and 0.143 for AMI. A site stuck on a slow leg loses less, over a
+short run, than one stuck on a dead one. Every other finding was unchanged by each revision.
 
-| Subset withheld | Access headroom | Subset cost (SCADA within-age delivery) | Applied actions |
+| Subset withheld | Access headroom | Subset cost (within-age delivery, SCADA and AMI) | Applied actions |
 | --- | --- | --- | --- |
 | none | 0 | 0 | 1 |
-| `site-1/alternative/path_probe` | 0 | 0.429 | 0 |
+| `site-1/alternative/path_probe` | 0 | 0.143 | 0 |
 | `path_state` | 0 | 0 | 4 |
 | any other single signal | 0 | 0 | 1 |
 
@@ -528,6 +531,51 @@ therefore does not yet describe the simulator, which is the gap B21 exists to cl
 harsher in ns-3 because the envelope and UDP/IP headers add bytes the finite world does not
 count. The one pending S0 transaction is the one sent before the UE attached, which the
 UE discards silently and which is therefore not attributed as a loss.
+
+## LTE rate calibration
+
+`python -m ecora calibrate-lte --apply` measured the LTE leg in the simulator and wrote the
+result into every scenario's `logical` block, which now cites the dataset
+`data/simulator/lte-rate-calibration.json` by hash. The measurement is saturation goodput of
+application payload, over a window after attach, built by the simulator's own LTE code,
+and tied to the manifest's build identity. 567 points: 23 losses in both directions on the
+unloaded cell, and 11 losses uplink under each of 13 competitor counts, three runs each,
+median taken. Away from the cliffs every run agreed exactly; two points differed across
+runs, both past a cliff, where the error model occasionally decodes a stray block.
+
+What it established, with the LTE leg the scenarios declare:
+
+- **Loss alone is binary for the v1 workload.** Uplink capacity falls smoothly from
+  17.3 Mbit/s to 627 kbit/s at 48 dB and to nothing at 49.75 dB. The downlink holds to
+  about 53 dB. SCADA was on time at every loss up to 49.5 dB and never at 49.75 dB.
+- **Load alone leaves a site plenty.** At 0 dB a saturating site's share falls roughly as
+  capacity over the number of UEs, to 461 kbit/s at 35 competitors; at 40 the cell stops
+  admitting UEs, so 35 is the model's declared range.
+- **Degradation needs both, and demand near the share.** Proportional fairness serves a
+  light site promptly, so a site well under its share is unharmed. At 48 dB with 5
+  competitors the share is 68 kbit/s; with AMI every 100 ms the site asks for about 82, and
+  SCADA runs late rather than stopping. That is what S1, S3 and S4 now declare (ADR-30).
+
+With the measured table both worlds agree on every LTE condition, over eight seconds,
+SCADA on time out of 56 generated after 1.5 s:
+
+| Scenario | Finite world | Simulator |
+| --- | --- | --- |
+| S0 nominal | 56 | 56 |
+| S1 degraded | 2, 51 late | 1, 48 late |
+| S2 silent | 0 | 0 |
+| S3 transient | 22, 34 late | 18, 38 late |
+| S4 no alternative | 2, 51 late | 1, 48 late |
+| S5 narrow egress | 15, 41 late | 0, 54 late |
+
+S5 still differs because the finite world does not count envelope and header bytes, a
+declared simplification that this calibration does not address. The table is a saturation
+share: below the share it overstates harm, and between measured points it takes the more
+favourable neighbour. The logical delay of the LTE leg is still nominal.
+
+The arbitration study's `degraded_primary` threshold was re-set from 30 ms to 25 ms, against
+the calibrated leg's 20 ms unimpaired and 27.5 ms degraded probe round trip; at 30 ms the
+rule could no longer fire, which is the unreachable-mechanism shape recorded in the backlog.
 
 ## Simulator adapter
 

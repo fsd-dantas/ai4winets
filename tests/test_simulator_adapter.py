@@ -94,7 +94,8 @@ def reported(scenario):
             "sites": [{"site": name, **site} for name, site in expected["sites"].items()],
             "egress": expected["egress"], "flows": expected["flows"],
             "pacing_bps": expected["pacing_bps"],
-            "disturbances_scheduled": expected["disturbances_scheduled"]}
+            "disturbances_scheduled": expected["disturbances_scheduled"],
+            "cell_load": {"competitors_built": expected["competitors_built"]}}
 
 
 class VerificationTests(unittest.TestCase):
@@ -115,7 +116,8 @@ class VerificationTests(unittest.TestCase):
             (lambda r: r["egress"].update(queue_discipline="ns3::FqCoDelQueueDisc"), "egress"),
             (lambda r: r["flows"]["scada"].update(pattern="periodic"), "flows"),
             (lambda r: r["pacing_bps"].update(normal=1.0), "pacing_bps"),
-            (lambda r: r.update(disturbances_scheduled=0), "disturbances_scheduled"))
+            (lambda r: r.update(disturbances_scheduled=0), "disturbances_scheduled"),
+            (lambda r: r["cell_load"].update(competitors_built=0), "competitors_built"))
         for edit, section in cases:
             with self.subTest(section=section):
                 report = copy.deepcopy(reported(self.scenario))

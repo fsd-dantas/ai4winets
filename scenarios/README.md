@@ -37,9 +37,18 @@ table from extra path loss to rate. The simulator reports the logical block as n
 applicable rather than using it.
 
 **Disturbance kinds.** `rate` changes a point-to-point leg's rate. `radio_loss` adds path
-loss in dB to one site's LTE link. The finite world maps a loss through the leg's table,
-taking the largest declared loss not above it. The mapping is nominal and uncalibrated
-until the simulator pilot measures what each loss actually does (ADR-29).
+loss in dB to one site's LTE link. `cell_load` brings competing UEs, each saturating the
+uplink, onto the cell at the site's position; the count replaces the previous one, and it
+is bounded at 35, the model's valid range. The LTE leg keeps both conditions, and the finite
+world reads them together through the leg's `rate_table`: the largest declared load not
+above the current one, then within it the largest declared loss not above the current one.
+The table is measured in the simulator and cites its dataset under `calibration`
+(ADR-29, ADR-30).
+
+**What degrades an LTE leg.** Measured, path loss alone makes the leg fine or silent for
+this workload, and load alone leaves a site plenty. A leg that still delivers but too
+slowly needs a cell-edge site in a busy cell with demand near its share, which is what
+S1, S3 and S4 declare.
 
 **Flow patterns.** SCADA is `request_response`: the central application sends
 `payload_bytes` down the site's selected leg, and the site answers with `response_bytes`
@@ -55,10 +64,10 @@ topology without both legs the model reasons over.
 | File | Condition | Visible from |
 | --- | --- | --- |
 | `s0-nominal.json` | undisturbed baseline; both legs at nominal rate throughout | — |
-| `s1-degraded-primary.json` | the serving leg degrades past the point where SCADA meets its deadline, and does not recover | 1.0 s |
-| `s2-silent-primary.json` | the serving leg stops carrying bytes entirely | 1.0 s |
-| `s3-transient-primary.json` | the serving leg degrades and later recovers, so a controller can be observed reverting | 1.0 s, recovery at 5.0 s |
-| `s4-no-alternative.json` | the serving leg degrades while the alternative carries nothing, leaving pacing as the only lever | 1.0 s |
+| `s1-degraded-primary.json` | a cell-edge site with heavier AMI demand loses LTE share when the cell becomes busy; SCADA runs late, and the load stays | 1.0 s |
+| `s2-silent-primary.json` | the serving leg stops carrying bytes entirely (radio loss past the cliff) | 1.0 s |
+| `s3-transient-primary.json` | as S1, and the load leaves, so a controller can be observed reverting | 1.0 s, recovery at 5.0 s |
+| `s4-no-alternative.json` | as S1 while the alternative carries nothing, leaving pacing as the only lever | 1.0 s |
 | `s5-narrow-egress.json` | the shared egress is narrower than the offered load, so the services contend with no disturbance at all | ~4 s, as the queue builds |
 
 **Visible from** is when the condition starts to show in delivery, and therefore how long a

@@ -8,7 +8,7 @@
   "modules": ["core", "network", "internet", "point-to-point", "lte", "applications", "traffic-control", "flow-monitor"],
   "configure_flags": ["--disable-examples", "--disable-tests", "--disable-python-bindings", "--enable-asserts", "--disable-logs", "--disable-werror"],
   "cmake_defines": {"NS3_NATIVE_OPTIMIZATIONS": "OFF"},
-  "programs": ["ecora-attributes", "ecora-sim"],
+  "programs": ["ecora-attributes", "ecora-sim", "ecora-calibrate"],
   "dependencies": [
     {"name": "nlohmann-json", "version": "3.11.3", "file": "json.hpp", "program": "ecora-sim",
      "url": "https://github.com/nlohmann/json/releases/download/v3.11.3/json.hpp",

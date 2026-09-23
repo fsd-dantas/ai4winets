@@ -12,6 +12,11 @@ from jsonschema import Draft202012Validator, FormatChecker
 
 from .schema import RECORD_TYPES, STAGES, schema_document
 
+# The simulator's valid range for cell load, the same bound it enforces itself: a site's
+# share was measured to fall smoothly to 35 competing UEs and to vanish at 40, where the
+# cell stops admitting UEs. Beyond it the model is not the cell a scenario means.
+MAX_COMPETING_UES = 35
+
 
 class ContractError(ValueError):
     """An input cannot cross a declared boundary without losing contract integrity."""
@@ -196,16 +201,25 @@ def validate(kind, data):
             if leg["kind"] == "lte":
                 require(set(leg["radio"]["site_positions_m"]) == sites,
                         f"LTE leg {leg['leg_id']} must position every declared site")
-                losses = [entry["extra_loss_db"] for entry in leg["logical"]["loss_rates"]]
-                require(losses == sorted(set(losses)),
-                        "loss-to-rate entries are declared in increasing loss, once each")
+                levels = {}
+                for entry in leg["logical"]["rate_table"]:
+                    levels.setdefault(entry["competing_ues"], []).append(entry["extra_loss_db"])
+                require(0 in levels, "the rate table covers the unloaded cell")
+                for level, losses in levels.items():
+                    # Each load level is its own loss table, starting where the leg is unimpaired.
+                    require(losses == sorted(set(losses)) and losses[0] == 0,
+                            f"at {level} competing UEs, losses start at 0 and increase, once each")
         for disturbance in data["disturbances"]:
             require(disturbance["site"] in sites, "a disturbance names an undeclared site")
             require(disturbance["leg"] in legs, "a disturbance names an undeclared leg")
             kind = legs[disturbance["leg"]]["kind"]
-            # An LTE leg has no rate to change, and a point-to-point leg has no radio.
-            require((disturbance["kind"], kind) in {("rate", "point_to_point"), ("radio_loss", "lte")},
+            # An LTE leg has no rate to change, and a point-to-point leg has no radio or cell.
+            require((disturbance["kind"], kind) in {("rate", "point_to_point"), ("radio_loss", "lte"),
+                                                    ("cell_load", "lte")},
                     f"a {disturbance['kind']} disturbance cannot apply to a {kind} leg")
+            if disturbance["kind"] == "cell_load":
+                require(disturbance["competing_ues"] <= MAX_COMPETING_UES,
+                        f"cell load beyond the model's valid range of {MAX_COMPETING_UES} competing UEs")
     elif kind == "CapabilityManifest":
         _unique(data["capabilities"], "capability_id")
         for cap in data["capabilities"]:

@@ -48,9 +48,9 @@ def _link(entry):
                 entry["queue_limit_bytes"])
 
 
-def _loss_rates(topology):
-    return {entry["leg_id"]: [(r["extra_loss_db"], r["capacity_bps"])
-                              for r in entry["logical"]["loss_rates"]]
+def _rate_tables(topology):
+    return {entry["leg_id"]: [(r["extra_loss_db"], r["competing_ues"], r["capacity_bps"])
+                              for r in entry["logical"]["rate_table"]]
             for entry in topology["legs"] if entry["kind"] == "lte"}
 
 
@@ -92,7 +92,7 @@ def build_world(scenario):
         scada_deadline_s=scada["deadline_s"], ami_deadline_s=flows["ami"]["deadline_s"],
         initial_path=topology["initial_path"], initial_pacing=topology["initial_pacing"],
         disturbances=[dict(d) for d in data["disturbances"]],
-        loss_rates=_loss_rates(topology),
+        rate_tables=_rate_tables(topology),
         leg_specs={entry["leg_id"]: dict(entry) for entry in topology["legs"]})
 
 
@@ -174,8 +174,8 @@ def _declared(scenario):
                       "ami": flows["ami"]["payload_bytes"]},
             "request": (flows["scada"]["payload_bytes"], flows["scada"]["processing_delay_s"]),
             "deadlines": {s: flows[s]["deadline_s"] for s in SERVICES},
-            "loss_rates": {leg: tuple(tuple(entry) for entry in table)
-                           for leg, table in _loss_rates(topology).items()}}
+            "rate_tables": {leg: tuple(sorted(tuple(entry) for entry in table))
+                            for leg, table in _rate_tables(topology).items()}}
 
 
 def verify_world(model, scenario):
@@ -185,7 +185,7 @@ def verify_world(model, scenario):
     actual = {"sites": model.sites, "legs": model.links, "egress": model.egress,
               "periods": dict(model.periods), "sizes": dict(model.sizes),
               "request": (model.request_bytes, model.processing_delay_s),
-              "deadlines": dict(model.deadlines), "loss_rates": dict(model.loss_rates)}
+              "deadlines": dict(model.deadlines), "rate_tables": dict(model.rate_tables)}
     for field, expected in declared.items():
         require(actual[field] == expected,
                 f"the model does not match scenario {data['scenario_id']}: "

@@ -40,6 +40,15 @@ so are recorded in the program: `LteHelper`'s `PathlossModel` is write-only, so 
 models are read from the channels; and with an EPC attached, ns-3 silently changes its
 `RLC_SM_ALWAYS` default to RLC UM, so the mode is set explicitly and reported.
 
+A `cell_load` disturbance activates competing UEs built at `configure` for the largest load
+any disturbance declares, at the loaded site's position, each saturating the uplink. Their
+traffic goes to a background sink beside the EPC, so it contends for the radio and never for
+the study's egress, and their drops are counted apart from the study's. The LTE leg is built
+in one place, [src/ecora-sim/lte-leg.h](src/ecora-sim/lte-leg.h), shared with the
+calibration program [src/ecora-calibrate/](src/ecora-calibrate/ecora-calibrate.cc), so what
+is calibrated is the leg that runs. `python -m ecora calibrate-lte` measures it and
+`--apply` writes the measured rate table into every scenario.
+
 A rate disturbance of zero on the alternative leg is realised as a receive error rate of 1
 at both ends, because a point-to-point device cannot run at zero. Drops are attributed from
 point-to-point queue and PHY drops, IPv4 drops and LTE RLC drops. A datagram discarded where

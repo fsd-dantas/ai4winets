@@ -579,6 +579,38 @@
       ],
       "type": "object"
     },
+    "CellLoadDisturbance": {
+      "additionalProperties": false,
+      "properties": {
+        "at_s": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "competing_ues": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "kind": {
+          "const": "cell_load"
+        },
+        "leg": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        },
+        "site": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "at_s",
+        "site",
+        "leg",
+        "kind",
+        "competing_ues"
+      ],
+      "type": "object"
+    },
     "Claim": {
       "additionalProperties": false,
       "properties": {
@@ -913,6 +945,9 @@
         },
         {
           "$ref": "#/$defs/RadioLossDisturbance"
+        },
+        {
+          "$ref": "#/$defs/CellLoadDisturbance"
         }
       ]
     },
@@ -993,6 +1028,17 @@
     "LogicalRadio": {
       "additionalProperties": false,
       "properties": {
+        "calibration": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "capacity_bps": {
           "exclusiveMinimum": 0,
           "type": "number"
@@ -1001,9 +1047,9 @@
           "minimum": 0,
           "type": "number"
         },
-        "loss_rates": {
+        "rate_table": {
           "items": {
-            "$ref": "#/$defs/LossRate"
+            "$ref": "#/$defs/RadioRate"
           },
           "minItems": 1,
           "type": "array",
@@ -1013,25 +1059,8 @@
       "required": [
         "capacity_bps",
         "delay_s",
-        "loss_rates"
-      ],
-      "type": "object"
-    },
-    "LossRate": {
-      "additionalProperties": false,
-      "properties": {
-        "capacity_bps": {
-          "minimum": 0,
-          "type": "number"
-        },
-        "extra_loss_db": {
-          "minimum": 0,
-          "type": "number"
-        }
-      },
-      "required": [
-        "extra_loss_db",
-        "capacity_bps"
+        "rate_table",
+        "calibration"
       ],
       "type": "object"
     },
@@ -2029,6 +2058,29 @@
         "leg",
         "kind",
         "extra_loss_db"
+      ],
+      "type": "object"
+    },
+    "RadioRate": {
+      "additionalProperties": false,
+      "properties": {
+        "capacity_bps": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "competing_ues": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "extra_loss_db": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "extra_loss_db",
+        "competing_ues",
+        "capacity_bps"
       ],
       "type": "object"
     },

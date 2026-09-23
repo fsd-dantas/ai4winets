@@ -358,6 +358,12 @@ def main(argv=None):
     manifest.add_argument("--facts", type=Path, required=True,
                           help="build-facts.json written by the same build")
     manifest.add_argument("--output", type=Path)
+    lte = commands.add_parser(
+        "calibrate-lte", help="measure the LTE leg's loss-to-rate table in the simulator")
+    lte.add_argument("--scenario", default="s0-nominal",
+                     help="the scenario whose LTE leg is measured")
+    lte.add_argument("--apply", action="store_true",
+                     help="write the measured interpretation into every scenario under scenarios/")
     args = parser.parse_args(argv)
     try:
         if args.command in {"schema", "fixtures"}:
@@ -399,6 +405,33 @@ def main(argv=None):
             print(f"ns-3 {built['release']}  model {built['model_hash'][:12]}  "
                   f"build {built['build_hash'][:12]}  {built['registry']['types']} types, "
                   f"{built['registry']['attributes']} attributes -> {path}")
+        elif args.command == "calibrate-lte":
+            from . import calibration, ns3build
+            manifest = ns3build.verify(ns3build.load())
+            spec = _scenario(args.scenario)
+            started = time.perf_counter()
+            points = calibration.measure(spec.data)
+            built = calibration.dataset(
+                spec.data, points, manifest["simulator_build_id"], manifest["model_hash"],
+                manifest["sources"]["ecora-calibrate/ecora-calibrate.cc"])
+            path = calibration.write(built)
+            table = built["table"]
+            print(f"{len(points)} points in {time.perf_counter() - started:.0f} s -> {path}")
+            print(f"  uplink capacity, unloaded and unimpaired: {table['capacity_bps']:.0f} bit/s")
+            for entry in table["rate_table"]:
+                print(f"  {entry['competing_ues']:>3} competitors from {entry['extra_loss_db']:>6} dB"
+                      f"  {entry['capacity_bps']:>12.0f} bit/s")
+            if args.apply:
+                for scenario_path in sorted(SCENARIOS.glob("s*.json")):
+                    current = json.loads(scenario_path.read_text(encoding="utf-8"))
+                    updated = calibration.apply(current, built)
+                    if updated == current:
+                        continue
+                    updated["revision"] = str(int(current["revision"]) + 1)
+                    Record("ScenarioSpec", updated)
+                    scenario_path.write_text(json.dumps(updated, indent=2, sort_keys=True) + "\n",
+                                             encoding="utf-8", newline="\n")
+                    print(f"  applied to {scenario_path.name} -> revision {updated['revision']}")
         elif args.command == "verify":
             if not (args.directory / "journal.jsonl").is_file():
                 raise ContractError("no existing artifact journal at this path")

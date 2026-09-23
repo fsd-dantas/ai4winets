@@ -69,7 +69,7 @@
       "window_s": 10
     }
   ],
-  "revision": "2",
+  "revision": "3",
   "scenario_id": "scenario:s5-narrow-egress",
   "synthetic": true,
   "topology": {
@@ -94,16 +94,559 @@
         "kind": "lte",
         "leg_id": "lte",
         "logical": {
-          "capacity_bps": 1000000,
+          "calibration": "b1ba7de3affeafb7be689a96c25207b2311f50b299592383b0b7cfaa73a584cd",
+          "capacity_bps": 17317478.4,
           "delay_s": 0.01,
-          "loss_rates": [
+          "rate_table": [
             {
-              "capacity_bps": 32000,
-              "extra_loss_db": 50
+              "capacity_bps": 17317478.4,
+              "competing_ues": 0,
+              "extra_loss_db": 0.0
             },
             {
-              "capacity_bps": 0,
-              "extra_loss_db": 200
+              "capacity_bps": 14411212.8,
+              "competing_ues": 0,
+              "extra_loss_db": 24.0
+            },
+            {
+              "capacity_bps": 10805145.6,
+              "competing_ues": 0,
+              "extra_loss_db": 28.0
+            },
+            {
+              "capacity_bps": 10079232.0,
+              "competing_ues": 0,
+              "extra_loss_db": 30.0
+            },
+            {
+              "capacity_bps": 8628275.2,
+              "competing_ues": 0,
+              "extra_loss_db": 32.0
+            },
+            {
+              "capacity_bps": 6084966.4,
+              "competing_ues": 0,
+              "extra_loss_db": 34.0
+            },
+            {
+              "capacity_bps": 4677529.6,
+              "competing_ues": 0,
+              "extra_loss_db": 36.0
+            },
+            {
+              "capacity_bps": 4132659.2,
+              "competing_ues": 0,
+              "extra_loss_db": 38.0
+            },
+            {
+              "capacity_bps": 3286630.4,
+              "competing_ues": 0,
+              "extra_loss_db": 40.0
+            },
+            {
+              "capacity_bps": 2440601.6,
+              "competing_ues": 0,
+              "extra_loss_db": 42.0
+            },
+            {
+              "capacity_bps": 1685094.4,
+              "competing_ues": 0,
+              "extra_loss_db": 44.0
+            },
+            {
+              "capacity_bps": 1020108.8,
+              "competing_ues": 0,
+              "extra_loss_db": 46.0
+            },
+            {
+              "capacity_bps": 626688.0,
+              "competing_ues": 0,
+              "extra_loss_db": 48.0
+            },
+            {
+              "capacity_bps": 0.0,
+              "competing_ues": 0,
+              "extra_loss_db": 49.75
+            },
+            {
+              "capacity_bps": 8265318.4,
+              "competing_ues": 1,
+              "extra_loss_db": 0.0
+            },
+            {
+              "capacity_bps": 4859443.2,
+              "competing_ues": 1,
+              "extra_loss_db": 30.0
+            },
+            {
+              "capacity_bps": 2259558.4,
+              "competing_ues": 1,
+              "extra_loss_db": 36.0
+            },
+            {
+              "capacity_bps": 1564108.8,
+              "competing_ues": 1,
+              "extra_loss_db": 40.0
+            },
+            {
+              "capacity_bps": 778137.6,
+              "competing_ues": 1,
+              "extra_loss_db": 44.0
+            },
+            {
+              "capacity_bps": 475238.4,
+              "competing_ues": 1,
+              "extra_loss_db": 46.0
+            },
+            {
+              "capacity_bps": 294195.2,
+              "competing_ues": 1,
+              "extra_loss_db": 48.0
+            },
+            {
+              "capacity_bps": 0.0,
+              "competing_ues": 1,
+              "extra_loss_db": 49.75
+            },
+            {
+              "capacity_bps": 5646284.8,
+              "competing_ues": 2,
+              "extra_loss_db": 0.0
+            },
+            {
+              "capacity_bps": 3286630.4,
+              "competing_ues": 2,
+              "extra_loss_db": 30.0
+            },
+            {
+              "capacity_bps": 1504051.2,
+              "competing_ues": 2,
+              "extra_loss_db": 36.0
+            },
+            {
+              "capacity_bps": 1020108.8,
+              "competing_ues": 2,
+              "extra_loss_db": 40.0
+            },
+            {
+              "capacity_bps": 506572.8,
+              "competing_ues": 2,
+              "extra_loss_db": 44.0
+            },
+            {
+              "capacity_bps": 294195.2,
+              "competing_ues": 2,
+              "extra_loss_db": 46.0
+            },
+            {
+              "capacity_bps": 181913.6,
+              "competing_ues": 2,
+              "extra_loss_db": 48.0
+            },
+            {
+              "capacity_bps": 0.0,
+              "competing_ues": 2,
+              "extra_loss_db": 49.75
+            },
+            {
+              "capacity_bps": 4132659.2,
+              "competing_ues": 3,
+              "extra_loss_db": 0.0
+            },
+            {
+              "capacity_bps": 2440601.6,
+              "competing_ues": 3,
+              "extra_loss_db": 30.0
+            },
+            {
+              "capacity_bps": 1110630.4,
+              "competing_ues": 3,
+              "extra_loss_db": 36.0
+            },
+            {
+              "capacity_bps": 747673.6,
+              "competing_ues": 3,
+              "extra_loss_db": 40.0
+            },
+            {
+              "capacity_bps": 370790.4,
+              "competing_ues": 3,
+              "extra_loss_db": 44.0
+            },
+            {
+              "capacity_bps": 227174.4,
+              "competing_ues": 3,
+              "extra_loss_db": 46.0
+            },
+            {
+              "capacity_bps": 127948.8,
+              "competing_ues": 3,
+              "extra_loss_db": 48.0
+            },
+            {
+              "capacity_bps": 0.0,
+              "competing_ues": 3,
+              "extra_loss_db": 49.75
+            },
+            {
+              "capacity_bps": 3528601.6,
+              "competing_ues": 4,
+              "extra_loss_db": 0.0
+            },
+            {
+              "capacity_bps": 2017587.2,
+              "competing_ues": 4,
+              "extra_loss_db": 30.0
+            },
+            {
+              "capacity_bps": 928716.8,
+              "competing_ues": 4,
+              "extra_loss_db": 36.0
+            },
+            {
+              "capacity_bps": 626688.0,
+              "competing_ues": 4,
+              "extra_loss_db": 40.0
+            },
+            {
+              "capacity_bps": 294195.2,
+              "competing_ues": 4,
+              "extra_loss_db": 44.0
+            },
+            {
+              "capacity_bps": 181913.6,
+              "competing_ues": 4,
+              "extra_loss_db": 46.0
+            },
+            {
+              "capacity_bps": 98355.2,
+              "competing_ues": 4,
+              "extra_loss_db": 48.0
+            },
+            {
+              "capacity_bps": 0.0,
+              "competing_ues": 4,
+              "extra_loss_db": 49.75
+            },
+            {
+              "capacity_bps": 2803558.4,
+              "competing_ues": 5,
+              "extra_loss_db": 0.0
+            },
+            {
+              "capacity_bps": 1625036.8,
+              "competing_ues": 5,
+              "extra_loss_db": 30.0
+            },
+            {
+              "capacity_bps": 718080.0,
+              "competing_ues": 5,
+              "extra_loss_db": 36.0
+            },
+            {
+              "capacity_bps": 491776.0,
+              "competing_ues": 5,
+              "extra_loss_db": 40.0
+            },
+            {
+              "capacity_bps": 227174.4,
+              "competing_ues": 5,
+              "extra_loss_db": 44.0
+            },
+            {
+              "capacity_bps": 150579.2,
+              "competing_ues": 5,
+              "extra_loss_db": 46.0
+            },
+            {
+              "capacity_bps": 67891.2,
+              "competing_ues": 5,
+              "extra_loss_db": 48.0
+            },
+            {
+              "capacity_bps": 0.0,
+              "competing_ues": 5,
+              "extra_loss_db": 49.75
+            },
+            {
+              "capacity_bps": 2077644.8,
+              "competing_ues": 6,
+              "extra_loss_db": 0.0
+            },
+            {
+              "capacity_bps": 1201152.0,
+              "competing_ues": 6,
+              "extra_loss_db": 30.0
+            },
+            {
+              "capacity_bps": 536166.4,
+              "competing_ues": 6,
+              "extra_loss_db": 36.0
+            },
+            {
+              "capacity_bps": 355123.2,
+              "competing_ues": 6,
+              "extra_loss_db": 40.0
+            },
+            {
+              "capacity_bps": 181913.6,
+              "competing_ues": 6,
+              "extra_loss_db": 44.0
+            },
+            {
+              "capacity_bps": 120985.6,
+              "competing_ues": 6,
+              "extra_loss_db": 46.0
+            },
+            {
+              "capacity_bps": 0.0,
+              "competing_ues": 6,
+              "extra_loss_db": 48.0
+            },
+            {
+              "capacity_bps": 1846118.4,
+              "competing_ues": 8,
+              "extra_loss_db": 0.0
+            },
+            {
+              "capacity_bps": 1067110.4,
+              "competing_ues": 8,
+              "extra_loss_db": 30.0
+            },
+            {
+              "capacity_bps": 476979.2,
+              "competing_ues": 8,
+              "extra_loss_db": 36.0
+            },
+            {
+              "capacity_bps": 315084.8,
+              "competing_ues": 8,
+              "extra_loss_db": 40.0
+            },
+            {
+              "capacity_bps": 161024.0,
+              "competing_ues": 8,
+              "extra_loss_db": 44.0
+            },
+            {
+              "capacity_bps": 107059.2,
+              "competing_ues": 8,
+              "extra_loss_db": 46.0
+            },
+            {
+              "capacity_bps": 0.0,
+              "competing_ues": 8,
+              "extra_loss_db": 48.0
+            },
+            {
+              "capacity_bps": 1511014.4,
+              "competing_ues": 10,
+              "extra_loss_db": 0.0
+            },
+            {
+              "capacity_bps": 873011.2,
+              "competing_ues": 10,
+              "extra_loss_db": 30.0
+            },
+            {
+              "capacity_bps": 389939.2,
+              "competing_ues": 10,
+              "extra_loss_db": 36.0
+            },
+            {
+              "capacity_bps": 258508.8,
+              "competing_ues": 10,
+              "extra_loss_db": 40.0
+            },
+            {
+              "capacity_bps": 132300.8,
+              "competing_ues": 10,
+              "extra_loss_db": 44.0
+            },
+            {
+              "capacity_bps": 87910.4,
+              "competing_ues": 10,
+              "extra_loss_db": 46.0
+            },
+            {
+              "capacity_bps": 0.0,
+              "competing_ues": 10,
+              "extra_loss_db": 48.0
+            },
+            {
+              "capacity_bps": 1038387.2,
+              "competing_ues": 15,
+              "extra_loss_db": 0.0
+            },
+            {
+              "capacity_bps": 600576.0,
+              "competing_ues": 15,
+              "extra_loss_db": 30.0
+            },
+            {
+              "capacity_bps": 268083.2,
+              "competing_ues": 15,
+              "extra_loss_db": 36.0
+            },
+            {
+              "capacity_bps": 177561.6,
+              "competing_ues": 15,
+              "extra_loss_db": 40.0
+            },
+            {
+              "capacity_bps": 90521.6,
+              "competing_ues": 15,
+              "extra_loss_db": 44.0
+            },
+            {
+              "capacity_bps": 60928.0,
+              "competing_ues": 15,
+              "extra_loss_db": 46.0
+            },
+            {
+              "capacity_bps": 0.0,
+              "competing_ues": 15,
+              "extra_loss_db": 48.0
+            },
+            {
+              "capacity_bps": 791193.6,
+              "competing_ues": 20,
+              "extra_loss_db": 0.0
+            },
+            {
+              "capacity_bps": 457830.4,
+              "competing_ues": 20,
+              "extra_loss_db": 30.0
+            },
+            {
+              "capacity_bps": 204544.0,
+              "competing_ues": 20,
+              "extra_loss_db": 36.0
+            },
+            {
+              "capacity_bps": 135782.4,
+              "competing_ues": 20,
+              "extra_loss_db": 40.0
+            },
+            {
+              "capacity_bps": 68761.6,
+              "competing_ues": 20,
+              "extra_loss_db": 44.0
+            },
+            {
+              "capacity_bps": 46131.2,
+              "competing_ues": 20,
+              "extra_loss_db": 46.0
+            },
+            {
+              "capacity_bps": 0.0,
+              "competing_ues": 20,
+              "extra_loss_db": 48.0
+            },
+            {
+              "capacity_bps": 638873.6,
+              "competing_ues": 25,
+              "extra_loss_db": 0.0
+            },
+            {
+              "capacity_bps": 369920.0,
+              "competing_ues": 25,
+              "extra_loss_db": 30.0
+            },
+            {
+              "capacity_bps": 165376.0,
+              "competing_ues": 25,
+              "extra_loss_db": 36.0
+            },
+            {
+              "capacity_bps": 109670.4,
+              "competing_ues": 25,
+              "extra_loss_db": 40.0
+            },
+            {
+              "capacity_bps": 55705.6,
+              "competing_ues": 25,
+              "extra_loss_db": 44.0
+            },
+            {
+              "capacity_bps": 37427.2,
+              "competing_ues": 25,
+              "extra_loss_db": 46.0
+            },
+            {
+              "capacity_bps": 0.0,
+              "competing_ues": 25,
+              "extra_loss_db": 48.0
+            },
+            {
+              "capacity_bps": 536166.4,
+              "competing_ues": 30,
+              "extra_loss_db": 0.0
+            },
+            {
+              "capacity_bps": 309862.4,
+              "competing_ues": 30,
+              "extra_loss_db": 30.0
+            },
+            {
+              "capacity_bps": 138393.6,
+              "competing_ues": 30,
+              "extra_loss_db": 36.0
+            },
+            {
+              "capacity_bps": 91392.0,
+              "competing_ues": 30,
+              "extra_loss_db": 40.0
+            },
+            {
+              "capacity_bps": 47001.6,
+              "competing_ues": 30,
+              "extra_loss_db": 44.0
+            },
+            {
+              "capacity_bps": 31334.4,
+              "competing_ues": 30,
+              "extra_loss_db": 46.0
+            },
+            {
+              "capacity_bps": 0.0,
+              "competing_ues": 30,
+              "extra_loss_db": 48.0
+            },
+            {
+              "capacity_bps": 461312.0,
+              "competing_ues": 35,
+              "extra_loss_db": 0.0
+            },
+            {
+              "capacity_bps": 266342.4,
+              "competing_ues": 35,
+              "extra_loss_db": 30.0
+            },
+            {
+              "capacity_bps": 119244.8,
+              "competing_ues": 35,
+              "extra_loss_db": 36.0
+            },
+            {
+              "capacity_bps": 78336.0,
+              "competing_ues": 35,
+              "extra_loss_db": 40.0
+            },
+            {
+              "capacity_bps": 40038.4,
+              "competing_ues": 35,
+              "extra_loss_db": 44.0
+            },
+            {
+              "capacity_bps": 26982.4,
+              "competing_ues": 35,
+              "extra_loss_db": 46.0
+            },
+            {
+              "capacity_bps": 0.0,
+              "competing_ues": 35,
+              "extra_loss_db": 48.0
             }
           ]
         },

@@ -99,9 +99,13 @@ def definitions():
                      enb_position_m=position,
                      site_positions_m={"type": "object", "additionalProperties": position,
                                        "minProperties": 1})
-    d["LossRate"] = obj(extra_loss_db=TIME, capacity_bps=TIME)
+    # One measured point of the leg's rate: under this much extra loss, with this many
+    # competing UEs loading the cell.
+    d["RadioRate"] = obj(extra_loss_db=TIME, competing_ues=COUNT, capacity_bps=TIME)
+    # `calibration` is the hash of the dataset the capacity and table were measured in, or
+    # null where they are still nominal, so a reader can tell which the finite world uses.
     d["LogicalRadio"] = obj(capacity_bps=POSITIVE, delay_s=TIME,
-                            loss_rates=array(ref("LossRate"), 1))
+                            rate_table=array(ref("RadioRate"), 1), calibration=nullable(HASH))
     d["LteLeg"] = obj(leg_id=ID, kind={"const": "lte"}, queue_limit_bytes=COUNT,
                       radio=ref("Radio"), logical=ref("LogicalRadio"))
     d["Leg"] = {"oneOf": [ref("PointToPointLeg"), ref("LteLeg")]}
@@ -113,7 +117,12 @@ def definitions():
                                rate_bps=TIME)
     d["RadioLossDisturbance"] = obj(at_s=TIME, site=ID, leg=ID, kind={"const": "radio_loss"},
                                     extra_loss_db=TIME)
-    d["Disturbance"] = {"oneOf": [ref("RateDisturbance"), ref("RadioLossDisturbance")]}
+    # Competing UEs at the site's position, each saturating the uplink. The count replaces
+    # the previous one; zero removes the load.
+    d["CellLoadDisturbance"] = obj(at_s=TIME, site=ID, leg=ID, kind={"const": "cell_load"},
+                                   competing_ues=COUNT)
+    d["Disturbance"] = {"oneOf": [ref("RateDisturbance"), ref("RadioLossDisturbance"),
+                                  ref("CellLoadDisturbance")]}
     d["ScenarioSpec"] = obj(scenario_id=ID, revision=ID, synthetic={"const": True},
                             topology=ref("Topology"), flows=array(ref("Flow"), 1),
                             requirements=array(ref("Requirement"), 1), initial_state=JSON_OBJECT,

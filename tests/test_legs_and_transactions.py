@@ -19,7 +19,8 @@ def world(**changes):
                 "egress": Link("egress", 256000, 0.001, 65536),
                 "scada_period_s": 0.1, "ami_period_s": 1.0, "scada_bytes": 512,
                 "ami_bytes": 512, "scada_deadline_s": 0.25, "ami_deadline_s": 10.0,
-                "loss_rates": {"lte": [(50, 32000), (200, 0)]}}
+                "rate_tables": {"lte": [(0, 0, 1000000), (50, 0, 32000), (200, 0, 0),
+                                        (0, 5, 200000), (48, 5, 68000), (49, 5, 0)]}}
     return FiniteModel(**{**settings, **changes})
 
 
@@ -59,13 +60,44 @@ class LegKindTests(unittest.TestCase):
         for loss, expected in ((0, 1000000), (49.9, 1000000), (50, 32000), (120, 32000),
                                (200, 0), (500, 0)):
             with self.subTest(loss=loss):
-                self.assertEqual(model.rate_for({"leg": "lte", "kind": "radio_loss",
+                self.assertEqual(model.rate_for({"site": "site-1", "leg": "lte",
+                                                 "kind": "radio_loss",
                                                  "extra_loss_db": loss}), expected)
 
-    def test_a_leg_with_no_table_cannot_take_a_radio_loss(self):
-        with self.assertRaises(ContractError):
-            world(loss_rates={}).rate_for({"leg": "lte", "kind": "radio_loss",
-                                           "extra_loss_db": 50})
+    def test_load_and_loss_combine_and_each_keeps_the_other(self):
+        """A cell load does not undo a radio loss, and a loss does not undo a load."""
+        model = world(disturbances=[
+            {"at_s": 0.1, "site": "site-1", "leg": "lte", "kind": "radio_loss", "extra_loss_db": 48},
+            {"at_s": 0.2, "site": "site-1", "leg": "lte", "kind": "cell_load", "competing_ues": 5},
+            {"at_s": 0.3, "site": "site-1", "leg": "lte", "kind": "cell_load", "competing_ues": 0}])
+        rate = lambda: model._queues[("site-1", "lte", "up")].rate_bps
+        model.advance_to(0.15)
+        self.assertEqual(rate(), 1000000, "48 dB alone is above no declared unloaded loss entry")
+        model.advance_to(0.25)
+        self.assertEqual(rate(), 68000, "the load applies at the loss the leg already has")
+        model.advance_to(0.35)
+        self.assertEqual(rate(), 1000000, "removing the load keeps the loss")
+        # Between declared load levels, the lower level's table applies.
+        self.assertEqual(model.lookup("lte", 48, 7), 68000)
+        self.assertEqual(model.lookup("lte", 48, 4), 1000000)
+
+    def test_a_leg_with_no_table_cannot_take_a_radio_condition(self):
+        for disturbance in ({"kind": "radio_loss", "extra_loss_db": 50},
+                            {"kind": "cell_load", "competing_ues": 5}):
+            with self.subTest(kind=disturbance["kind"]), self.assertRaises(ContractError):
+                world(rate_tables={}).rate_for({"site": "site-1", "leg": "lte", **disturbance})
+
+    def test_cell_load_applies_only_to_an_lte_leg_and_within_range(self):
+        with self.assertRaises(ContractError) as caught:
+            Record("ScenarioSpec", with_disturbance(
+                {"at_s": 1.0, "site": "site-1", "leg": "alternative", "kind": "cell_load",
+                 "competing_ues": 5}))
+        self.assertIn("cannot apply to a point_to_point leg", str(caught.exception))
+        with self.assertRaises(ContractError) as caught:
+            Record("ScenarioSpec", with_disturbance(
+                {"at_s": 1.0, "site": "site-1", "leg": "lte", "kind": "cell_load",
+                 "competing_ues": 36}))
+        self.assertIn("valid range", str(caught.exception))
 
     def test_a_disturbance_changes_both_directions(self):
         model = world(disturbances=[{"at_s": 0.5, "site": "site-1", "leg": "lte",

@@ -54,6 +54,39 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Added
 
+- **Interactive Curitiba DPOP replay**: a self-contained HTML view generated from the
+  actual DFS/UTIL integration trace, with municipal highlights, step/play controls and
+  conditional cost tables. Protocol activity colors are distinguished from future channel assignments.
+- **Upward DPOP UTIL propagation**: agents combine owned constraints and child tables,
+  retain conditional choices and send projected costs to their parents. The CLI reports
+  root optimal cost, infeasibility or table-budget exhaustion; channel reconstruction
+  remains planned. Tests compare generated problems against independent exhaustive search.
+- **DPOP table algebra**: canonical cost-table joins and minimization with conditional
+  argmin choices, explicit forbidden contexts, deterministic ties and pre-allocation
+  entry limits. Generated small tables are checked against direct enumeration; integration
+  into agent UTIL/VALUE execution remains planned.
+- **Distributed DCOP pseudo-tree construction**: local-state agents, typed message
+  envelopes, deterministic FIFO transport, DFS separators and exactly-once factor
+  ownership, plus a CLI to inspect synthetic or Curitiba geographic inputs. Acceptance
+  checks cover 152 small-graph/root combinations and both geographic scenarios.
+  UTIL/VALUE channel solving remains planned.
+- **Curitiba geographic inputs**: attributed IBGE 2022 boundaries selected using AMEP
+  membership, covering 29 metropolitan municipalities and a 14-municipality urban core.
+  GeoJSON validation, shared-boundary graph derivation, source hashes and light/dark map
+  previews are reproducible. Both graphs are connected and planar; no channel solve is claimed.
+- **Standalone channel-assignment domain foundation** in `software/dcop_channel_assignment/`:
+  immutable DCOP factors and forbidden costs, validated synthetic rectangular maps,
+  boundary-derived adjacency, a 12-region fixture and agent-local input translation.
+  Property checks cover all assignments of a small fixture. DPOP execution remains planned.
+- **A planned standalone DPOP channel-assignment study**, linked from the Experiment
+  Index, in `docs/dcop-channel-assignment/`. Revision 0.2 makes map coloring the primary
+  problem, with channel assignment as its wireless reading: four research questions on
+  validity, cost optimality, separator-driven table size and channel reassignment when a
+  mobile cell moves, each claim typed as correctness, illustrative or descriptive. A new
+  architecture page records bounded contexts, the DFS/UTIL/VALUE protocol, the agent
+  lifecycle, invariants and ten design decisions. The backlog is organized into gated
+  milestones with a critical path; the 960-run comparison is a deferred extension. No
+  results are claimed.
 - **The simulator adapter** in `software/ecora/simulator.py`. It starts the simulator
   (through WSL on Windows), speaks the framed protocol with the records' canonical
   encoding, and refuses any response from another build, to another request, or that never

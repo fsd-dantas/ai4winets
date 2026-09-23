@@ -110,6 +110,13 @@ Format and naming:
 
 ## Open configurations and data — sanitisation checklist
 
+Exception for the explicitly requested Curitiba geographic experiment: attributed public
+municipal boundaries, names and IBGE codes may be retained under
+`data/geography/curitiba-metropolitan/` and used in its geographic previews. These describe
+administrative geography, not deployed radio infrastructure. Document their sources and
+reference dates; AP identities, channel costs and any network placements remain synthetic.
+The real-coordinate exclusion below continues to apply to private/deployed network data.
+
 Configurations and data behind published results are themselves published. Nothing that identifies a real
 network may therefore enter this repository. Every scenario here is **synthetic**. Before any commit
 containing configuration, telemetry or topology, check:

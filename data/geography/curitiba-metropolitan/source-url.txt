@@ -1,0 +1,1 @@
+https://servicodados.ibge.gov.br/api/v3/malhas/estados/41?formato=application/vnd.geo%2Bjson&qualidade=maxima&intrarregiao=municipio&periodo=2022

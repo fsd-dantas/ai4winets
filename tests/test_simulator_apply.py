@@ -37,16 +37,19 @@ COMMANDS = {
 }
 
 
-def run(world, scenario, treatment, epochs):
+def run(world, scenario, treatment, epochs, knowledge=KNOWLEDGE):
     registry, study, scenario_set, frozen, caps = closed_loop_environment(
-        world, period_s=0.5, scenario=scenario, study=KNOWLEDGE)
+        world, period_s=0.5, scenario=scenario, study=knowledge)
     with ArtifactStore(Path(tempfile.mkdtemp()) / treatment) as store:
         admitted = registry.admit(study, scenario_set, frozen, caps, treatment, f"run:{treatment}")
         Run(Boundary(store, registry, admitted), world,
             streams=Streams(study.data["seed_manifest"]), capability_ids=CAPABILITIES,
             period_s=0.5, epochs=epochs, assembly=study.data["assembly"],
-            predicate_map=KNOWLEDGE.predicate_map).execute()
+            predicate_map=knowledge.predicate_map).execute()
+        # An epoch whose dispatch fell after the run closed has no action dataset.
+        dispatched = set(store.dataset_ids())
         receipts = [Record.from_dict(m.data["payload"]).data for i in range(epochs)
+                    if f"dataset:action:{i}" in dispatched
                     for m in store.messages(f"dataset:action:{i}")
                     if Record.from_dict(m.data["payload"]).kind == "ActionReceipt"]
     return receipts
@@ -114,6 +117,25 @@ class ApplyTests(unittest.TestCase):
         self.assertEqual(applied[-1]["resulting_state"], state["selected_path"])
         self.assertEqual(null_ratio, 0.0)
         self.assertEqual(ratio, 1.0, "SCADA recovers once the switch is applied")
+
+    def test_a_decision_overtaken_in_flight_is_refused_stale_in_both_worlds(self):
+        """B25: with dispatch 0.6 s after a 0.5 s epoch, the next decision reads the version
+        the first has not yet changed. Both worlds apply one and refuse the other, alike."""
+        scenario = load(SCENARIOS / "s1-degraded-primary.json")
+        delayed = resolve("delayed-control")
+
+        def outcome(receipts):
+            return [(r["disposition"], r["applied_at_s"],
+                     r["reason"]["code"] if r["reason"] else None) for r in receipts]
+        finite = build_world(scenario)
+        expected = outcome(run(finite, scenario, "planner", 6, delayed))
+        with Ns3World.start(scenario) as world:
+            simulated = outcome(run(world, scenario, "planner", 6, delayed))
+            state = world.actuator_state()
+        self.assertIn("stale_version", [code for _, _, code in expected])
+        self.assertEqual(simulated, expected)
+        self.assertEqual(state["path_version"]["site-1"],
+                         sum(d == "applied" for d, _, _ in simulated))
 
 
 if __name__ == "__main__":

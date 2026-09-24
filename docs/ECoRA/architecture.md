@@ -177,7 +177,7 @@ An unknown receipt never triggers blind re-execution. Query the actuator state u
 | TruthPort | read permitted current truth | Restrict Oracle access, log every request/result, propagate privilege lineage |
 | TimePort | simulation now, schedule | Separate simulation time from wall-clock computation time |
 
-The initial runtime can use an in-process coordinator, immutable files and a synchronous simulator barrier. A barrier pauses virtual time while a decision is computed; that is an idealised control-latency mode and must be labelled. A later latency-aware mode schedules actuation after an explicitly modelled decision/communication delay.
+The runtime uses an in-process coordinator and immutable files. Each study declares a decision period and a control latency: the world is paused at each decision epoch while the controller decides, and the resulting command is dispatched the declared latency later while simulated time runs on, with expiry and actuator version checked at dispatch. A latency of zero is the synchronous barrier, an idealised mode that is labelled as such. The latency is one declared constant standing in for decision and communication delay; host computation time is measured and reported separately and never becomes simulated delay.
 
 Batch replay is also useful, but it is a distinct experiment: a plan learned from one run and replayed into another is not online closed-loop control. A causal prefix-replay mode would need to show that every decision used only its available prefix.
 

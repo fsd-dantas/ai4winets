@@ -40,18 +40,22 @@ def _scenario(name):
     return load(path)
 
 
-def _execute(root, treatment, epochs, period_s, scenario, knowledge):
+def _execute(root, treatment, epochs, scenario, knowledge):
     model = build_world(scenario)
+    period_s = knowledge.control["decision_period_s"]
     registry, study, scenario_set, scenario, caps = closed_loop_environment(
-        model, period_s=period_s, scenario=scenario, study=knowledge)
+        model, scenario=scenario, study=knowledge)
     with ArtifactStore(root / treatment) as store:
         run = registry.admit(study, scenario_set, scenario, caps, treatment, f"run:{treatment}")
         boundary = Boundary(store, registry, run)
-        dataset = Run(boundary, model, streams=Streams(study.data["seed_manifest"]),
-                      capability_ids=CAPABILITIES, period_s=period_s, epochs=epochs,
-                      assembly=study.data["assembly"],
-                      predicate_map=knowledge.predicate_map).execute()
+        executed = Run(boundary, model, streams=Streams(study.data["seed_manifest"]),
+                       capability_ids=CAPABILITIES, period_s=period_s, epochs=epochs,
+                       assembly=study.data["assembly"],
+                       predicate_map=knowledge.predicate_map)
+        dataset = executed.execute()
+        present = set(store.dataset_ids())
         sensed = relayed = applied = 0
+        refused = {}
         for index in (*range(epochs), "closing"):
             for message in store.messages(f"dataset:ingest:{index}"):
                 sensed += len(Record.from_dict(message.data["payload"]).data["observations"])
@@ -61,9 +65,17 @@ def _execute(root, treatment, epochs, period_s, scenario, knowledge):
                 payload = Record.from_dict(message.data["payload"])
                 if payload.kind == "TelemetryBatch":
                     relayed += len(payload.data["observations"])
+            # Absent when the decision's dispatch fell after the run closed.
+            if f"dataset:action:{index}" not in present:
+                continue
             for message in store.messages(f"dataset:action:{index}"):
                 payload = Record.from_dict(message.data["payload"])
-                applied += payload.kind == "ActionReceipt" and payload.data["disposition"] == "applied"
+                if payload.kind != "ActionReceipt":
+                    continue
+                applied += payload.data["disposition"] == "applied"
+                if payload.data["disposition"] == "rejected":
+                    code = payload.data["reason"]["code"]
+                    refused[code] = refused.get(code, 0) + 1
         concluded, activations = set(), 0
         for index in range(epochs):
             for message in store.messages(f"dataset:diagnosis:{index}"):
@@ -98,7 +110,10 @@ def _execute(root, treatment, epochs, period_s, scenario, knowledge):
                 "bindings": {stage: run.binding(stage)["provider_id"]
                              for stage in ("telemetry", "diagnosis", "planning", "resolution",
                                            "action", "result", "assurance")},
-                "sensed": sensed, "relayed": relayed, "applied": applied,
+                "sensed": sensed, "relayed": relayed, "applied": applied, "refused": refused,
+                "undispatched": len(executed.undispatched),
+                "host_decision_s": list(executed.host_decision_s),
+                "schedule": executed.schedule,
                 "concluded": sorted(concluded), "activations": activations,
                 "behaviour": behaviour,
                 "path": model.truth()["selected_path"]["site-1"],
@@ -117,8 +132,7 @@ def _verdicts(result):
     return ", ".join(f"{count} {verdict}" for verdict, count in sorted(counted.items()))
 
 
-def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO,
-             study=DEFAULT_STUDY):
+def showcase(directory, epochs, scenario=DEFAULT_SCENARIO, study=DEFAULT_STUDY):
     """Run the declared treatments over one frozen study and compare them.
 
     Each differs from the previous one in a single stage binding, so the difference
@@ -127,7 +141,7 @@ def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO,
     started = time.perf_counter()
     spec = _scenario(scenario)
     knowledge = resolve_study(study)
-    results = [_execute(directory, treatment, epochs, period_s, spec, knowledge)
+    results = [_execute(directory, treatment, epochs, spec, knowledge)
                for treatment in ("null_baseline", "closed_loop", "observing", "expert",
                                  "blackboard", "planner", "gps", "eco", "unattended", "assured",
                                  "oracle_result", "oracle_diagnosis")]
@@ -143,7 +157,9 @@ def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO,
     print(f"  knowledge {knowledge.study_id}@{knowledge.revision}  "
           f"{knowledge.content_hash[:12]}  {len(knowledge.rules['rules'])} rules, "
           f"{len(knowledge.assembly['planning']['goals'])} goal(s)")
-    print(f"  schedule  {epochs} decision epochs at {period_s} s\n")
+    schedule = results[0]["schedule"]
+    print(f"  schedule  {epochs} decision epochs at {schedule.period_s} s, "
+          f"{schedule.label()}\n")
     header = (f"  {'treatment':<16}{'relayed':>8}{'concluded':>11}{'activations':>13}"
               f"{'applied':>9}   {'path':<13}{'requirements'}")
     print(header)
@@ -155,6 +171,16 @@ def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO,
           f" (the adapter sensed {results[0]['sensed']})")
     print("  concluded   = distinct supported hypotheses the diagnosis stage reached")
     print("  activations = rule activations, which is orchestration cost and not evidence")
+    hosted = [s for r in results for s in r["host_decision_s"]]
+    print(f"\n  Control timing: simulated dispatch {schedule.latency_s} s after each decision.")
+    print(f"    host decision time per epoch: mean {1000 * sum(hosted) / len(hosted):.1f} ms,"
+          f" max {1000 * max(hosted):.1f} ms, across {len(hosted)} epochs")
+    print("    Host time is reported, never charged: a slow host is not a slow controller.")
+    for r in results:
+        if r["refused"] or r["undispatched"]:
+            refusals = ", ".join(f"{code} {n}" for code, n in sorted(r["refused"].items()))
+            print(f"    {r['treatment']:<16} refused at the actuator: {refusals or 'none'};"
+                  f" in flight at close: {r['undispatched']}")
     print("\n  What changed between each pair, binding by binding:")
     for earlier, later in zip(results, results[1:]):
         changed = [stage for stage in earlier["bindings"]
@@ -275,22 +301,23 @@ def showcase(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO,
     print(f"\n  Elapsed {time.perf_counter() - started:.1f} s")
 
 
-def sufficiency_study(directory, epochs, period_s=0.5, scenario=DEFAULT_SCENARIO,
-                      study=DEFAULT_STUDY):
+def sufficiency_study(directory, epochs, scenario=DEFAULT_SCENARIO, study=DEFAULT_STUDY):
     """Contract-limited versus privileged diagnosis over each named observation subset."""
     from . import sufficiency
     started = time.perf_counter()
     spec = _scenario(scenario)
     knowledge = resolve_study(study)
+    period_s = knowledge.control["decision_period_s"]
     runs, subsets = sufficiency.execute(
         directory, build_model=lambda: build_world(spec),
         environment=lambda model: closed_loop_environment(
-            model, period_s=period_s, scenario=spec, study=knowledge),
+            model, scenario=spec, study=knowledge),
         capability_ids=CAPABILITIES, knowledge=knowledge, period_s=period_s, epochs=epochs)
     comparison = sufficiency.compare(runs, subsets, knowledge.rules)
     print("ECoRA -- telemetry sufficiency, downstream stages held fixed\n")
     print(f"  scenario  {spec.data['scenario_id']}   study {knowledge.study_id}"
-          f"   {epochs} epochs at {period_s} s")
+          f"   {epochs} epochs at {period_s} s, "
+          f"dispatch after {knowledge.control['control_latency_s']} s")
     print(f"  measure   {comparison['service_metric']} per service; diagnosis scored "
           f"against truth after each decision\n")
     services = sorted({s for row in comparison["rows"] for s in row["contract"]["service"]})

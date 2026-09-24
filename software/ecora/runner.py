@@ -8,7 +8,9 @@ treatments, so they cannot vary with the arm under comparison.
 """
 
 from functools import partial
+import math
 import random
+import time
 
 from .boundary import Boundary
 from .contracts import Record, digest, require
@@ -85,6 +87,73 @@ class Streams:
         return {name: stream.snapshot() for name, stream in sorted(self._streams.items())}
 
 
+class Schedule:
+    """When a decision is taken, when its command reaches the actuator, and when it is seen.
+
+    Decisions are taken at declared epochs. A command is dispatched a declared control
+    latency after the decision that produced it, and the world keeps running in between:
+    the command meets whatever state the world has reached by then, and the actuator's
+    compare-and-swap and the command's expiry are checked at that instant, not at the
+    decision. Zero latency is the synchronous barrier, which pauses the world while the
+    controller decides; it is idealised, and a run under it says so.
+
+    At an instant where a dispatch and an observation coincide, the dispatch goes first, so
+    an observation always reflects every command that reached the actuator by then. The
+    one exception is the barrier's own command, which cannot precede the observation it
+    was decided from. Times are compared to within a nanosecond so that a latency equal to
+    the period lands on the epoch grid rather than on either side of it by rounding.
+
+    Host time spent deciding is measured and reported beside this, never added to it: a
+    slow host does not become a slow controller.
+    """
+
+    TIE_S = 1e-9
+
+    def __init__(self, period_s, latency_s=0.0):
+        require(period_s > 0, "a decision period is positive")
+        require(latency_s >= 0, "a control latency cannot be negative")
+        self.period_s = period_s
+        self.latency_s = latency_s
+
+    @classmethod
+    def declared(cls, control):
+        return cls(control["decision_period_s"], control["control_latency_s"])
+
+    @property
+    def barrier(self):
+        return self.latency_s == 0
+
+    def label(self):
+        if self.barrier:
+            return "synchronous barrier (idealised: no control latency charged)"
+        return f"dispatch {self.latency_s} s after each decision"
+
+    def decision_at(self, index):
+        return index * self.period_s
+
+    def dispatch_at(self, index):
+        at = self.decision_at(index)
+        return at if self.barrier else round(at + self.latency_s, 9)
+
+    def due(self, dispatch_s, at):
+        """Whether a command dispatched at dispatch_s lands before the observation at `at`."""
+        return dispatch_s <= at + self.TIE_S
+
+    def evidence_index(self, dispatch_s):
+        """The first epoch whose observation follows a dispatch, by the tie rule above."""
+        index = max(0, math.floor(dispatch_s / self.period_s) - 1)
+        if self.barrier:
+            while self.decision_at(index) <= dispatch_s + self.TIE_S:
+                index += 1
+        else:
+            while not self.due(dispatch_s, self.decision_at(index)):
+                index += 1
+        return index
+
+    def evidence_at(self, dispatch_s):
+        return self.decision_at(self.evidence_index(dispatch_s))
+
+
 def observation_batch(model, capability_ids, at, period_s, sequence):
     """Build the adapter batch for a moment in the world.
 
@@ -107,17 +176,19 @@ def observation_batch(model, capability_ids, at, period_s, sequence):
 class ModelActionProvider:
     """Applies an admitted command to the finite world and reports what it observed.
 
-    An applied receipt cites the observation the run exports at the next decision epoch,
-    derived from the model's own identity scheme rather than a formatted guess, so the
-    evidence a receipt names is evidence the run actually produces.
+    It is invoked at the dispatch instant, which is its watermark. An applied receipt cites
+    the first observation the run exports after that instant, derived from the model's own
+    identity scheme rather than a formatted guess, so the evidence a receipt names is
+    evidence the run actually produces.
     """
 
-    def __init__(self, model, period_s):
+    def __init__(self, model, schedule):
         self.model = model
-        self.period_s = period_s
+        self.schedule = schedule
 
     def invoke(self, inputs, prior_state, context):
         watermark = context.data["decision_watermark_s"]
+        observed_at = self.schedule.evidence_at(watermark)
         receipts = []
         for message in inputs:
             payload = Record.from_dict(message.data["payload"])
@@ -127,7 +198,7 @@ class ModelActionProvider:
             readback = {"select_path": "path_state", "set_ami_pacing": "pacing_profile"}
             metric = readback.get(payload.data["operator"])
             evidence = [self.model.observation_id(payload.data["target"], metric,
-                                                  watermark + self.period_s)] if applied and metric else []
+                                                  observed_at)] if applied and metric else []
             receipts.append(Record("ActionReceipt", {
                 "command_id": payload.data["command_id"],
                 "idempotency_key": payload.data["idempotency_key"],
@@ -163,6 +234,18 @@ class Run:
         # A branch starts partway through, on a world regenerated and verified against the
         # recorded prefix. Everything it produces from here is its own.
         self.start_epoch = start_epoch
+        # The timing is the admitted study's, not an argument: it is harness-fixed across
+        # treatments, so two arms are never compared under different latencies, and it is
+        # hashed into the run's scope with everything else the study froze.
+        self.schedule = Schedule.declared(boundary.run.study.data["control"])
+        require(self.schedule.period_s == period_s,
+                "the run's decision period differs from the one its study declares")
+        # Host seconds spent deciding, per epoch. Reported beside the simulated latency and
+        # kept out of the evidence, which must reproduce on any host.
+        self.host_decision_s = []
+        # Epochs whose decided commands were due after the run closed. Their action stage
+        # never runs, so they reach no actuator and no receipt.
+        self.undispatched = []
         self._state = {}
 
     def _advance(self, stage, invocation_id, dataset_ids, watermark):
@@ -175,9 +258,11 @@ class Run:
         return dataset.data["dataset_id"]
 
     def _epoch(self, index):
-        at = index * self.period_s
+        """Observe and decide at one epoch; return the resolution awaiting dispatch."""
+        at = self.schedule.decision_at(index)
         self.model.advance_to(at)
         source = self._export(str(index), at, index)
+        started = time.perf_counter()
         telemetry = self._advance("telemetry", f"telemetry:{index}", [source.data["dataset_id"]], at)
         diagnosis = self._advance("diagnosis", f"diagnosis:{index}", [telemetry], at)
         known, unknown = self._projection(diagnosis)
@@ -189,7 +274,26 @@ class Run:
             watermark_s=at).data["dataset_id"]
         planning = self._advance("planning", f"planning:{index}", [problem], at)
         resolution = self._advance("resolution", f"resolution:{index}", [planning], at)
+        self.host_decision_s.append(time.perf_counter() - started)
+        return resolution
+
+    def _dispatch(self, index, resolution):
+        """Deliver one epoch's resolution to the actuator at its dispatch instant.
+
+        The action stage's watermark is the dispatch instant, so the boundary checks the
+        command's expiry and not-before time there, and the world has moved on by the
+        latency since the decision was taken.
+        """
+        at = self.schedule.dispatch_at(index)
+        self.model.advance_to(at)
         return self._advance("action", f"action:{index}", [resolution], at)
+
+    def _dispatch_due(self, pending, at):
+        """Dispatch, in order, every pending command that lands before the observation at `at`."""
+        last = None
+        while pending and self.schedule.due(self.schedule.dispatch_at(pending[0][0]), at):
+            last = self._dispatch(*pending.pop(0))
+        return last
 
     def _projection(self, diagnosis_dataset):
         """Project the diagnosis onto symbolic predicates, and say what stays unknown.
@@ -241,10 +345,18 @@ class Run:
 
     def execute(self):
         """Run every epoch, then close the run with a result and an assurance report."""
-        last_action = None
+        last_action, pending = None, []
         for index in range(self.start_epoch, self.epochs):
-            last_action = self._epoch(index)
-        closing = self.epochs * self.period_s
+            at = self.schedule.decision_at(index)
+            last_action = self._dispatch_due(pending, at) or last_action
+            pending.append((index, self._epoch(index)))
+            if self.schedule.barrier:
+                last_action = self._dispatch(*pending.pop())
+        closing = self.schedule.decision_at(self.epochs)
+        last_action = self._dispatch_due(pending, closing) or last_action
+        self.undispatched = [index for index, resolution in pending
+                             if any(m.data["payload"]["record_type"] == "ActionCommand"
+                                    for m in self.boundary.store.messages(resolution))]
         self.model.advance_to(closing)
         # A closing observation, so the consequence of the final action is observed rather
         # than asserted. Without it a receipt would cite evidence the run never exports.
@@ -294,24 +406,66 @@ class Continuation:
         return [p for p in self._payloads(f"dataset:resolution:{epoch}")
                 if p.kind == "ActionCommand" and p.data["command_id"] in applied]
 
+    def dispatched_at(self, epoch):
+        """When the recorded run dispatched an epoch's decision, or None if it never did."""
+        if f"dataset:action:{epoch}" not in self.store.dataset_ids():
+            return None
+        return self.store.invocation(f"action:{epoch}").data["decision_watermark_s"]
+
     def regenerate(self, branch_epoch):
-        """Rebuild the world up to the branch point, refusing to continue if it diverges."""
+        """Rebuild the world up to the branch point, refusing to continue if it diverges.
+
+        Each recorded command is reapplied at the instant it was dispatched, not at the
+        decision that produced it, in the order the recorded run observed and dispatched:
+        a command lands before any observation it does not postdate, and a barrier's
+        command after the observation it was decided from.
+
+        A branch cannot start while a decision from its prefix is still in flight. The
+        branch would either have to carry the old controller's command into its own
+        continuation or drop it, and both change the world the branch claims to share.
+        """
         recorded = self.recorded_prefix(branch_epoch)
+        schedule = Schedule(self.period_s)
+        branch_at = schedule.decision_at(branch_epoch)
+        timeline = []
+        for epoch in range(branch_epoch):
+            dispatched = self.dispatched_at(epoch)
+            commands = self.applied_commands(epoch) if dispatched is not None else []
+            decided = [p for p in self._payloads(f"dataset:resolution:{epoch}")
+                       if p.kind == "ActionCommand"]
+            require(not decided or (dispatched is not None and schedule.due(dispatched, branch_at)),
+                    f"a command decided at epoch {epoch} is still in flight at the branch point")
+            if commands:
+                timeline.append((dispatched, epoch, commands))
         model = self.build_model()
-        for index in range(branch_epoch):
-            at = index * self.period_s
+        for index in range(branch_epoch + 1):
+            at = schedule.decision_at(index)
+            # Commands decided earlier that land before this observation, then, at the
+            # branch epoch, nothing further: the branch run observes it itself.
+            while timeline and timeline[0][1] < index and schedule.due(timeline[0][0], at):
+                self._reapply(model, *timeline.pop(0))
+            if index == branch_epoch:
+                break
             model.advance_to(at)
             batch = observation_batch(model, self.capability_ids, at, self.period_s, index)
             require([batch.content_hash] == recorded[index],
                     f"regenerated prefix diverges from the recorded run at epoch {index}")
-            for command in self.applied_commands(index):
-                applied, why = model.apply(command)
-                require(applied, f"a recorded command no longer applies at epoch {index}: {why}")
+            # A barrier's command lands after the observation it was decided from.
+            while timeline and timeline[0][1] == index and timeline[0][0] <= at:
+                self._reapply(model, *timeline.pop(0))
         return model
 
+    @staticmethod
+    def _reapply(model, dispatched, epoch, commands):
+        model.advance_to(dispatched)
+        for command in commands:
+            applied, why = model.apply(command)
+            require(applied, f"a recorded command no longer applies at epoch {epoch}: {why}")
 
-def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilities=(),
-                            projection=None, rules=None, scenario=None, study=None):
+
+def closed_loop_environment(model, *, period_s=None, latency_s=None, assembly=None,
+                            extra_capabilities=(), projection=None, rules=None, scenario=None,
+                            study=None):
     """A study whose action stage is bound to the finite world, with a Null arm beside it.
 
     The Null treatment and the closed-loop treatment differ in one binding, so a paired
@@ -322,8 +476,17 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
     the world was built from and the run is refused if the model does not match it; where
     none is supplied the scenario is derived from the model instead. Either way the
     scenario hash frozen into every claim describes the world that actually ran.
+
+    The decision period and control latency are the study's. Either may be overridden
+    here, and whatever results is what the manifest freezes and every run under it uses.
     """
     study = study or BASELINE
+    control = {"decision_period_s": study.control["decision_period_s"] if period_s is None
+               else period_s,
+               "control_latency_s": study.control["control_latency_s"] if latency_s is None
+               else latency_s}
+    schedule = Schedule.declared(control)
+    period_s = schedule.period_s
     projection = projection or study.projection
     rules = rules or study.rules
     planner, coordination = study.planner, study.eco
@@ -341,7 +504,8 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
         # requiring them here would only check the grant against itself.
         scenario = describe_world(model, scenario_id="scenario:derived")
     registry, study, scenario_set, scenario, caps = fixture_environment(
-        assembly=assembly, extra_capabilities=extra_capabilities, scenario=scenario)
+        assembly=assembly, extra_capabilities=extra_capabilities, scenario=scenario,
+        control=control)
     # Truth is granted separately from observation and actuation: the registry refuses an
     # ordinary binding that holds a truth capability, so the split has to be explicit.
     every = caps.data["capabilities"]
@@ -352,7 +516,7 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
         "arm": "proposed", "input_types": list(INPUT_TYPES["action"]),
         "output_types": list(OUTPUT_TYPES["action"]), "state_schema_version": "1",
         "capability_ids": granted, "direct_truth_access": False})
-    registry.register(spec, partial(ModelActionProvider, model, period_s))
+    registry.register(spec, partial(ModelActionProvider, model, schedule))
     data = study.data
     null_treatment = next(t for t in data["treatments"] if t["treatment_id"] == "null_baseline")
     bindings = []
@@ -407,7 +571,7 @@ def closed_loop_environment(model, *, period_s, assembly=None, extra_capabilitie
         "input_types": list(INPUT_TYPES["action"]), "output_types": list(OUTPUT_TYPES["action"]),
         "state_schema_version": "1", "capability_ids": granted, "direct_truth_access": False})
     if not registry.registered("action", "action.verified_application", "finite-v1"):
-        registry.register(oracle_action, partial(ModelActionProvider, model, period_s))
+        registry.register(oracle_action, partial(ModelActionProvider, model, schedule))
     verified = [{k: v for k, v in oracle_action.data.items() if k != "direct_truth_access"} |
                 {"information_regime": "contract_only", "allow_privileged_inputs": False,
                  "configuration": {}, "configuration_hash": digest({})}

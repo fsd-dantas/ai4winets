@@ -739,6 +739,24 @@
       ],
       "type": "object"
     },
+    "ControlTiming": {
+      "additionalProperties": false,
+      "properties": {
+        "control_latency_s": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "decision_period_s": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "decision_period_s",
+        "control_latency_s"
+      ],
+      "type": "object"
+    },
     "DatasetArtifact": {
       "additionalProperties": false,
       "properties": {
@@ -3434,6 +3452,9 @@
           "exclusiveMinimum": 0,
           "type": "number"
         },
+        "control": {
+          "$ref": "#/$defs/ControlTiming"
+        },
         "frozen": {
           "const": true
         },
@@ -3480,6 +3501,7 @@
         "scenario_set_hash",
         "treatments",
         "assembly",
+        "control",
         "capability_manifest_hash",
         "parameter_set_hash",
         "analysis_version",

@@ -63,9 +63,11 @@ class ContinuationTests(unittest.TestCase):
         store, original, _ = self.run_one("expert", "recorded", "run:recorded")
         rebuilt = self.continuation(store).regenerate(BRANCH)
         self.assertEqual(rebuilt.truth()["selected_path"], {"site-1": "alternative"})
-        # Regeneration leaves the clock where the last replayed epoch left it; the branch
-        # epoch is the one that advances it, so no epoch is skipped or replayed twice.
-        self.assertEqual(rebuilt.now, (BRANCH - 1) * PERIOD)
+        # Regeneration leaves the clock at the prefix's last event: the last replayed epoch,
+        # or a command dispatched after it. The branch epoch is the one that advances past
+        # that, so no epoch is skipped or replayed twice.
+        self.assertGreaterEqual(rebuilt.now, (BRANCH - 1) * PERIOD)
+        self.assertLess(rebuilt.now, BRANCH * PERIOD)
         self.assertGreater(len(self.continuation(store).applied_commands(0)), 0)
 
     def test_a_prefix_that_does_not_reproduce_refuses_to_branch(self):

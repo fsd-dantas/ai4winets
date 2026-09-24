@@ -713,12 +713,12 @@ command with no version (`missing_version`) or an outdated one (`stale_version`)
 nothing; a second write planned on the version the first consumed is stale, and the two
 actuators version independently. The same commands receive the same answers in both worlds.
 
-No run reaches `stale_version`. Evidence is observed and the command applied at the same
-instant, and resolution admits one write per target, so the version planned against is
-always current. The blackboard treatment still reapplies its switch every epoch, each write
-naming the version the previous one produced: compare-and-swap prevents lost updates, not
-churn. The refusal becomes reachable with control latency (B25), when a decision can be
-applied after the state it read has moved.
+Under the synchronous barrier no run reached `stale_version`: evidence was observed and the
+command applied at the same instant, and resolution admits one write per target, so the
+version planned against was always current. It stays unreachable under any latency shorter
+than the decision period, including the baseline's 10 ms, because every command lands
+before the next decision reads the version. It is reached once latency exceeds the period;
+see [Control latency](#control-latency).
 
 ## Delivery summaries
 
@@ -773,6 +773,56 @@ leave the ledger unchanged, no observation exports a leg condition (the simulato
 the request as an unsupported signal), and no truth projection carries one. The schedule is
 fixed at configure; a hook the harness can call mid-run is needed only for branching (B55)
 and is not built.
+
+## Control latency
+
+Each study declares its decision period and control latency (`control`), and the admitted
+study manifest freezes them, so they are fixed across every treatment and hashed into
+every run's scope. The harness observes and decides at each epoch, then dispatches the
+resulting command after the latency while the world runs on. The action stage's watermark
+is the dispatch instant, so the boundary checks the command's expiry and not-before time
+there, and the actuator checks its version against the state the world has reached by
+then. Where a dispatch and an observation fall at the same instant, the dispatch goes
+first. A receipt cites the first observation after its dispatch. Zero latency is the
+synchronous barrier, which runs and reports as idealised.
+
+Host time spent deciding is measured per epoch and printed beside the simulated latency.
+It is never added to the latency and never enters the evidence: two runs of the same
+configuration end at the same journal head while their host times differ. About 0.23 s per
+epoch on this host, finite world, which includes the store's writes.
+
+Receipts on S1, planner and Null planner (blackboard), six epochs at 0.5 s. The finite
+world and the simulator produce these identically, receipt for receipt:
+
+| Study | Latency | Planner | Null planner |
+| --- | --- | --- | --- |
+| baseline | 10 ms | applied at 0.51 s | applied at every epoch, 0.01 s to 2.51 s |
+| delayed-control | 0.6 s | applied at 1.1 s, then `stale_version` | applied, `stale_version`, applied, `stale_version`, applied |
+
+Under `delayed-control` the planner decides the switch at 0.5 s and, since that command has
+not landed, again at 1.0 s against the same version. The first lands at 1.1 s and the
+second is refused at 1.6 s, changing nothing. The Null planner's switch, which under
+the barrier was reapplied every epoch, now alternates. Compare-and-swap still prevents
+lost updates, not churn; at this latency it happens to refuse every second write. The last
+epoch's decision is due after the run closes, so it never reaches the actuator, and the
+showcase reports it as in flight.
+
+What the dispatch instant checks is reachable:
+
+- **Expiry at dispatch.** The study refuses a latency at or beyond any command validity,
+  since every command would expire on arrival. Overridden past it (1.2 s against a 1 s
+  validity), the boundary rejects each delivery as a stale command and the world does not move.
+- **Version at dispatch.** Reached as above, in both worlds.
+- **Continuation.** Regeneration reapplies each recorded command at its recorded dispatch
+  instant, under the same tie rule, and verifies under 10 ms latency at every branch
+  point. A branch is refused while a command decided in its prefix is still in flight: the
+  branch would otherwise have to carry the old controller's command or drop it, and either
+  changes the world it claims to share.
+
+Nominal values, uncalibrated. The baseline's 10 ms is the register's `controller_delay_s`.
+Its 0.5 s period is the showcase's, not the register's 0.100 s, which B41 decides from
+measured cost. `delayed-control`'s 0.6 s is chosen to reach a mechanism, not measured. No
+control latency is claimed for any real controller.
 
 ## Simulator adapter
 

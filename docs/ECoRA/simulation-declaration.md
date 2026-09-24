@@ -43,8 +43,8 @@ Read from `software/simulator/src/ecora-sim/lte-leg.h`, `ecora-sim.cc` and the a
 | Disturbances | `included` | Scheduled, declared per site and leg; no stochastic failure process | Scenario `disturbances` |
 | Decision and control | `included` | Expert systems, blackboard, STRIPS/GPS/A* planning and eco-agents over granted signals; actions through the action contract, with receipts from actuator readback | [Decision methods](decision-methods.md), [action contract](../../system/action-contract.md) |
 | Observability | `included` | Only granted signals; the LTE site queue is `derived`; the delivery summary `scada_response` is delayed by 10 ms; truth is privileged and logged | [Telemetry contract](../../system/telemetry-contract.md) |
-| Control timing | `abstracted` | Decisions at declared epochs; explicit control-latency accounting is B25 | [Control loop](../../system/control-loop.md) |
-| Compute and reasoning delay | `assumed_negligible` | Reasoning effort is counted (passes, plan steps, expansions) but not charged as simulated time | B32 |
+| Control timing | `abstracted` | Decisions at declared epochs; each command dispatched a fixed, declared latency later while the world runs on, with expiry and actuator version checked at dispatch (B25). One constant per study, nominal and uncalibrated; no delay distribution, jitter or loss on the control path | Study `control`, [validation](../../software/validation.md#control-latency) |
+| Compute and reasoning delay | `assumed_negligible` | Reasoning effort is counted (passes, plan steps, expansions) and host decision time is measured and reported, but neither is charged as simulated time; the declared latency stands in for both | B32, B25 |
 | Energy | `out_of_scope` | No energy claim is made | — |
 | Security and adversaries | `out_of_scope` | No attack or adversarial-observation claim is made | — |
 | Cyber-physical coupling | `out_of_scope` | SCADA and AMI are workloads; no power-system state is modelled | — |
@@ -54,9 +54,9 @@ Read from `software/simulator/src/ecora-sim/lte-leg.h`, `ecora-sim.cc` and the a
 
 | Claim | Must be credible | Current gap |
 | --- | --- | --- |
-| A controller keeps SCADA within its deadline under a condition | Queues, scheduler, PHY error and retransmission, traffic, control latency, tail metrics | Fading omitted; control latency not yet charged (B25) |
+| A controller keeps SCADA within its deadline under a condition | Queues, scheduler, PHY error and retransmission, traffic, control latency, tail metrics | Fading omitted; control latency charged as one nominal constant, not a measured distribution |
 | Throttling AMI relieves contention | Egress and RLC queueing, per-class accounting, offered versus delivered load | Single-site topology (B64) |
-| Path selection recovers a degraded or silent leg | Leg degradation mechanism, probe evidence and its lag, actuation delay | Actuation delay not yet charged (B25); interference out of scope |
+| Path selection recovers a degraded or silent leg | Leg degradation mechanism, probe evidence and its lag, actuation delay | Actuation delay charged as one nominal constant (B25); interference out of scope |
 | A method outperforms a baseline | All of the above, plus paired replications, uncertainty and the frozen study | Replication counts and intervals are B40 obligations |
 | A gap is attributable to information, not method | Observation permissions, privileged-reference separation (B38) | None beyond the above |
 

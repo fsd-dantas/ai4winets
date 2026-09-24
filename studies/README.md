@@ -34,6 +34,7 @@ being measured.
 | `arbitration.json` | rule conflict: one pair at equal authority, one resolved by priority |
 | `multi-goal.json` | two goals over two fluents, so the planner sequences rather than picks |
 | `contention.json` | two service agents with incompatible objectives over one resource |
+| `delayed-control.json` | the baseline's knowledge with a control latency longer than the decision period |
 
 Each of the three exists because the baseline **cannot** reach the mechanism it exercises.
 That is not a criticism of the baseline; it is what made the gap invisible.
@@ -75,6 +76,18 @@ Per-agent goals live in the planner's binding configuration, not in the assembly
 every agent goal must be one the study froze. The assembly's `goals` is the inventory of
 what any agent may pursue, not a conjunctive goal for one planner to achieve.
 
+### `delayed-control.json`
+
+The actuator refuses a write planned against an outdated version, and under the baseline
+no run can reach that refusal. Its 10 ms latency lands every command before the next
+decision reads the version, and resolution admits one write per target, so the version a
+command names is always current. This study changes only the timing: decisions every
+0.5 s, each dispatched 0.6 s later. On S1 the planner decides the switch at one epoch,
+decides it again at the next because the first has not landed, and the actuator applies
+the first and refuses the second as stale, changing nothing. The Null planner's switch,
+reapplied every epoch, now alternates between applied and refused. The same epoch's
+decision can still be in flight when the run closes, and the showcase says so.
+
 ## What a study must declare
 
 Every section is required, and a file carrying an unknown section is refused rather than
@@ -91,7 +104,16 @@ while appearing to have changed it.
 | `oracle` | what the telemetry and diagnosis Oracles are permitted to read |
 | `nulls` | the declared Null policy settings, fixed before measurement |
 | `assembly` | the frozen stage inputs: planning goals and budgets, result cohorts |
+| `control` | the decision period and the control latency after which each command is dispatched |
+
+`control` is frozen into the admitted study manifest and fixed across every treatment, so
+two arms are never compared under different timing. A latency of zero is the synchronous
+barrier, which pauses the world while the controller decides; it is idealised and reported
+as such. Host time spent deciding is measured and reported beside the latency, never added
+to it.
 
 A study is refused when a rule identifier repeats, a rule contradicts a conclusion no rule
-reaches, a goal is malformed or duplicated, or the predicate map names a label no rule
-concludes. All of it is checked when the file is read, not part-way through a run.
+reaches, a goal is malformed or duplicated, the predicate map names a label no rule
+concludes, or the control latency reaches a command validity, since every command would
+then expire before dispatch. All of it is checked when the file is read, not part-way
+through a run.

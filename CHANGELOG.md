@@ -7,6 +7,19 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pr
 
 ### Changed
 
+- **Commands reach the actuator a declared latency after the decision** (B25). Every study
+  declares its decision period and control latency in a new `control` section. The admitted
+  study manifest freezes them, so they are fixed across treatments. The harness decides at
+  each epoch and dispatches the command a latency later while the world runs on, and the
+  command's expiry and the actuator's version are checked at that instant. Zero latency is
+  the synchronous barrier, now labelled idealised. Host decision time is measured and
+  reported beside the latency, never charged to it and never recorded as evidence. The
+  baseline declares the register's nominal 10 ms. The new `delayed-control` study dispatches
+  0.6 s after a 0.5 s epoch, and there the stale-version refusal is reached, identically in
+  both worlds: a second decision reads the version the first has not yet changed.
+  Continuation reapplies commands at their dispatch instants and refuses a branch while a
+  command is in flight. Every study's content hash changes, and `StudyManifest` gains
+  `control`.
 - **Impairments are verified, and held apart from the controller** (B24). Both worlds keep
   a ledger of every disturbance they apply, when, and the leg condition read back afterwards
   (in the simulator from the model objects themselves). A new check folds the expected

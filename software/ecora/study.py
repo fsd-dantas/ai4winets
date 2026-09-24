@@ -31,7 +31,8 @@ STUDIES = Path(__file__).resolve().parents[2] / "studies"
 # misspelled section that was silently ignored would leave the default in place while
 # appearing to have changed it.
 SECTIONS = ("projection", "rules", "planner", "eco", "predicate_map", "oracle", "nulls",
-            "assembly")
+            "assembly", "control")
+CONTROL = ("decision_period_s", "control_latency_s", "note")
 META = ("study_id", "revision", "note")
 
 
@@ -78,6 +79,18 @@ class Study:
         for label in self.predicate_map:
             require(label in concluded,
                     f"the predicate map names {label}, which no rule concludes")
+        require(sorted(self.control) == sorted(CONTROL),
+                f"a study's control section declares exactly: {', '.join(CONTROL)}")
+        period, latency = self.control["decision_period_s"], self.control["control_latency_s"]
+        require(period > 0, "a decision period is positive")
+        require(latency >= 0, "a control latency cannot be negative")
+        # A command expires a validity after its decision and is checked at dispatch, a
+        # latency after it. A latency at or beyond the shortest validity would have every
+        # such command refused as stale, so no treatment could ever act.
+        validities = list(_values(self.data, "validity_s"))
+        require(all(latency < validity for validity in validities),
+                f"control latency {latency} s reaches a command validity of "
+                f"{min(validities, default=None)} s; every command would expire before dispatch")
 
     def arbitrable(self):
         """The contradicting rule pairs whose conditions can both hold.
@@ -99,6 +112,19 @@ class Study:
                                   "equal_priority" if rule["priority"] == against["priority"]
                                   else "priority_inhibition"))
         return sorted(pairs)
+
+
+def _values(node, key):
+    """Every value declared under a key, at any depth."""
+    if isinstance(node, dict):
+        for name, value in node.items():
+            if name == key:
+                yield value
+            else:
+                yield from _values(value, key)
+    elif isinstance(node, list):
+        for item in node:
+            yield from _values(item, key)
 
 
 def _overlapping(one, other):

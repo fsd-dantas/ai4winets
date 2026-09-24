@@ -56,6 +56,11 @@
       ]
     }
   },
+  "control": {
+    "control_latency_s": 0.01,
+    "decision_period_s": 0.5,
+    "note": "Decisions every 0.5 s; each command is dispatched 10 ms after the decision that produced it (nominal controller_delay_s, uncalibrated). The period is the showcase's, not the register's 0.100 s, which B41 decides from measured cost."
+  },
   "eco": {
     "authority": {
       "select_path": "actuate.shared.path",
@@ -227,7 +232,7 @@
       "subject": "site-1"
     }
   },
-  "revision": "2",
+  "revision": "3",
   "rules": {
     "activation_budget": 200,
     "rules": [

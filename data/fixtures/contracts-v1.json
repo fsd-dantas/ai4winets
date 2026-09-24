@@ -1,6 +1,6 @@
 [
   {
-    "content_hash": "6873296c531d860ee7a3dffe5da36370e4c9b5046ad5e10b85aafe6f5275451a",
+    "content_hash": "6708fdff5c4e712bf79763de8c7291ea3df5010c81f1c13a127b5219fb818ef5",
     "data": {
       "access_policy_version": "v1",
       "analysis_version": "fixture-1",
@@ -61,6 +61,10 @@
       },
       "capability_manifest_hash": "32768f8090848e3d5baf9857d42aa839a3c2ca01a3b458bd2825d5dfcd6a2380",
       "compute_budget_s": 60,
+      "control": {
+        "control_latency_s": 0,
+        "decision_period_s": 1
+      },
       "frozen": true,
       "parameter_set_hash": "ffbc2dfc402782325da71132100e74ff511d1585dd80e4ea196ed4bcace3fef2",
       "scenario_set_hash": "0ff05d727a5e668c57aaa655a519751eedb19ed416793e55226d6aec4c9b6645",

@@ -141,7 +141,7 @@ class FixtureProvider:
 
 
 def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assembly=None,
-                        scenario=None):
+                        scenario=None, control=None):
     """All identities, values and capabilities in this fixture are synthetic."""
     registry = Registry()
     cap = {"capability_id": "observe.ami.queue", "kind": "observe", "target": "site-1",
@@ -253,6 +253,8 @@ def fixture_environment(*, allow_privileged=False, extra_capabilities=(), assemb
                                   {"treatment_id": "substitution", "bindings": alternate},
                                   {"treatment_id": "null_baseline", "bindings": nulls}],
                    "assembly": assembly or ASSEMBLY,
+                   # The fixture's providers act at their own watermark: a barrier.
+                   "control": control or {"decision_period_s": 1, "control_latency_s": 0},
                    "capability_manifest_hash": caps.content_hash, "parameter_set_hash": scenario.data["parameter_set_hash"],
                    "analysis_version": "fixture-1", "scoring_version": "fixture-1", "seed_manifest": {"fixture": 0},
                    "compute_budget_s": 60, "storage_budget_bytes": 10485760, "access_policy_version": "v1"})

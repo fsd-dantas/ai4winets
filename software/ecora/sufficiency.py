@@ -234,6 +234,7 @@ def execute(root, *, build_model, environment, capability_ids, knowledge, period
                     "scorer_reads": len(scored.scorer.log),
                     "applied": sum(p.data["disposition"] == "applied"
                                    for index in range(epochs)
+                                   if f"dataset:action:{index}" in store.dataset_ids()
                                    for p in (Record.from_dict(m.data["payload"])
                                              for m in store.messages(f"dataset:action:{index}"))
                                    if p.kind == "ActionReceipt"),

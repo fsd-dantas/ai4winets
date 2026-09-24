@@ -145,9 +145,12 @@ def definitions():
                           generation_window=ref("Window"), deadline_s=POSITIVE)
     d["ResultAssembly"] = obj(cohorts=array(ref("CohortSpec"), 1))
     d["AssemblySpec"] = obj(planning=ref("PlanningAssembly"), result=ref("ResultAssembly"))
+    # Harness-fixed across a study's treatments. Zero latency is the synchronous barrier.
+    d["ControlTiming"] = obj(decision_period_s=POSITIVE, control_latency_s=TIME)
     d["StudyManifest"] = obj(study_id=ID, frozen={"const": True},
                              scenario_set_version=ID, scenario_set_hash=HASH,
                              treatments=array(ref("Treatment"), 1), assembly=ref("AssemblySpec"),
+                             control=ref("ControlTiming"),
                              capability_manifest_hash=HASH, parameter_set_hash=HASH,
                              analysis_version=ID, scoring_version=ID, seed_manifest=JSON_OBJECT,
                              compute_budget_s=POSITIVE, storage_budget_bytes=COUNT,

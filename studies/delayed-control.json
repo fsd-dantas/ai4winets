@@ -55,9 +55,9 @@
     }
   },
   "control": {
-    "control_latency_s": 0.01,
+    "control_latency_s": 0.6,
     "decision_period_s": 0.5,
-    "note": "Decisions every 0.5 s; each command is dispatched 10 ms after the decision that produced it (nominal controller_delay_s, uncalibrated). The period is the showcase's, not the register's 0.100 s, which B41 decides from measured cost."
+    "note": "Dispatch 0.6 s after each decision, beyond the 0.5 s period and within the 1 s command validity. Chosen to reach a mechanism, not measured."
   },
   "eco": {
     "authority": {
@@ -70,7 +70,7 @@
     "mark_ttl_s": 0.3,
     "validity_s": 1
   },
-  "note": "The declared baseline: the rule inventory, planner configuration, coordination policy and frozen assembly that every other study varies from.",
+  "note": "The baseline's knowledge under a control latency longer than the decision period, so a decision can reach the actuator after the next decision has read the same state. Exists to make the actuator's stale_version refusal reachable.",
   "nulls": {
     "assurance": {
       "requirement_ids": [
@@ -230,7 +230,7 @@
       "subject": "site-1"
     }
   },
-  "revision": "3",
+  "revision": "1",
   "rules": {
     "activation_budget": 200,
     "rules": [
@@ -406,5 +406,5 @@
       }
     ]
   },
-  "study_id": "study:baseline"
+  "study_id": "study:delayed-control"
 }

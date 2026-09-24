@@ -56,6 +56,20 @@ def _period(store, epochs):
     return second - first
 
 
+def _latency(store, epochs):
+    """Dispatch minus decision, read from the first epoch whose command was dispatched.
+
+    Zero is the synchronous barrier, which the report labels as idealised.
+    """
+    present = set(store.dataset_ids())
+    for index in range(epochs):
+        if f"dataset:action:{index}" in present:
+            decided = store.invocation(f"resolution:{index}").data["decision_watermark_s"]
+            dispatched = store.invocation(f"action:{index}").data["decision_watermark_s"]
+            return round(dispatched - decided, 9)
+    return None
+
+
 def service_outcomes(store):
     """Per-service measurements and the verdict on each requirement."""
     present = set(store.dataset_ids())
@@ -163,6 +177,7 @@ def run_report(store, *, limits=None):
     stability = coordination_stability(store, epochs, limits, period_s)
     return {"report_version": REPORT_VERSION, "run_ids": sorted(runs), "epochs": epochs,
             "decision_period_s": period_s,
+            "control_latency_s": _latency(store, epochs),
             "service_outcomes": service,
             "coordination_stability": stability,
             "missing_evidence": missing_evidence(store, epochs, service, stability),
@@ -171,8 +186,12 @@ def run_report(store, *, limits=None):
 
 def render(report):
     """The report as text, one section after another and never merged."""
+    latency = report["control_latency_s"]
+    timing = ("no command dispatched" if latency is None else
+              "synchronous barrier, idealised" if latency == 0 else
+              f"dispatch {latency} s after each decision")
     lines = [f"Run report ({report['report_version']})  {', '.join(report['run_ids'])}",
-             f"  {report['epochs']} decision epochs at {report['decision_period_s']} s", ""]
+             f"  {report['epochs']} decision epochs at {report['decision_period_s']} s; {timing}", ""]
     service = report["service_outcomes"]
     label = "deployable evidence" if service["deployable"] else (
         "PRIVILEGED reference, not deployable evidence" if service["evidence_regime"]

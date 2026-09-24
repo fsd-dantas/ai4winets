@@ -1,0 +1,1826 @@
+{
+  "environment": {
+    "python": "3.13.12",
+    "release": "11",
+    "system": "Windows"
+  },
+  "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+  "runs": [
+    {
+      "arm": "dpop",
+      "arm_call_seconds": 0.025057199993170798,
+      "case_hash": "08c0789752dad16feccc59b52c6a56d1c210c40121ef3beac950aee9c45a6400",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 0,
+        "conflict_rate": 0.0,
+        "conflicts": [],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": true,
+        "invalid": [],
+        "missing": [],
+        "objective": 235,
+        "unary_cost": 235
+      },
+      "key": "n10-dense-independent-dpop",
+      "map_hash": "c49b99511356e8ae3e8ceabe9c0ac989c76c3c06c98144431ddc1ceddd7d3318",
+      "metrics": {
+        "delivered_entries": 804,
+        "delivered_payload_bytes": 5698,
+        "max_join_entries": 1024,
+        "max_outgoing_entries": 256,
+        "max_separator": 4,
+        "messages": {
+          "dfs_explore": 20,
+          "dfs_return": 9,
+          "dfs_seen": 11,
+          "util": 9,
+          "value": 9
+        },
+        "transmitted_entries": 804
+      },
+      "outcome": "optimal_cost",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "943c3757a2632d7334c4b1b5ebbd6c76ddc89b0dccb4a741212fef800b3395da",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 404905984,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.4151025000028312
+      }
+    },
+    {
+      "arm": "independent",
+      "arm_call_seconds": 5.040003452450037e-05,
+      "case_hash": "08c0789752dad16feccc59b52c6a56d1c210c40121ef3beac950aee9c45a6400",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 4,
+        "conflict_rate": 0.2,
+        "conflicts": [
+          [
+            "ap-00",
+            "ap-07"
+          ],
+          [
+            "ap-01",
+            "ap-07"
+          ],
+          [
+            "ap-02",
+            "ap-04"
+          ],
+          [
+            "ap-03",
+            "ap-04"
+          ]
+        ],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": false,
+        "invalid": [],
+        "missing": [],
+        "objective": null,
+        "unary_cost": 156
+      },
+      "key": "n10-dense-independent-independent",
+      "map_hash": "c49b99511356e8ae3e8ceabe9c0ac989c76c3c06c98144431ddc1ceddd7d3318",
+      "metrics": {
+        "delivered_entries": 0,
+        "delivered_payload_bytes": 0,
+        "max_join_entries": null,
+        "max_outgoing_entries": null,
+        "max_separator": null,
+        "messages": {},
+        "transmitted_entries": 0
+      },
+      "outcome": "completed",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "d2859298fe78d6ca82b2c5003892dfa99bc7595d3723f4ab61e710eac4eb2c20",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 403685376,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.34158400003798306
+      }
+    },
+    {
+      "arm": "independent",
+      "arm_call_seconds": 7.730000652372837e-05,
+      "case_hash": "46142bba52dba4ab0819c55592401bb35ba67921e73083dbe9d4860cd830fc32",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 12,
+        "conflict_rate": 0.3,
+        "conflicts": [
+          [
+            "ap-01",
+            "ap-03"
+          ],
+          [
+            "ap-01",
+            "ap-09"
+          ],
+          [
+            "ap-02",
+            "ap-09"
+          ],
+          [
+            "ap-03",
+            "ap-09"
+          ],
+          [
+            "ap-04",
+            "ap-12"
+          ],
+          [
+            "ap-06",
+            "ap-07"
+          ],
+          [
+            "ap-07",
+            "ap-09"
+          ],
+          [
+            "ap-07",
+            "ap-11"
+          ],
+          [
+            "ap-08",
+            "ap-13"
+          ],
+          [
+            "ap-08",
+            "ap-16"
+          ],
+          [
+            "ap-13",
+            "ap-15"
+          ],
+          [
+            "ap-13",
+            "ap-16"
+          ]
+        ],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": false,
+        "invalid": [],
+        "missing": [],
+        "objective": null,
+        "unary_cost": 379
+      },
+      "key": "n20-dense-independent-independent",
+      "map_hash": "feb1d8adf26c9610d1b0df6065ad19f0ed59a57fed6609e178be30c183a686e1",
+      "metrics": {
+        "delivered_entries": 0,
+        "delivered_payload_bytes": 0,
+        "max_join_entries": null,
+        "max_outgoing_entries": null,
+        "max_separator": null,
+        "messages": {},
+        "transmitted_entries": 0
+      },
+      "outcome": "completed",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "12bc18cd5c0a93fc809fe3a9c0dc8e6dbf56b4b3328389b239f033a5353062d2",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 403582976,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.3329684999771416
+      }
+    },
+    {
+      "arm": "dpop",
+      "arm_call_seconds": 1.818891100003384,
+      "case_hash": "46142bba52dba4ab0819c55592401bb35ba67921e73083dbe9d4860cd830fc32",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 0,
+        "conflict_rate": 0.0,
+        "conflicts": [],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": true,
+        "invalid": [],
+        "missing": [],
+        "objective": 542,
+        "unary_cost": 542
+      },
+      "key": "n20-dense-independent-dpop",
+      "map_hash": "feb1d8adf26c9610d1b0df6065ad19f0ed59a57fed6609e178be30c183a686e1",
+      "metrics": {
+        "delivered_entries": 68092,
+        "delivered_payload_bytes": 361132,
+        "max_join_entries": 65536,
+        "max_outgoing_entries": 16384,
+        "max_separator": 7,
+        "messages": {
+          "dfs_explore": 40,
+          "dfs_return": 19,
+          "dfs_seen": 21,
+          "util": 19,
+          "value": 19
+        },
+        "transmitted_entries": 68092
+      },
+      "outcome": "optimal_cost",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "77afd7d119e1a0314e33738e606649c4f946e0473169febc1a71b73fbad23bf9",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 422567936,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 2.22267299995292
+      }
+    },
+    {
+      "arm": "dpop",
+      "arm_call_seconds": 0.08409810002194718,
+      "case_hash": "51199ef3938a65432d34fcba7fdce98ce44b86c8be69d40bb3be4423dadb23ef",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 0,
+        "conflict_rate": 0.0,
+        "conflicts": [],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": true,
+        "invalid": [],
+        "missing": [],
+        "objective": 409,
+        "unary_cost": 409
+      },
+      "key": "n16-dense-shared-dpop",
+      "map_hash": "317c880fe5d0dd06b275e535a248dc609e9188a7aa672a746cb568c60a637d2d",
+      "metrics": {
+        "delivered_entries": 3156,
+        "delivered_payload_bytes": 18077,
+        "max_join_entries": 4096,
+        "max_outgoing_entries": 1024,
+        "max_separator": 5,
+        "messages": {
+          "dfs_explore": 32,
+          "dfs_return": 15,
+          "dfs_seen": 17,
+          "util": 15,
+          "value": 15
+        },
+        "transmitted_entries": 3156
+      },
+      "outcome": "optimal_cost",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "5f9f26fcf99f99a60fd64fd09980da6cc64a513cf5e01e56b193d019b0d83005",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 406183936,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.4680784999509342
+      }
+    },
+    {
+      "arm": "independent",
+      "arm_call_seconds": 4.8099958803504705e-05,
+      "case_hash": "51199ef3938a65432d34fcba7fdce98ce44b86c8be69d40bb3be4423dadb23ef",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 32,
+        "conflict_rate": 1.0,
+        "conflicts": [
+          [
+            "ap-00",
+            "ap-01"
+          ],
+          [
+            "ap-00",
+            "ap-06"
+          ],
+          [
+            "ap-00",
+            "ap-12"
+          ],
+          [
+            "ap-01",
+            "ap-10"
+          ],
+          [
+            "ap-02",
+            "ap-04"
+          ],
+          [
+            "ap-02",
+            "ap-06"
+          ],
+          [
+            "ap-02",
+            "ap-14"
+          ],
+          [
+            "ap-02",
+            "ap-15"
+          ],
+          [
+            "ap-03",
+            "ap-06"
+          ],
+          [
+            "ap-03",
+            "ap-15"
+          ],
+          [
+            "ap-04",
+            "ap-06"
+          ],
+          [
+            "ap-04",
+            "ap-14"
+          ],
+          [
+            "ap-05",
+            "ap-06"
+          ],
+          [
+            "ap-05",
+            "ap-12"
+          ],
+          [
+            "ap-05",
+            "ap-14"
+          ],
+          [
+            "ap-06",
+            "ap-07"
+          ],
+          [
+            "ap-06",
+            "ap-10"
+          ],
+          [
+            "ap-06",
+            "ap-11"
+          ],
+          [
+            "ap-06",
+            "ap-13"
+          ],
+          [
+            "ap-06",
+            "ap-14"
+          ],
+          [
+            "ap-06",
+            "ap-15"
+          ],
+          [
+            "ap-07",
+            "ap-08"
+          ],
+          [
+            "ap-07",
+            "ap-10"
+          ],
+          [
+            "ap-07",
+            "ap-12"
+          ],
+          [
+            "ap-07",
+            "ap-14"
+          ],
+          [
+            "ap-08",
+            "ap-11"
+          ],
+          [
+            "ap-08",
+            "ap-13"
+          ],
+          [
+            "ap-09",
+            "ap-12"
+          ],
+          [
+            "ap-09",
+            "ap-14"
+          ],
+          [
+            "ap-10",
+            "ap-11"
+          ],
+          [
+            "ap-10",
+            "ap-12"
+          ],
+          [
+            "ap-11",
+            "ap-13"
+          ]
+        ],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": false,
+        "invalid": [],
+        "missing": [],
+        "objective": null,
+        "unary_cost": 272
+      },
+      "key": "n16-dense-shared-independent",
+      "map_hash": "317c880fe5d0dd06b275e535a248dc609e9188a7aa672a746cb568c60a637d2d",
+      "metrics": {
+        "delivered_entries": 0,
+        "delivered_payload_bytes": 0,
+        "max_join_entries": null,
+        "max_outgoing_entries": null,
+        "max_separator": null,
+        "messages": {},
+        "transmitted_entries": 0
+      },
+      "outcome": "completed",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "696ea419d1f149f438f1ce5a370227659c5d949af7a076aed4e64195ce07fdd7",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 403443712,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.3277619000291452
+      }
+    },
+    {
+      "arm": "dpop",
+      "arm_call_seconds": 0.025576599990017712,
+      "case_hash": "4453b5396d34468cd481ee4482f93f1b8e7e3dd7953b9941f954931dd950dd6b",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 0,
+        "conflict_rate": 0.0,
+        "conflicts": [],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": true,
+        "invalid": [],
+        "missing": [],
+        "objective": 569,
+        "unary_cost": 569
+      },
+      "key": "n10-dense-shared-dpop",
+      "map_hash": "71be4b53133cdbe5ed9e07a78750266dbb0dfd5fd863b50109a32e5f9f8441d9",
+      "metrics": {
+        "delivered_entries": 804,
+        "delivered_payload_bytes": 5881,
+        "max_join_entries": 1024,
+        "max_outgoing_entries": 256,
+        "max_separator": 4,
+        "messages": {
+          "dfs_explore": 20,
+          "dfs_return": 9,
+          "dfs_seen": 11,
+          "util": 9,
+          "value": 9
+        },
+        "transmitted_entries": 804
+      },
+      "outcome": "optimal_cost",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "ad41faa3c4f27b7ab89f05128ec669544310e2ccbadf471139de90bc0866491e",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 404885504,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.36916399997426197
+      }
+    },
+    {
+      "arm": "independent",
+      "arm_call_seconds": 3.93999507650733e-05,
+      "case_hash": "4453b5396d34468cd481ee4482f93f1b8e7e3dd7953b9941f954931dd950dd6b",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 20,
+        "conflict_rate": 1.0,
+        "conflicts": [
+          [
+            "ap-00",
+            "ap-04"
+          ],
+          [
+            "ap-00",
+            "ap-05"
+          ],
+          [
+            "ap-00",
+            "ap-07"
+          ],
+          [
+            "ap-01",
+            "ap-02"
+          ],
+          [
+            "ap-01",
+            "ap-04"
+          ],
+          [
+            "ap-01",
+            "ap-07"
+          ],
+          [
+            "ap-02",
+            "ap-04"
+          ],
+          [
+            "ap-02",
+            "ap-05"
+          ],
+          [
+            "ap-02",
+            "ap-07"
+          ],
+          [
+            "ap-02",
+            "ap-08"
+          ],
+          [
+            "ap-02",
+            "ap-09"
+          ],
+          [
+            "ap-03",
+            "ap-04"
+          ],
+          [
+            "ap-03",
+            "ap-05"
+          ],
+          [
+            "ap-03",
+            "ap-08"
+          ],
+          [
+            "ap-04",
+            "ap-07"
+          ],
+          [
+            "ap-04",
+            "ap-08"
+          ],
+          [
+            "ap-04",
+            "ap-09"
+          ],
+          [
+            "ap-05",
+            "ap-06"
+          ],
+          [
+            "ap-06",
+            "ap-08"
+          ],
+          [
+            "ap-08",
+            "ap-09"
+          ]
+        ],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": false,
+        "invalid": [],
+        "missing": [],
+        "objective": null,
+        "unary_cost": 430
+      },
+      "key": "n10-dense-shared-independent",
+      "map_hash": "71be4b53133cdbe5ed9e07a78750266dbb0dfd5fd863b50109a32e5f9f8441d9",
+      "metrics": {
+        "delivered_entries": 0,
+        "delivered_payload_bytes": 0,
+        "max_join_entries": null,
+        "max_outgoing_entries": null,
+        "max_separator": null,
+        "messages": {},
+        "transmitted_entries": 0
+      },
+      "outcome": "completed",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "a46248b7b451da0a338ef6180be7d3ea47c0bc19b7afbc3908302ab95fb0e1a4",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 403533824,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.33316779998131096
+      }
+    },
+    {
+      "arm": "independent",
+      "arm_call_seconds": 5.6399963796138763e-05,
+      "case_hash": "37747c5bd1f4cd6d3c58deeef02d6f5aff64c3b92de66d42697d65808d086ef6",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 19,
+        "conflict_rate": 1.0,
+        "conflicts": [
+          [
+            "ap-00",
+            "ap-03"
+          ],
+          [
+            "ap-00",
+            "ap-04"
+          ],
+          [
+            "ap-01",
+            "ap-09"
+          ],
+          [
+            "ap-01",
+            "ap-12"
+          ],
+          [
+            "ap-02",
+            "ap-09"
+          ],
+          [
+            "ap-02",
+            "ap-15"
+          ],
+          [
+            "ap-03",
+            "ap-08"
+          ],
+          [
+            "ap-03",
+            "ap-12"
+          ],
+          [
+            "ap-04",
+            "ap-06"
+          ],
+          [
+            "ap-04",
+            "ap-08"
+          ],
+          [
+            "ap-04",
+            "ap-12"
+          ],
+          [
+            "ap-05",
+            "ap-09"
+          ],
+          [
+            "ap-06",
+            "ap-15"
+          ],
+          [
+            "ap-07",
+            "ap-11"
+          ],
+          [
+            "ap-08",
+            "ap-14"
+          ],
+          [
+            "ap-10",
+            "ap-12"
+          ],
+          [
+            "ap-11",
+            "ap-13"
+          ],
+          [
+            "ap-11",
+            "ap-15"
+          ],
+          [
+            "ap-12",
+            "ap-14"
+          ]
+        ],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": false,
+        "invalid": [],
+        "missing": [],
+        "objective": null,
+        "unary_cost": 288
+      },
+      "key": "n16-sparse-shared-independent",
+      "map_hash": "314e34db7a1e8cad2072ee3f547965d0ada36bdc13a1ec0f71f0ba81f0148878",
+      "metrics": {
+        "delivered_entries": 0,
+        "delivered_payload_bytes": 0,
+        "max_join_entries": null,
+        "max_outgoing_entries": null,
+        "max_separator": null,
+        "messages": {},
+        "transmitted_entries": 0
+      },
+      "outcome": "completed",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "10b650b0fede1e8f9ebbc600602d3c710718c67aef518f66e5ba7901a9c9bd55",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 403750912,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.3284561999607831
+      }
+    },
+    {
+      "arm": "dpop",
+      "arm_call_seconds": 0.03612940001767129,
+      "case_hash": "37747c5bd1f4cd6d3c58deeef02d6f5aff64c3b92de66d42697d65808d086ef6",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 0,
+        "conflict_rate": 0.0,
+        "conflicts": [],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": true,
+        "invalid": [],
+        "missing": [],
+        "objective": 576,
+        "unary_cost": 576
+      },
+      "key": "n16-sparse-shared-dpop",
+      "map_hash": "314e34db7a1e8cad2072ee3f547965d0ada36bdc13a1ec0f71f0ba81f0148878",
+      "metrics": {
+        "delivered_entries": 1464,
+        "delivered_payload_bytes": 9840,
+        "max_join_entries": 1024,
+        "max_outgoing_entries": 256,
+        "max_separator": 4,
+        "messages": {
+          "dfs_explore": 19,
+          "dfs_return": 15,
+          "dfs_seen": 4,
+          "util": 15,
+          "value": 15
+        },
+        "transmitted_entries": 1464
+      },
+      "outcome": "optimal_cost",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "19146f696ced18ebde07440fa59cf5476c0d1613bfaef7705fd41c7c3075a4b4",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 404926464,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.3822705000056885
+      }
+    },
+    {
+      "arm": "independent",
+      "arm_call_seconds": 6.799999391660094e-05,
+      "case_hash": "f9fdd83eece6943c27657e9ef87e3122a5b1069e5bbd0ccf7d23e6db72a8bac7",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 24,
+        "conflict_rate": 1.0,
+        "conflicts": [
+          [
+            "ap-00",
+            "ap-16"
+          ],
+          [
+            "ap-01",
+            "ap-07"
+          ],
+          [
+            "ap-01",
+            "ap-09"
+          ],
+          [
+            "ap-01",
+            "ap-18"
+          ],
+          [
+            "ap-02",
+            "ap-06"
+          ],
+          [
+            "ap-02",
+            "ap-07"
+          ],
+          [
+            "ap-02",
+            "ap-08"
+          ],
+          [
+            "ap-02",
+            "ap-11"
+          ],
+          [
+            "ap-02",
+            "ap-13"
+          ],
+          [
+            "ap-02",
+            "ap-17"
+          ],
+          [
+            "ap-02",
+            "ap-18"
+          ],
+          [
+            "ap-03",
+            "ap-11"
+          ],
+          [
+            "ap-04",
+            "ap-10"
+          ],
+          [
+            "ap-05",
+            "ap-08"
+          ],
+          [
+            "ap-06",
+            "ap-10"
+          ],
+          [
+            "ap-06",
+            "ap-16"
+          ],
+          [
+            "ap-08",
+            "ap-10"
+          ],
+          [
+            "ap-08",
+            "ap-11"
+          ],
+          [
+            "ap-09",
+            "ap-13"
+          ],
+          [
+            "ap-10",
+            "ap-19"
+          ],
+          [
+            "ap-11",
+            "ap-14"
+          ],
+          [
+            "ap-12",
+            "ap-16"
+          ],
+          [
+            "ap-13",
+            "ap-17"
+          ],
+          [
+            "ap-15",
+            "ap-18"
+          ]
+        ],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": false,
+        "invalid": [],
+        "missing": [],
+        "objective": null,
+        "unary_cost": 80
+      },
+      "key": "n20-sparse-shared-independent",
+      "map_hash": "bbabc8e65eedbd0e770c788bed33cbd29e8fe65b4ca3ac301c56979c0ba66113",
+      "metrics": {
+        "delivered_entries": 0,
+        "delivered_payload_bytes": 0,
+        "max_join_entries": null,
+        "max_outgoing_entries": null,
+        "max_separator": null,
+        "messages": {},
+        "transmitted_entries": 0
+      },
+      "outcome": "completed",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "077a4552617f964f9b46bc133d0f5035b93ca6e830f29b4719c29fcea0f606ad",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 403636224,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.3499408000498079
+      }
+    },
+    {
+      "arm": "dpop",
+      "arm_call_seconds": 0.009591499983798712,
+      "case_hash": "f9fdd83eece6943c27657e9ef87e3122a5b1069e5bbd0ccf7d23e6db72a8bac7",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 0,
+        "conflict_rate": 0.0,
+        "conflicts": [],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": true,
+        "invalid": [],
+        "missing": [],
+        "objective": 348,
+        "unary_cost": 348
+      },
+      "key": "n20-sparse-shared-dpop",
+      "map_hash": "bbabc8e65eedbd0e770c788bed33cbd29e8fe65b4ca3ac301c56979c0ba66113",
+      "metrics": {
+        "delivered_entries": 172,
+        "delivered_payload_bytes": 4610,
+        "max_join_entries": 64,
+        "max_outgoing_entries": 16,
+        "max_separator": 2,
+        "messages": {
+          "dfs_explore": 24,
+          "dfs_return": 19,
+          "dfs_seen": 5,
+          "util": 19,
+          "value": 19
+        },
+        "transmitted_entries": 172
+      },
+      "outcome": "optimal_cost",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "b518066a9b46c83d9af30481cda063553d958e1712f0039131d8bf4bd9f14189",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 404713472,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.3437966000055894
+      }
+    },
+    {
+      "arm": "independent",
+      "arm_call_seconds": 6.620003841817379e-05,
+      "case_hash": "18cc490406acd707c2c1331d2138a5b466e2674df2795b347605c3cc11347647",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 4,
+        "conflict_rate": 0.16666666666666666,
+        "conflicts": [
+          [
+            "ap-02",
+            "ap-08"
+          ],
+          [
+            "ap-02",
+            "ap-18"
+          ],
+          [
+            "ap-03",
+            "ap-11"
+          ],
+          [
+            "ap-08",
+            "ap-10"
+          ]
+        ],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": false,
+        "invalid": [],
+        "missing": [],
+        "objective": null,
+        "unary_cost": 465
+      },
+      "key": "n20-sparse-independent-independent",
+      "map_hash": "cf94512c082e174a1d196e9a89e4da7cb19c0158ea2fc946c2c1bfa00c8c836d",
+      "metrics": {
+        "delivered_entries": 0,
+        "delivered_payload_bytes": 0,
+        "max_join_entries": null,
+        "max_outgoing_entries": null,
+        "max_separator": null,
+        "messages": {},
+        "transmitted_entries": 0
+      },
+      "outcome": "completed",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "7ee67934c78f0a972ff062b52357ab482491eada68010b1f0a29c2a25e65ec01",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 404078592,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.3618638000334613
+      }
+    },
+    {
+      "arm": "dpop",
+      "arm_call_seconds": 0.009941699972841889,
+      "case_hash": "18cc490406acd707c2c1331d2138a5b466e2674df2795b347605c3cc11347647",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 0,
+        "conflict_rate": 0.0,
+        "conflicts": [],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": true,
+        "invalid": [],
+        "missing": [],
+        "objective": 528,
+        "unary_cost": 528
+      },
+      "key": "n20-sparse-independent-dpop",
+      "map_hash": "cf94512c082e174a1d196e9a89e4da7cb19c0158ea2fc946c2c1bfa00c8c836d",
+      "metrics": {
+        "delivered_entries": 172,
+        "delivered_payload_bytes": 4617,
+        "max_join_entries": 64,
+        "max_outgoing_entries": 16,
+        "max_separator": 2,
+        "messages": {
+          "dfs_explore": 24,
+          "dfs_return": 19,
+          "dfs_seen": 5,
+          "util": 19,
+          "value": 19
+        },
+        "transmitted_entries": 172
+      },
+      "outcome": "optimal_cost",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "c3c5cb06e0f9ce0fec1fcfd6b99e25f909a3328478e6c597b11376e51fa14f8f",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 404705280,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.35838029999285936
+      }
+    },
+    {
+      "arm": "dpop",
+      "arm_call_seconds": 0.036201000039000064,
+      "case_hash": "9e217597cd962928be076c824cb07d67caedc211d8fd1d4e70231452f1e13a08",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 0,
+        "conflict_rate": 0.0,
+        "conflicts": [],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": true,
+        "invalid": [],
+        "missing": [],
+        "objective": 276,
+        "unary_cost": 276
+      },
+      "key": "n16-sparse-independent-dpop",
+      "map_hash": "ebb21e69d21cae7fb40c73643f1aefe052f06ea6bad48d68e8a489cc8ebae239",
+      "metrics": {
+        "delivered_entries": 1464,
+        "delivered_payload_bytes": 9277,
+        "max_join_entries": 1024,
+        "max_outgoing_entries": 256,
+        "max_separator": 4,
+        "messages": {
+          "dfs_explore": 19,
+          "dfs_return": 15,
+          "dfs_seen": 4,
+          "util": 15,
+          "value": 15
+        },
+        "transmitted_entries": 1464
+      },
+      "outcome": "optimal_cost",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "6047f5d74e8ca471f662c51004b078e771ecaf25cc926765fb4af2a8660cf03f",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 404979712,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.3878804999985732
+      }
+    },
+    {
+      "arm": "independent",
+      "arm_call_seconds": 4.12999652326107e-05,
+      "case_hash": "9e217597cd962928be076c824cb07d67caedc211d8fd1d4e70231452f1e13a08",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 4,
+        "conflict_rate": 0.21052631578947367,
+        "conflicts": [
+          [
+            "ap-03",
+            "ap-12"
+          ],
+          [
+            "ap-04",
+            "ap-06"
+          ],
+          [
+            "ap-04",
+            "ap-12"
+          ],
+          [
+            "ap-05",
+            "ap-09"
+          ]
+        ],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": false,
+        "invalid": [],
+        "missing": [],
+        "objective": null,
+        "unary_cost": 237
+      },
+      "key": "n16-sparse-independent-independent",
+      "map_hash": "ebb21e69d21cae7fb40c73643f1aefe052f06ea6bad48d68e8a489cc8ebae239",
+      "metrics": {
+        "delivered_entries": 0,
+        "delivered_payload_bytes": 0,
+        "max_join_entries": null,
+        "max_outgoing_entries": null,
+        "max_separator": null,
+        "messages": {},
+        "transmitted_entries": 0
+      },
+      "outcome": "completed",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "40e75b18e55b5aeb5fc8e6bb00a2dceb6ca0ff53b094d9991e6d386cebd71035",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 403759104,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.3328596000210382
+      }
+    },
+    {
+      "arm": "dpop",
+      "arm_call_seconds": 0.007147600001189858,
+      "case_hash": "4dde0425da8d760670cc452fea0a74a958f7efcbc8d9ee8903b4c8bd969e4c1b",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 0,
+        "conflict_rate": 0.0,
+        "conflicts": [],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": true,
+        "invalid": [],
+        "missing": [],
+        "objective": 16,
+        "unary_cost": 16
+      },
+      "key": "n10-sparse-shared-dpop",
+      "map_hash": "1cc88df157f73c37177bab02c117319c5d5858a1d56bf07abd4aebd17b71a8e8",
+      "metrics": {
+        "delivered_entries": 132,
+        "delivered_payload_bytes": 2088,
+        "max_join_entries": 256,
+        "max_outgoing_entries": 64,
+        "max_separator": 3,
+        "messages": {
+          "dfs_explore": 12,
+          "dfs_return": 9,
+          "dfs_seen": 3,
+          "util": 9,
+          "value": 9
+        },
+        "transmitted_entries": 132
+      },
+      "outcome": "optimal_cost",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "2fd6dae6aa9ffa79dcc65ee046107ab5eea859df05c2d1bc88653053dad91e5a",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 403542016,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.34530659997835755
+      }
+    },
+    {
+      "arm": "independent",
+      "arm_call_seconds": 4.449998959898949e-05,
+      "case_hash": "4dde0425da8d760670cc452fea0a74a958f7efcbc8d9ee8903b4c8bd969e4c1b",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 12,
+        "conflict_rate": 1.0,
+        "conflicts": [
+          [
+            "ap-00",
+            "ap-02"
+          ],
+          [
+            "ap-00",
+            "ap-03"
+          ],
+          [
+            "ap-00",
+            "ap-07"
+          ],
+          [
+            "ap-00",
+            "ap-08"
+          ],
+          [
+            "ap-01",
+            "ap-09"
+          ],
+          [
+            "ap-02",
+            "ap-04"
+          ],
+          [
+            "ap-02",
+            "ap-05"
+          ],
+          [
+            "ap-03",
+            "ap-04"
+          ],
+          [
+            "ap-03",
+            "ap-05"
+          ],
+          [
+            "ap-04",
+            "ap-07"
+          ],
+          [
+            "ap-05",
+            "ap-06"
+          ],
+          [
+            "ap-08",
+            "ap-09"
+          ]
+        ],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": false,
+        "invalid": [],
+        "missing": [],
+        "objective": null,
+        "unary_cost": 0
+      },
+      "key": "n10-sparse-shared-independent",
+      "map_hash": "1cc88df157f73c37177bab02c117319c5d5858a1d56bf07abd4aebd17b71a8e8",
+      "metrics": {
+        "delivered_entries": 0,
+        "delivered_payload_bytes": 0,
+        "max_join_entries": null,
+        "max_outgoing_entries": null,
+        "max_separator": null,
+        "messages": {},
+        "transmitted_entries": 0
+      },
+      "outcome": "completed",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "cf164dd5cba562e105266f4bd1a1317f929283eb949a1e532ff021b2ef4b2875",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 403709952,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.34824409999419004
+      }
+    },
+    {
+      "arm": "independent",
+      "arm_call_seconds": 3.5299977753311396e-05,
+      "case_hash": "4278d8fb99dbe0d42a0f65b543a9dc3ba00ffa72e3fedb57765162d6f35de52f",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 3,
+        "conflict_rate": 0.25,
+        "conflicts": [
+          [
+            "ap-02",
+            "ap-04"
+          ],
+          [
+            "ap-02",
+            "ap-05"
+          ],
+          [
+            "ap-04",
+            "ap-07"
+          ]
+        ],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": false,
+        "invalid": [],
+        "missing": [],
+        "objective": null,
+        "unary_cost": 246
+      },
+      "key": "n10-sparse-independent-independent",
+      "map_hash": "cceade0e2682948a0d579e67976f93b0e291a26064041a4449088aa004135b6b",
+      "metrics": {
+        "delivered_entries": 0,
+        "delivered_payload_bytes": 0,
+        "max_join_entries": null,
+        "max_outgoing_entries": null,
+        "max_separator": null,
+        "messages": {},
+        "transmitted_entries": 0
+      },
+      "outcome": "completed",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "0d9250d3363b89283ca5dd08b43c8ef475319f4d9660318e0551d98665bf3d2b",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 403476480,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.34520589996827766
+      }
+    },
+    {
+      "arm": "dpop",
+      "arm_call_seconds": 0.008327700023073703,
+      "case_hash": "4278d8fb99dbe0d42a0f65b543a9dc3ba00ffa72e3fedb57765162d6f35de52f",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 0,
+        "conflict_rate": 0.0,
+        "conflicts": [],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": true,
+        "invalid": [],
+        "missing": [],
+        "objective": 258,
+        "unary_cost": 258
+      },
+      "key": "n10-sparse-independent-dpop",
+      "map_hash": "cceade0e2682948a0d579e67976f93b0e291a26064041a4449088aa004135b6b",
+      "metrics": {
+        "delivered_entries": 132,
+        "delivered_payload_bytes": 2254,
+        "max_join_entries": 256,
+        "max_outgoing_entries": 64,
+        "max_separator": 3,
+        "messages": {
+          "dfs_explore": 12,
+          "dfs_return": 9,
+          "dfs_seen": 3,
+          "util": 9,
+          "value": 9
+        },
+        "transmitted_entries": 132
+      },
+      "outcome": "optimal_cost",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "b33ddce1a15801745597ecaaac378f543ff6b9840191159223bf7f9b4374c154",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 403759104,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.34212200000183657
+      }
+    },
+    {
+      "arm": "independent",
+      "arm_call_seconds": 0.00011630001245066524,
+      "case_hash": "b5bb2964a4a5966fe735c59350431e82c325ad085b1b7bc0a7c858415bceeed7",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 40,
+        "conflict_rate": 1.0,
+        "conflicts": [
+          [
+            "ap-00",
+            "ap-08"
+          ],
+          [
+            "ap-00",
+            "ap-18"
+          ],
+          [
+            "ap-01",
+            "ap-03"
+          ],
+          [
+            "ap-01",
+            "ap-09"
+          ],
+          [
+            "ap-01",
+            "ap-10"
+          ],
+          [
+            "ap-01",
+            "ap-18"
+          ],
+          [
+            "ap-02",
+            "ap-04"
+          ],
+          [
+            "ap-02",
+            "ap-09"
+          ],
+          [
+            "ap-03",
+            "ap-04"
+          ],
+          [
+            "ap-03",
+            "ap-05"
+          ],
+          [
+            "ap-03",
+            "ap-08"
+          ],
+          [
+            "ap-03",
+            "ap-09"
+          ],
+          [
+            "ap-03",
+            "ap-13"
+          ],
+          [
+            "ap-03",
+            "ap-15"
+          ],
+          [
+            "ap-03",
+            "ap-18"
+          ],
+          [
+            "ap-04",
+            "ap-07"
+          ],
+          [
+            "ap-04",
+            "ap-09"
+          ],
+          [
+            "ap-04",
+            "ap-12"
+          ],
+          [
+            "ap-05",
+            "ap-10"
+          ],
+          [
+            "ap-05",
+            "ap-19"
+          ],
+          [
+            "ap-06",
+            "ap-07"
+          ],
+          [
+            "ap-06",
+            "ap-14"
+          ],
+          [
+            "ap-07",
+            "ap-09"
+          ],
+          [
+            "ap-07",
+            "ap-11"
+          ],
+          [
+            "ap-07",
+            "ap-12"
+          ],
+          [
+            "ap-07",
+            "ap-13"
+          ],
+          [
+            "ap-07",
+            "ap-14"
+          ],
+          [
+            "ap-07",
+            "ap-15"
+          ],
+          [
+            "ap-08",
+            "ap-13"
+          ],
+          [
+            "ap-08",
+            "ap-16"
+          ],
+          [
+            "ap-09",
+            "ap-10"
+          ],
+          [
+            "ap-09",
+            "ap-12"
+          ],
+          [
+            "ap-09",
+            "ap-16"
+          ],
+          [
+            "ap-09",
+            "ap-17"
+          ],
+          [
+            "ap-09",
+            "ap-18"
+          ],
+          [
+            "ap-10",
+            "ap-19"
+          ],
+          [
+            "ap-13",
+            "ap-15"
+          ],
+          [
+            "ap-13",
+            "ap-16"
+          ],
+          [
+            "ap-14",
+            "ap-15"
+          ],
+          [
+            "ap-16",
+            "ap-18"
+          ]
+        ],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": false,
+        "invalid": [],
+        "missing": [],
+        "objective": null,
+        "unary_cost": 60
+      },
+      "key": "n20-dense-shared-independent",
+      "map_hash": "6c43d9c1fa239506a13a016d6bf046022b06909792165c7c5ea570d1d26b8715",
+      "metrics": {
+        "delivered_entries": 0,
+        "delivered_payload_bytes": 0,
+        "max_join_entries": null,
+        "max_outgoing_entries": null,
+        "max_separator": null,
+        "messages": {},
+        "transmitted_entries": 0
+      },
+      "outcome": "completed",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "b37ee2c4b3d433b64287b985d89c5574cbeec441f895bdd43221c4186dfc73aa",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 403750912,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.36409420002019033
+      }
+    },
+    {
+      "arm": "dpop",
+      "arm_call_seconds": 1.8378809000132605,
+      "case_hash": "b5bb2964a4a5966fe735c59350431e82c325ad085b1b7bc0a7c858415bceeed7",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 0,
+        "conflict_rate": 0.0,
+        "conflicts": [],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": true,
+        "invalid": [],
+        "missing": [],
+        "objective": 477,
+        "unary_cost": 477
+      },
+      "key": "n20-dense-shared-dpop",
+      "map_hash": "6c43d9c1fa239506a13a016d6bf046022b06909792165c7c5ea570d1d26b8715",
+      "metrics": {
+        "delivered_entries": 68092,
+        "delivered_payload_bytes": 349003,
+        "max_join_entries": 65536,
+        "max_outgoing_entries": 16384,
+        "max_separator": 7,
+        "messages": {
+          "dfs_explore": 40,
+          "dfs_return": 19,
+          "dfs_seen": 21,
+          "util": 19,
+          "value": 19
+        },
+        "transmitted_entries": 68092
+      },
+      "outcome": "optimal_cost",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "224ae1325f6fb4c5149d01c890cf8c56d451f7ba8145ce1a97c5bb4124451a1a",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 423084032,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 2.3162431999808177
+      }
+    },
+    {
+      "arm": "independent",
+      "arm_call_seconds": 5.259999306872487e-05,
+      "case_hash": "2b789c226b475a3907950f92ed45e02010b3b086e655ce40bed7bd2b7d899519",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 6,
+        "conflict_rate": 0.1875,
+        "conflicts": [
+          [
+            "ap-02",
+            "ap-04"
+          ],
+          [
+            "ap-02",
+            "ap-14"
+          ],
+          [
+            "ap-04",
+            "ap-14"
+          ],
+          [
+            "ap-05",
+            "ap-14"
+          ],
+          [
+            "ap-06",
+            "ap-11"
+          ],
+          [
+            "ap-07",
+            "ap-08"
+          ]
+        ],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": false,
+        "invalid": [],
+        "missing": [],
+        "objective": null,
+        "unary_cost": 279
+      },
+      "key": "n16-dense-independent-independent",
+      "map_hash": "1b3f5297e669239486b1579bc17ac67cf3af35fe855f2dd7168261bab5d08278",
+      "metrics": {
+        "delivered_entries": 0,
+        "delivered_payload_bytes": 0,
+        "max_join_entries": null,
+        "max_outgoing_entries": null,
+        "max_separator": null,
+        "messages": {},
+        "transmitted_entries": 0
+      },
+      "outcome": "completed",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "742fc5d9213bbdc9fa16c24ecc06460fb81689f25b584839fa4d29baa7c429a0",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 403476480,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.3366997000412084
+      }
+    },
+    {
+      "arm": "dpop",
+      "arm_call_seconds": 0.08567850000690669,
+      "case_hash": "2b789c226b475a3907950f92ed45e02010b3b086e655ce40bed7bd2b7d899519",
+      "evaluation": {
+        "complete": true,
+        "conflict_count": 0,
+        "conflict_rate": 0.0,
+        "conflicts": [],
+        "domain_valid": true,
+        "duplicates": false,
+        "extra": [],
+        "feasible": true,
+        "invalid": [],
+        "missing": [],
+        "objective": 418,
+        "unary_cost": 418
+      },
+      "key": "n16-dense-independent-dpop",
+      "map_hash": "1b3f5297e669239486b1579bc17ac67cf3af35fe855f2dd7168261bab5d08278",
+      "metrics": {
+        "delivered_entries": 3156,
+        "delivered_payload_bytes": 18227,
+        "max_join_entries": 4096,
+        "max_outgoing_entries": 1024,
+        "max_separator": 5,
+        "messages": {
+          "dfs_explore": 32,
+          "dfs_return": 15,
+          "dfs_seen": 17,
+          "util": 15,
+          "value": 15
+        },
+        "transmitted_entries": 3156
+      },
+      "outcome": "optimal_cost",
+      "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+      "record_hash": "8f9d82050196675181241bee1e2a5ec250665bdc65afa098458f2b35deb7482f",
+      "resource": {
+        "error": null,
+        "memory_backend": "windows-job-process-commit",
+        "memory_bootstrap_excluded": false,
+        "peak_process_commit_bytes": 406167552,
+        "returncode": 0,
+        "status": "exited",
+        "wall_seconds": 0.43392779998248443
+      }
+    }
+  ],
+  "status_counts": {
+    "completed": 12,
+    "optimal_cost": 12
+  }
+}

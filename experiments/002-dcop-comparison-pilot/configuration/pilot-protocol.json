@@ -1,0 +1,70 @@
+{
+  "analysis": "descriptive only; no intervals, ranking or population generalization from pilot",
+  "comparison": "paired on identical map, costs, root and budgets; independent choice may be infeasible",
+  "failure_rule": "time_exceeded, memory_exceeded, table_budget_exceeded, execution_error distinct; no objective assigned to failures",
+  "format": "dcop-comparison-pilot-v1",
+  "generator": "random tree plus shuffled candidate edges admitted by NetworkX planarity; non-uniform",
+  "hypothesis": "larger separators increase UTIL burden; independent local choice can conflict",
+  "limits": {
+    "bootstrap_memory": "Python interpreter starts suspended inside the job; all child processes inherit it",
+    "memory_bytes": 536870912,
+    "memory_metric": "Windows Job Object peak process committed bytes",
+    "table_entries": 1000000,
+    "wall_seconds": 30.0,
+    "wall_window": "before Popen until worker termination, includes Python startup"
+  },
+  "main_matrix": {
+    "arms": [
+      "dpop",
+      "independent"
+    ],
+    "cost_seeds_per_map": 10,
+    "densities": [
+      "sparse",
+      "dense"
+    ],
+    "maps_per_stratum": 3,
+    "profiles": [
+      "shared",
+      "independent"
+    ],
+    "scheduled_runs": 960,
+    "sizes": [
+      10,
+      12,
+      16,
+      20
+    ],
+    "status": "not_frozen_or_executed"
+  },
+  "neighbor_order": "ascending",
+  "network": "synthetic planar dual graph; no RF, PHY, traffic or service metrics",
+  "payload_bytes": "sum of compact sorted ASCII JSON encodings of delivered message payloads, without envelopes",
+  "phase": "pilot",
+  "pilot_exclusion": "pilot seeds excluded from the subsequent main study",
+  "pilot_matrix": {
+    "arms": [
+      "dpop",
+      "independent"
+    ],
+    "cost_seeds_per_map": 1,
+    "densities": [
+      "sparse",
+      "dense"
+    ],
+    "maps_per_stratum": 1,
+    "profiles": [
+      "shared",
+      "independent"
+    ],
+    "scheduled_runs": 24,
+    "sizes": [
+      10,
+      16,
+      20
+    ]
+  },
+  "root": "lowest agent ID",
+  "simulation_declaration": "docs/dcop-channel-assignment/simulation-declaration.md",
+  "streams": "SHA-256-derived topology and cost Python MT streams; separated"
+}

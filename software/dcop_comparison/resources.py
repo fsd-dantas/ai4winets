@@ -130,6 +130,7 @@ def supervise(command, limits, *, log_path, env=None):
     peak = None
     try:
         job = Job(limits.memory_bytes)
+        Path(log_path).parent.mkdir(parents=True, exist_ok=True)
         with Path(log_path).open('wb') as log:
             # CREATE_SUSPENDED (0x4): the child runs only once it is inside the job.
             child = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=log,

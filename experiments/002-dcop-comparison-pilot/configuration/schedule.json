@@ -1,0 +1,150 @@
+{
+  "order_seed": 20260923,
+  "protocol_hash": "da157a120adc7cc25b50f099fef25384c21ffffe94eb89e8f04fc45aceb76849",
+  "runs": [
+    {
+      "arm": "dpop",
+      "case_hash": "08c0789752dad16feccc59b52c6a56d1c210c40121ef3beac950aee9c45a6400",
+      "key": "n10-dense-independent",
+      "map_hash": "c49b99511356e8ae3e8ceabe9c0ac989c76c3c06c98144431ddc1ceddd7d3318"
+    },
+    {
+      "arm": "independent",
+      "case_hash": "08c0789752dad16feccc59b52c6a56d1c210c40121ef3beac950aee9c45a6400",
+      "key": "n10-dense-independent",
+      "map_hash": "c49b99511356e8ae3e8ceabe9c0ac989c76c3c06c98144431ddc1ceddd7d3318"
+    },
+    {
+      "arm": "independent",
+      "case_hash": "46142bba52dba4ab0819c55592401bb35ba67921e73083dbe9d4860cd830fc32",
+      "key": "n20-dense-independent",
+      "map_hash": "feb1d8adf26c9610d1b0df6065ad19f0ed59a57fed6609e178be30c183a686e1"
+    },
+    {
+      "arm": "dpop",
+      "case_hash": "46142bba52dba4ab0819c55592401bb35ba67921e73083dbe9d4860cd830fc32",
+      "key": "n20-dense-independent",
+      "map_hash": "feb1d8adf26c9610d1b0df6065ad19f0ed59a57fed6609e178be30c183a686e1"
+    },
+    {
+      "arm": "dpop",
+      "case_hash": "51199ef3938a65432d34fcba7fdce98ce44b86c8be69d40bb3be4423dadb23ef",
+      "key": "n16-dense-shared",
+      "map_hash": "317c880fe5d0dd06b275e535a248dc609e9188a7aa672a746cb568c60a637d2d"
+    },
+    {
+      "arm": "independent",
+      "case_hash": "51199ef3938a65432d34fcba7fdce98ce44b86c8be69d40bb3be4423dadb23ef",
+      "key": "n16-dense-shared",
+      "map_hash": "317c880fe5d0dd06b275e535a248dc609e9188a7aa672a746cb568c60a637d2d"
+    },
+    {
+      "arm": "dpop",
+      "case_hash": "4453b5396d34468cd481ee4482f93f1b8e7e3dd7953b9941f954931dd950dd6b",
+      "key": "n10-dense-shared",
+      "map_hash": "71be4b53133cdbe5ed9e07a78750266dbb0dfd5fd863b50109a32e5f9f8441d9"
+    },
+    {
+      "arm": "independent",
+      "case_hash": "4453b5396d34468cd481ee4482f93f1b8e7e3dd7953b9941f954931dd950dd6b",
+      "key": "n10-dense-shared",
+      "map_hash": "71be4b53133cdbe5ed9e07a78750266dbb0dfd5fd863b50109a32e5f9f8441d9"
+    },
+    {
+      "arm": "independent",
+      "case_hash": "37747c5bd1f4cd6d3c58deeef02d6f5aff64c3b92de66d42697d65808d086ef6",
+      "key": "n16-sparse-shared",
+      "map_hash": "314e34db7a1e8cad2072ee3f547965d0ada36bdc13a1ec0f71f0ba81f0148878"
+    },
+    {
+      "arm": "dpop",
+      "case_hash": "37747c5bd1f4cd6d3c58deeef02d6f5aff64c3b92de66d42697d65808d086ef6",
+      "key": "n16-sparse-shared",
+      "map_hash": "314e34db7a1e8cad2072ee3f547965d0ada36bdc13a1ec0f71f0ba81f0148878"
+    },
+    {
+      "arm": "independent",
+      "case_hash": "f9fdd83eece6943c27657e9ef87e3122a5b1069e5bbd0ccf7d23e6db72a8bac7",
+      "key": "n20-sparse-shared",
+      "map_hash": "bbabc8e65eedbd0e770c788bed33cbd29e8fe65b4ca3ac301c56979c0ba66113"
+    },
+    {
+      "arm": "dpop",
+      "case_hash": "f9fdd83eece6943c27657e9ef87e3122a5b1069e5bbd0ccf7d23e6db72a8bac7",
+      "key": "n20-sparse-shared",
+      "map_hash": "bbabc8e65eedbd0e770c788bed33cbd29e8fe65b4ca3ac301c56979c0ba66113"
+    },
+    {
+      "arm": "independent",
+      "case_hash": "18cc490406acd707c2c1331d2138a5b466e2674df2795b347605c3cc11347647",
+      "key": "n20-sparse-independent",
+      "map_hash": "cf94512c082e174a1d196e9a89e4da7cb19c0158ea2fc946c2c1bfa00c8c836d"
+    },
+    {
+      "arm": "dpop",
+      "case_hash": "18cc490406acd707c2c1331d2138a5b466e2674df2795b347605c3cc11347647",
+      "key": "n20-sparse-independent",
+      "map_hash": "cf94512c082e174a1d196e9a89e4da7cb19c0158ea2fc946c2c1bfa00c8c836d"
+    },
+    {
+      "arm": "dpop",
+      "case_hash": "9e217597cd962928be076c824cb07d67caedc211d8fd1d4e70231452f1e13a08",
+      "key": "n16-sparse-independent",
+      "map_hash": "ebb21e69d21cae7fb40c73643f1aefe052f06ea6bad48d68e8a489cc8ebae239"
+    },
+    {
+      "arm": "independent",
+      "case_hash": "9e217597cd962928be076c824cb07d67caedc211d8fd1d4e70231452f1e13a08",
+      "key": "n16-sparse-independent",
+      "map_hash": "ebb21e69d21cae7fb40c73643f1aefe052f06ea6bad48d68e8a489cc8ebae239"
+    },
+    {
+      "arm": "dpop",
+      "case_hash": "4dde0425da8d760670cc452fea0a74a958f7efcbc8d9ee8903b4c8bd969e4c1b",
+      "key": "n10-sparse-shared",
+      "map_hash": "1cc88df157f73c37177bab02c117319c5d5858a1d56bf07abd4aebd17b71a8e8"
+    },
+    {
+      "arm": "independent",
+      "case_hash": "4dde0425da8d760670cc452fea0a74a958f7efcbc8d9ee8903b4c8bd969e4c1b",
+      "key": "n10-sparse-shared",
+      "map_hash": "1cc88df157f73c37177bab02c117319c5d5858a1d56bf07abd4aebd17b71a8e8"
+    },
+    {
+      "arm": "independent",
+      "case_hash": "4278d8fb99dbe0d42a0f65b543a9dc3ba00ffa72e3fedb57765162d6f35de52f",
+      "key": "n10-sparse-independent",
+      "map_hash": "cceade0e2682948a0d579e67976f93b0e291a26064041a4449088aa004135b6b"
+    },
+    {
+      "arm": "dpop",
+      "case_hash": "4278d8fb99dbe0d42a0f65b543a9dc3ba00ffa72e3fedb57765162d6f35de52f",
+      "key": "n10-sparse-independent",
+      "map_hash": "cceade0e2682948a0d579e67976f93b0e291a26064041a4449088aa004135b6b"
+    },
+    {
+      "arm": "independent",
+      "case_hash": "b5bb2964a4a5966fe735c59350431e82c325ad085b1b7bc0a7c858415bceeed7",
+      "key": "n20-dense-shared",
+      "map_hash": "6c43d9c1fa239506a13a016d6bf046022b06909792165c7c5ea570d1d26b8715"
+    },
+    {
+      "arm": "dpop",
+      "case_hash": "b5bb2964a4a5966fe735c59350431e82c325ad085b1b7bc0a7c858415bceeed7",
+      "key": "n20-dense-shared",
+      "map_hash": "6c43d9c1fa239506a13a016d6bf046022b06909792165c7c5ea570d1d26b8715"
+    },
+    {
+      "arm": "independent",
+      "case_hash": "2b789c226b475a3907950f92ed45e02010b3b086e655ce40bed7bd2b7d899519",
+      "key": "n16-dense-independent",
+      "map_hash": "1b3f5297e669239486b1579bc17ac67cf3af35fe855f2dd7168261bab5d08278"
+    },
+    {
+      "arm": "dpop",
+      "case_hash": "2b789c226b475a3907950f92ed45e02010b3b086e655ce40bed7bd2b7d899519",
+      "key": "n16-dense-independent",
+      "map_hash": "1b3f5297e669239486b1579bc17ac67cf3af35fe855f2dd7168261bab5d08278"
+    }
+  ]
+}
